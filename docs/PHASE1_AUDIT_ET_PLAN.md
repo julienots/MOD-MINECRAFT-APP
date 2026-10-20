@@ -173,8 +173,8 @@ Légende : ✅ réalisable avec les fonctions stables de Bedrock — 🟡 réali
 | Sons | ✅ | `sounds/` + `sound_definitions.json`, formats `.ogg`/`.wav`. |
 | Structures | ✅ | `.mcstructure` + commande `/structure` ou génération mondiale (feature rules). |
 | Donjons générés aléatoirement | 🟡 | Les structures « jigsaw » data-driven existent dans les versions récentes : **support exact à vérifier** en phase 3 avant d'être proposé. Repli : placement par script. |
-| Portails personnalisés | 🟡 | Bloc personnalisé + script qui détecte le cadre et téléporte. Pas d'effet « portail du Nether » natif. |
-| Dimensions personnalisées | ❌ | Aucun mécanisme vérifié pour créer une vraie nouvelle dimension par addon. **Alternative honnête :** une zone isolée de l'Overworld (ou de l'End) avec téléportation, structures et effets. Sera revérifié à chaque nouvelle version cible. |
+| Portails personnalisés | 🟡 | Bloc personnalisé + script qui détecte le cadre et téléporte, y compris **vers une dimension personnalisée**. Pas d'effet « portail du Nether » natif. |
+| Dimensions personnalisées | ✅ (Script API, ≥ 1.26.30) | **Vérifié le 20/10/2026** (voir section 5 bis) : `registerCustomDimension` est dans l'API **stable** `@minecraft/server` depuis la 2.8.0 (Minecraft 1.26.30). La dimension naît **vide (générateur « void »)** : le terrain doit être construit par script ou par structures. |
 | Biomes personnalisés | 🟡 | Fichiers `biomes/` existent ; la génération de terrain personnalisée dépend d'expérimentations. Avertissement affiché. |
 | Interfaces personnalisées | 🟡 | Formulaires officiels `@minecraft/server-ui` (menus, boutons, curseurs). La modification du HUD par « JSON UI » n'est pas une API officielle : non prise en charge au départ. |
 | Systèmes de magie, compétences, classes, quêtes, progression, familiers, compagnons, transformations | 🟡 | Générés en Script API + propriétés dynamiques + scoreboards. Réalisable, mais demande Script API : le pack nécessite la dépendance `@minecraft/server`. |
@@ -183,6 +183,38 @@ Légende : ✅ réalisable avec les fonctions stables de Bedrock — 🟡 réali
 | Assistant en langage naturel hors ligne | 🟡 | Analyse par mots-clés et modèles prédéfinis (règles déterministes, honnêtement limitées). |
 | Assistant avec IA externe | ✅ (optionnel) | Si tu configures ta propre clé. L'IA produit un *plan structuré* validé par l'app, jamais des fichiers bruts acceptés sans contrôle. |
 | Mods Java (Forge, Fabric, `.jar`) | ❌ | Incompatibles avec Bedrock. L'import les refusera avec une explication. |
+
+## 5 bis. Vérification : dimensions personnalisées (demandée le 20/10/2026)
+
+**Résultat : oui, on peut créer de vraies dimensions personnalisées dans un addon Bedrock**, à partir de Minecraft **1.26.30**.
+
+Preuves consultées (définitions TypeScript officielles du paquet npm `@minecraft/server`, publié par Mojang) :
+
+| Version `@minecraft/server` (stable) | Version Minecraft | `registerCustomDimension` |
+|---|---|---|
+| 2.5.0 → 2.7.0 | 1.26.0 → 1.26.20 | absent |
+| **2.8.0** | **1.26.30** | **présent** |
+| 2.9.0 | 1.26.40 | présent |
+| 2.10.0 | 1.26.50 | présent |
+
+Ce que dit la documentation officielle de l'API (texte des définitions) :
+- L'enregistrement se fait **uniquement** pendant l'événement de démarrage `system.beforeEvents.startup`, via `event.dimensionRegistry.registerCustomDimension("espace:nom")`.
+- L'identifiant doit avoir un espace de noms (`monaddon:ma_dimension`).
+- La dimension est créée avec le **générateur vide (« void »)** : pas de terrain, pas de biome, pas de génération automatique.
+- Une nouvelle dimension ne peut pas être ajoutée par la commande `/reload` : il faut recharger le monde.
+- On y accède avec `world.getDimension("espace:nom")` puis `player.teleport(..., { dimension })`.
+
+Ce que l'application générera (phase 3) :
+1. Le script d'enregistrement de la dimension et la dépendance `@minecraft/server` dans le manifeste.
+2. Une plateforme ou une structure d'arrivée (blocs posés par script, zone de chargement `tickingAreaManager` avant de construire ou de téléporter).
+3. Un moyen d'y aller : portail (bloc personnalisé + détection du cadre), objet, ou commande personnalisée.
+4. Optionnellement un terrain simple généré par script (îles, plateformes, salles de donjon).
+
+Limites honnêtes :
+- Pas de générateur de terrain intégré : tout terrain est construit par script, donc plus lent et plus limité qu'une génération native.
+- Ciel, brouillard, biome et musique propres à la dimension : **non vérifiés**, ne seront proposés qu'après vérification.
+- Le monde doit être en version **1.26.30 ou plus**. L'application bloquera l'option pour une version cible plus ancienne.
+- Comme pour tout le reste, le fonctionnement réel devra être confirmé en jeu sur ton téléphone.
 
 ---
 
@@ -198,7 +230,7 @@ Profils de départ prévus :
 | Profil | Statut |
 |---|---|
 | **1.26.50** (actuelle) | Vérifié à partir des échantillons officiels, `@minecraft/server 2.10.0`. Profil par défaut. |
-| 1.26.30, 1.26.40 | Vérifiés à partir des échantillons officiels correspondants avant d'être activés. |
+| 1.26.30, 1.26.40 | Vérifiés à partir des échantillons officiels (tags `v1.26.30.5`, `v1.26.40.05`) et de `@minecraft/server` 2.8.0 / 2.9.0. |
 | Versions antérieures | Ajoutées uniquement après vérification, jamais devinées. |
 
 Les fonctionnalités non disponibles dans la version choisie seront grisées avec une explication.
@@ -247,7 +279,7 @@ Chaque palier se termine par : tests verts, APK compilé, documentation à jour,
 6. Assistant boss multi-phases.
 7. Éditeur de logique par nœuds + compilateur.
 8. Éditeur de scripts + modèles de scripts + validation des dépendances d'API.
-9. Structures (NBT `.mcstructure`), coffres et butin, portails par script.
+9. Structures (NBT `.mcstructure`), coffres et butin, portails par script, **dimensions personnalisées** (≥ 1.26.30).
 10. Systèmes de gameplay (magie, classes, quêtes, progression...) générés en Script API.
 11. Bibliothèque de composants originaux, assistant en langage naturel (hors ligne + IA optionnelle).
 
