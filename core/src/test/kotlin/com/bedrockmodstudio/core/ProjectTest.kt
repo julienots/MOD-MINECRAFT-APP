@@ -212,6 +212,20 @@ class ProjectTest {
     }
 
     @Test
+    fun `parametres du projet repercutes dans les manifestes`() {
+        val store = ProjectStore(tempDir())
+        val meta = store.create("Ancien nom")
+        val r = com.bedrockmodstudio.core.storage.ProjectSettings.update(store, meta.id, "Nouveau nom", "Desc", "Moi", BedrockVersions.V1_26_30)
+        assertEquals(2, r.updatedFiles.size)
+        val bp = JsonParser.parseOrThrow(store.files(meta.id).readText("behavior_pack/manifest.json"))
+        assertEquals("Nouveau nom (Behavior Pack)", bp.path("header", "name")?.asString)
+        assertEquals("[1, 26, 30]", bp.path("header", "min_engine_version").toString())
+        assertEquals("1.26.30", store.load(meta.id).targetVersion)
+        assertEquals(1, store.files(meta.id).history("behavior_pack/manifest.json").size)
+        assertEquals(emptyList(), validate(store, meta.id).errors)
+    }
+
+    @Test
     fun `profils de versions`() {
         assertEquals("1.26.50", BedrockVersions.closestFor(listOf(1, 26, 60)).id)
         assertEquals("1.26.40", BedrockVersions.closestFor(listOf(1, 26, 45)).id)

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Textes de l'application. Français par défaut ; pour une autre langue, copier ce fichier dans res/values-xx/. -->
+<resources>
+    <string name="app_name">Bedrock Mod Studio</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Accueil</string>
+    <string name="nav_projects">Projets</string>
+    <string name="nav_settings">Paramètres</string>
+    <string name="back">Retour</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Confirmer</string>
+    <string name="ok">OK</string>
+    <string name="close">Fermer</string>
+    <string name="save">Enregistrer</string>
+    <string name="delete">Supprimer</string>
+    <string name="rename">Renommer</string>
+    <string name="duplicate">Dupliquer</string>
+    <string name="restore">Restaurer</string>
+    <string name="history">Historique</string>
+    <string name="more_actions">Plus d\'actions</string>
+    <string name="loading">Chargement…</string>
+
+    <!-- Accueil -->
+    <string name="home_tagline">Crée des addons Minecraft Bedrock sans écrire de code.</string>
+    <string name="home_create_mod">Créer un mod</string>
+    <string name="home_import">Importer un addon</string>
+    <string name="home_import_desc">.mcaddon, .mcpack ou sauvegarde .zip</string>
+    <string name="home_example">Ouvrir le projet d\'exemple</string>
+    <string name="home_example_desc">Une créature complète, prête à exporter</string>
+    <string name="home_recent">Projets récents</string>
+    <string name="home_no_projects">Aucun projet pour l\'instant. Appuie sur « Créer un mod » pour commencer.</string>
+    <string name="home_see_all">Voir tous les projets</string>
+    <string name="welcome_title">Bienvenue !</string>
+    <string name="welcome_body">1. Crée un projet avec « Créer un mod ».\n2. Ajoute une créature avec l\'assistant, ou modifie les fichiers.\n3. Appuie sur « Exporter » puis « Ouvrir avec Minecraft ».\n\nAstuce : le projet d\'exemple montre un addon complet.</string>
+    <string name="welcome_dismiss">J\'ai compris</string>
+    <string name="broken_projects">%1$d dossier(s) de projet illisible(s) ont été trouvés. Ils ne sont pas supprimés.</string>
+    <string name="importing">Import en cours…</string>
+    <string name="drafts_found">Des modifications non enregistrées ont été récupérées dans « %1$s ».</string>
+
+    <!-- Projets -->
+    <string name="projects_title">Mes projets</string>
+    <string name="projects_search">Rechercher un projet</string>
+    <string name="projects_trash">Corbeille des projets</string>
+    <string name="project_delete_title">Supprimer le projet ?</string>
+    <string name="project_delete_body">« %1$s » sera déplacé dans la corbeille des projets. Tu pourras le restaurer depuis les paramètres.</string>
+    <string name="project_updated">Modifié le %1$s</string>
+
+    <!-- Nouveau projet -->
+    <string name="new_project_title">Nouveau mod</string>
+    <string name="field_project_name">Nom du mod</string>
+    <string name="field_project_name_help">Le nom affiché dans Minecraft. Exemple : « Créatures de la forêt ».</string>
+    <string name="field_description">Description</string>
+    <string name="field_description_help">Une phrase affichée sous le nom du pack dans Minecraft.</string>
+    <string name="field_author">Auteur</string>
+    <string name="field_namespace">Espace de noms</string>
+    <string name="field_namespace_help">Préfixe unique de tes identifiants (ex. « monmod » dans monmod:dragon). Minuscules, chiffres et _ uniquement. Il ne pourra plus être changé ensuite.</string>
+    <string name="field_target_version">Version de Minecraft ciblée</string>
+    <string name="field_target_version_help">Les joueurs devront avoir au moins cette version. Choisis la plus récente sauf besoin particulier.</string>
+    <string name="create">Créer</string>
+
+    <!-- Tableau de bord du projet -->
+    <string name="project_namespace_version">%1$s · Minecraft %2$s · v%3$s</string>
+    <string name="action_mob">Créer une créature</string>
+    <string name="action_mob_desc">Assistant : apparence, vie, attaque, butin…</string>
+    <string name="action_files">Fichiers</string>
+    <string name="action_files_desc">Explorer et modifier les fichiers du pack</string>
+    <string name="action_validate">Vérifier</string>
+    <string name="action_validate_desc">Détecter les erreurs avant l\'export</string>
+    <string name="action_export">Exporter</string>
+    <string name="action_export_desc">.mcaddon, .mcpack, sauvegarde</string>
+    <string name="action_search">Rechercher</string>
+    <string name="action_search_desc">Trouver un identifiant dans tout le projet</string>
+    <string name="action_project_settings">Paramètres du projet</string>
+    <string name="action_project_settings_desc">Nom, description, version ciblée</string>
+    <string name="action_trash">Corbeille du projet</string>
+    <string name="action_trash_desc">Restaurer des fichiers supprimés</string>
+    <string name="project_imported_note">Projet importé : le fichier d\'origine est conservé intact dans le projet.</string>
+
+    <!-- Explorateur -->
+    <string name="files_title">Fichiers</string>
+    <string name="files_empty">Dossier vide.</string>
+    <string name="new_file">Nouveau fichier</string>
+    <string name="new_folder">Nouveau dossier</string>
+    <string name="import_file">Importer un fichier ici</string>
+    <string name="file_name">Nom</string>
+    <string name="delete_file_title">Supprimer « %1$s » ?</string>
+    <string name="delete_file_body">L\'élément sera déplacé dans la corbeille du projet, d\'où tu pourras le restaurer.</string>
+    <string name="file_imported">Fichier ajouté : %1$s</string>
+    <string name="moved_to_trash">Déplacé dans la corbeille.</string>
+
+    <!-- Éditeur -->
+    <string name="editor_saved">Enregistré.</string>
+    <string name="editor_undo">Annuler la modification</string>
+    <string name="editor_redo">Rétablir</string>
+    <string name="editor_format">Mettre en forme</string>
+    <string name="editor_json_ok">JSON valide</string>
+    <string name="editor_json_error">Ligne %1$d, colonne %2$d : %3$s</string>
+    <string name="editor_unsaved_title">Modifications non enregistrées</string>
+    <string name="editor_unsaved_body">Enregistrer avant de quitter ?</string>
+    <string name="editor_discard">Ne pas enregistrer</string>
+    <string name="editor_draft_title">Récupération</string>
+    <string name="editor_draft_body">Des modifications non enregistrées de ce fichier ont été retrouvées (fermeture inattendue ?). Les récupérer ?</string>
+    <string name="editor_draft_recover">Récupérer</string>
+    <string name="editor_draft_ignore">Ignorer</string>
+    <string name="editor_invalid_save_title">JSON invalide</string>
+    <string name="editor_invalid_save_body">Le fichier contient une erreur de syntaxe. Minecraft ne pourra pas le lire tant qu\'elle n\'est pas corrigée. Enregistrer quand même ?</string>
+    <string name="editor_binary">Ce type de fichier ne se modifie pas encore dans l\'application. Il est conservé tel quel et sera inclus dans l\'export.</string>
+    <string name="editor_image_size">Image %1$d × %2$d pixels</string>
+    <string name="editor_too_big">Fichier trop volumineux pour l\'éditeur (plus de 2 Mo).</string>
+    <string name="file_size">Taille : %1$s</string>
+
+    <!-- Historique et corbeille -->
+    <string name="history_title">Historique : %1$s</string>
+    <string name="history_empty">Aucune version précédente.</string>
+    <string name="history_restore_title">Restaurer cette version ?</string>
+    <string name="history_restore_body">La version actuelle sera elle-même conservée dans l\'historique.</string>
+    <string name="history_restored">Version restaurée.</string>
+    <string name="history_preview">Aperçu</string>
+    <string name="trash_title">Corbeille du projet</string>
+    <string name="trash_empty">La corbeille est vide.</string>
+    <string name="trash_empty_action">Vider définitivement</string>
+    <string name="trash_empty_title">Vider la corbeille ?</string>
+    <string name="trash_empty_body">Les éléments seront supprimés définitivement. Cette action est irréversible.</string>
+    <string name="trash_restored">Restauré : %1$s</string>
+    <string name="deleted_on">Supprimé le %1$s</string>
+
+    <!-- Recherche -->
+    <string name="search_title">Rechercher dans le projet</string>
+    <string name="search_hint">Identifiant, texte, nom de fichier…</string>
+    <string name="search_no_result">Aucun résultat.</string>
+    <string name="search_line">ligne %1$d</string>
+
+    <!-- Validation -->
+    <string name="validation_title">Vérification</string>
+    <string name="validation_running">Vérification en cours…</string>
+    <string name="validation_summary">%1$d fichier(s) JSON analysé(s) · %2$d erreur(s) · %3$d avertissement(s)</string>
+    <string name="validation_all_good">Aucune erreur : le projet peut être exporté.</string>
+    <string name="validation_has_errors">Les erreurs doivent être corrigées avant l\'export.</string>
+    <string name="validation_rerun">Relancer</string>
+    <string name="validation_disclaimer">Cette vérification contrôle la structure des fichiers. Seul un essai dans Minecraft prouve que l\'addon fonctionne en jeu.</string>
+
+    <!-- Export -->
+    <string name="export_title">Exporter</string>
+    <string name="export_bump">Augmenter la version automatiquement</string>
+    <string name="export_bump_help">Nécessaire pour que Minecraft remplace une version déjà installée du même addon.</string>
+    <string name="export_running">Vérification et construction de l\'archive…</string>
+    <string name="export_done">Fichier prêt : %1$s</string>
+    <string name="export_blocked">Export bloqué : %1$d erreur(s) à corriger. Aucun fichier n\'a été créé.</string>
+    <string name="export_failed">Échec de l\'export : %1$s</string>
+    <string name="export_save_as">Enregistrer dans…</string>
+    <string name="export_open_minecraft">Ouvrir avec Minecraft</string>
+    <string name="export_share">Partager</string>
+    <string name="export_saved">Fichier enregistré.</string>
+    <string name="export_minecraft_missing">Minecraft n\'est pas détecté sur cet appareil. Utilise « Enregistrer dans… » puis ouvre le fichier depuis ton gestionnaire de fichiers, ou « Partager ».</string>
+    <string name="export_no_app">Aucune application ne peut ouvrir ce fichier.</string>
+    <string name="export_see_errors">Voir les erreurs</string>
+    <string name="export_test_help">Pour tester : ouvre l\'addon avec Minecraft, crée un monde, active les deux packs dans « Packs de comportements » et « Packs de ressources ». En cas de problème, active « Journal du contenu » dans Paramètres → Créateur de Minecraft pour voir les erreurs.</string>
+    <string name="export_desc_mcaddon">Contient le behavior pack et le resource pack. C\'est le fichier à ouvrir avec Minecraft.</string>
+    <string name="export_desc_bp">Seulement les comportements (entités, recettes, butins…).</string>
+    <string name="export_desc_rp">Seulement l\'apparence (textures, modèles, sons…).</string>
+    <string name="export_desc_backup">Copie complète du projet pour le conserver ou le transférer. Se restaure avec « Importer un addon ».</string>
+
+    <!-- Import -->
+    <string name="import_report_title">Rapport d\'import</string>
+    <string name="import_packs">Packs trouvés</string>
+    <string name="import_recognized">Ressources reconnues</string>
+    <string name="import_editable">%1$d fichier(s) modifiables (texte) · %2$d fichier(s) binaires conservés</string>
+    <string name="import_unknown">Formats inconnus (conservés)</string>
+    <string name="import_invalid_json">JSON invalides</string>
+    <string name="import_dependencies">Dépendances</string>
+    <string name="import_skipped">Éléments ignorés</string>
+    <string name="import_notes">Remarques</string>
+    <string name="import_validation">Vérification : %1$d erreur(s), %2$d avertissement(s)</string>
+    <string name="import_open_project">Ouvrir le projet</string>
+    <string name="import_rejected_title">Import impossible</string>
+
+    <!-- Assistant créature -->
+    <string name="mob_title">Nouvelle créature</string>
+    <string name="mob_name">Nom de la créature</string>
+    <string name="mob_name_help">Nom affiché en jeu (ex. « Loup des neiges »).</string>
+    <string name="mob_id">Identifiant</string>
+    <string name="mob_id_help">Utilisé dans les fichiers : %1$s:%2$s. Minuscules, chiffres et _.</string>
+    <string name="mob_temperament">Comportement</string>
+    <string name="mob_health">Santé : %1$d (%2$s cœurs)</string>
+    <string name="mob_health_help">Points de vie. Un zombie en a 20.</string>
+    <string name="mob_speed">Vitesse : %1$s</string>
+    <string name="mob_speed_help">0,25 = vitesse d\'un zombie ; 0,35 = rapide.</string>
+    <string name="mob_damage">Dégâts : %1$d (%2$s cœurs par coup)</string>
+    <string name="mob_damage_help">Un zombie inflige 3 points de dégâts.</string>
+    <string name="mob_follow">Distance de détection : %1$d blocs</string>
+    <string name="mob_follow_help">Jusqu\'où la créature repère le joueur.</string>
+    <string name="mob_scale">Taille : × %1$s</string>
+    <string name="mob_scale_help">Multiplie la taille du modèle et de la zone de collision.</string>
+    <string name="mob_body_color">Couleur principale</string>
+    <string name="mob_accent_color">Couleur secondaire</string>
+    <string name="mob_xp">Expérience à la mort : %1$d</string>
+    <string name="mob_loot">Butin</string>
+    <string name="mob_loot_amount">Quantité : %1$d à %2$d</string>
+    <string name="mob_spawn">Apparition naturelle</string>
+    <string name="mob_spawn_help">La créature apparaît d\'elle-même à la surface de l\'Overworld (la nuit si elle est hostile).</string>
+    <string name="mob_spawn_weight">Fréquence : %1$d</string>
+    <string name="mob_preview">Aperçu de la texture générée</string>
+    <string name="mob_generate">Générer la créature</string>
+    <string name="mob_overwrite_title">Remplacer les fichiers existants ?</string>
+    <string name="mob_overwrite_body">Ces fichiers existent déjà :\n%1$s\n\nLes anciennes versions resteront disponibles dans l\'historique.</string>
+    <string name="mob_overwrite_action">Remplacer</string>
+    <string name="mob_created">Créature créée : %1$d fichier(s) écrit(s).</string>
+    <string name="mob_files_written">Fichiers créés ou modifiés :</string>
+    <string name="mob_test_hint">Pour la voir en jeu : exporte l\'addon, puis utilise son œuf d\'apparition (onglet Nature de l\'inventaire créatif) ou la commande /summon %1$s.</string>
+
+    <!-- Paramètres du projet -->
+    <string name="project_settings_title">Paramètres du projet</string>
+    <string name="project_settings_saved">Paramètres enregistrés.</string>
+    <string name="project_uuids">Identifiants techniques (UUID)</string>
+    <string name="project_uuids_help">Ils permettent à Minecraft de reconnaître ton addon lors des mises à jour. Ils ne changent jamais.</string>
+    <string name="project_namespace_fixed">Espace de noms : %1$s (non modifiable)</string>
+    <string name="project_version_feature_note">Fonctions disponibles avec cette version :</string>
+
+    <!-- Paramètres de l'application -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_default_version">Version ciblée par défaut</string>
+    <string name="settings_error_log">Journal des erreurs</string>
+    <string name="settings_error_log_desc">Erreurs techniques enregistrées par l\'application.</string>
+    <string name="settings_error_log_empty">Aucune erreur enregistrée.</string>
+    <string name="settings_error_log_clear">Vider le journal</string>
+    <string name="settings_error_log_clear_title">Vider le journal des erreurs ?</string>
+    <string name="settings_copy">Copier</string>
+    <string name="settings_copied">Copié dans le presse-papiers.</string>
+    <string name="settings_projects_trash_empty">Aucun projet dans la corbeille.</string>
+    <string name="settings_about">À propos</string>
+    <string name="settings_about_body">Bedrock Mod Studio %1$s\nÉditeur d\'addons pour Minecraft Bedrock Edition. Fonctionne entièrement hors ligne.\n\nCe logiciel n\'est ni affilié ni approuvé par Mojang ou Microsoft. « Minecraft » est une marque de Mojang Synergies AB.\n\nToutes les textures et modèles générés par l\'application sont originaux.</string>
+    <string name="settings_limits">Limites connues</string>
+    <string name="settings_limits_body">• L\'application vérifie la structure des fichiers ; seul Minecraft peut confirmer le fonctionnement en jeu.\n• Les mods Java Edition (.jar, Forge, Fabric) ne sont pas compatibles avec Bedrock.\n• Les dimensions personnalisées existent depuis Minecraft 1.26.30 (API de scripts) ; elles naissent vides et leur éditeur arrive dans une prochaine version.\n• Les fichiers binaires (sons, structures) sont conservés mais pas encore modifiables.</string>
+</resources>

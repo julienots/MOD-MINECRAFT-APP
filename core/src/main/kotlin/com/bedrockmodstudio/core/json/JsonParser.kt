@@ -37,7 +37,7 @@ class JsonParser private constructor(private val text: String) {
         fun parse(text: String): JsonParseResult {
             val p = JsonParser(text)
             return try {
-                if (p.peekChar() == '﻿') p.advance()
+                if (p.peekChar() == '\uFEFF') p.advance()
                 p.skipWhitespace()
                 if (p.atEnd()) p.fail("Le fichier est vide : un objet JSON était attendu.")
                 val value = p.readValue(0)

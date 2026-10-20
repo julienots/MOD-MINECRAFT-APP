@@ -95,7 +95,7 @@ class ProjectFiles(val root: File) {
         return f.readBytes()
     }
 
-    fun readText(relPath: String): String = readBytes(relPath).toString(Charsets.UTF_8).removePrefix("﻿")
+    fun readText(relPath: String): String = readBytes(relPath).toString(Charsets.UTF_8).removePrefix("\uFEFF")
 
     /** Écrit un fichier ; l'ancienne version (s'il y en a une) part dans l'historique. */
     fun write(relPath: String, bytes: ByteArray, reason: String = "Modification") {

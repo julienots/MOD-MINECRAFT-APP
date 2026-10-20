@@ -307,6 +307,27 @@ APK, code source, guide d'installation, guide d'ouverture dans Minecraft, résul
 
 ---
 
-## 10. Prochaine étape
+## 10. État d'avancement
 
-Lancer la phase 2, point 1 : créer le projet Android multi-modules et le workflow GitHub Actions, puis vérifier qu'il compile ici et dans GitHub.
+### Phase 2 — socle : livrée (20/10/2026)
+
+Points 1 à 11 du plan de phase 2 réalisés, avec deux écarts assumés :
+- le cœur est **un seul module** `core/` (paquets `json`, `bedrock`, `storage`, `validation`, `packaging`, `image`) au lieu de cinq : plus simple à compiler, découpable plus tard sans réécriture ;
+- un **assistant de créature de base** a été avancé de la phase 3, car il sert au projet d'exemple et permet déjà le parcours complet « créer → exporter → jouer ».
+
+Vérification croisée avec les échantillons officiels 1.26.50 : chaque composant d'entité généré est utilisé par des entités vanilla. Correction faite grâce à elle : `minecraft:behavior.melee_attack` (1 seule entité vanilla) remplacé par `minecraft:behavior.melee_box_attack` (32 entités vanilla).
+
+Tests exécutés dans l'environnement de développement :
+
+| Suite | Résultat |
+|---|---|
+| `:core:test` (JSON, projets, historique, corbeille, validation, export, import, zip slip, bombe zip, refus des mods Java) | 32/32 ✅ |
+| `:app:testDebugUnitTest` (Robolectric : exemple → vérifier → exporter ; nouveau projet → créature ; éditeur → erreur JSON → enregistrement → historique ; paramètres) | 4/4 ✅ |
+| `:app:lintDebug` (y compris compatibilité Android 8 du module cœur) | 0 erreur ✅ |
+| `:app:assembleDebug` | APK signé ✅ |
+
+**Non testé :** chargement réel dans Minecraft, et exécution sur un vrai téléphone. Ces deux essais sont à faire en premier.
+
+### Prochaine étape : phase 3
+
+Ordre prévu : catalogue des composants valides par version (extrait des échantillons officiels) pour avertir sur les composants inconnus → assistant objets/armes/armures/blocs/recettes → éditeur de textures → éditeur 3D → animations → boss multi-phases → logique par nœuds → scripts → structures, portails et dimensions personnalisées.

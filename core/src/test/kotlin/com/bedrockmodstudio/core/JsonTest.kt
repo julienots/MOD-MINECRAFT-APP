@@ -27,7 +27,7 @@ class JsonTest {
 
     @Test
     fun `accepte le BOM UTF-8`() {
-        assertIs<JsonParseResult.Success>(JsonParser.parse("﻿{\"a\": 1}"))
+        assertIs<JsonParseResult.Success>(JsonParser.parse("\uFEFF{\"a\": 1}"))
     }
 
     @Test
