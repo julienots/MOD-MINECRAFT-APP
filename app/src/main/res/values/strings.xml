@@ -302,4 +302,22 @@
     <string name="recipe_item">Objet</string>
     <string name="recipe_empty_cell">Vider la case</string>
     <string name="recipe_test_hint">La recette apparaît dans le livre de recettes après avoir ramassé l\'un des ingrédients.</string>
+
+    <!-- Éditeur de textures -->
+    <string name="tex_edit">Modifier dans l\'éditeur de textures</string>
+    <string name="tex_new">Nouvelle texture</string>
+    <string name="tex_new_size">Taille : %1$d × %2$d pixels</string>
+    <string name="tex_new_help">16 × 16 pour un objet ou un bloc ; 64 × 64 pour une créature ; 64 × 32 pour une armure.</string>
+    <string name="tex_mirror">Symétrie gauche/droite</string>
+    <string name="tex_grid">Grille</string>
+    <string name="tex_resize">Taille de l\'image</string>
+    <string name="tex_width">Largeur : %1$d</string>
+    <string name="tex_height">Hauteur : %1$d</string>
+    <string name="tex_stretch">Étirer le dessin</string>
+    <string name="tex_resize_help">Sans étirement, le dessin garde sa taille et la toile est agrandie ou rognée. Attention : un modèle 3D attend la taille de texture déclarée dans son fichier .geo.json.</string>
+    <string name="tex_color">Couleur</string>
+    <string name="tex_hue">Teinte</string>
+    <string name="tex_saturation">Saturation</string>
+    <string name="tex_brightness">Luminosité</string>
+    <string name="tex_opacity">Opacité</string>
 </resources>

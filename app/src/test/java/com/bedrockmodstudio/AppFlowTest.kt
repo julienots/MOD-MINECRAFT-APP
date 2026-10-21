@@ -12,6 +12,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import org.junit.Assert.assertEquals
@@ -51,6 +53,17 @@ class AppFlowTest {
     private fun back() = rule.runOnUiThread { rule.activity.onBackPressedDispatcher.onBackPressed() }
 
     private val app get() = rule.activity.container
+
+    /** Ouvre un fichier en touchant chaque dossier dans l'explorateur, en faisant défiler la liste si besoin. */
+    private fun openInExplorer(path: String) {
+        click("Fichiers")
+        for (segment in path.split('/')) {
+            rule.waitUntil(15_000) { rule.onAllNodes(hasScrollToNodeAction()).fetchSemanticsNodes().isNotEmpty() }
+            rule.onNode(hasScrollToNodeAction()).performScrollToNode(hasText(segment))
+            rule.onNode(hasText(segment) and androidx.compose.ui.test.hasClickAction()).performClick()
+            rule.waitForIdle()
+        }
+    }
 
     @Test
     fun `projet d'exemple - verification puis export mcaddon`() {
@@ -172,5 +185,28 @@ class AppFlowTest {
         assertTrue(files.exists("behavior_pack/recipes/emerald_four.json"))
         val report = app.exporter.validate(project.meta.id)
         assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
+    }
+
+    @Test
+    fun `editeur de textures - dessin au doigt, annuler, enregistrer`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Fichiers")
+        val project = app.store.list().single()
+        val path = "resource_pack/textures/items/croc.png"
+        val before = app.store.files(project.meta.id).readBytes(path)
+        openInExplorer(path)
+        waitText("Modifier dans l'éditeur de textures")
+        click("Modifier dans l'éditeur de textures")
+        waitText("Crayon")
+        rule.waitForIdle()
+        val canvas = rule.onNode(androidx.compose.ui.test.hasTestTag("pixel_canvas"))
+        canvas.performTouchInput { down(center); moveBy(androidx.compose.ui.geometry.Offset(120f, 40f)); up() }
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("Annuler la modification").assertIsEnabled()
+        rule.onNodeWithContentDescription("Enregistrer").performClick()
+        rule.waitUntil(10_000) { !app.store.files(project.meta.id).readBytes(path).contentEquals(before) }
+        val after = app.store.files(project.meta.id).readBytes(path)
+        assertEquals(com.bedrockmodstudio.core.image.PngInfo.Size(16, 16), com.bedrockmodstudio.core.image.PngInfo.read(after))
+        assertEquals(1, app.store.files(project.meta.id).history(path).size)
     }
 }

@@ -123,7 +123,13 @@ fun EditorScreen(nav: NavHostController, id: String, path: String, line: Int) {
             when (vm.kind) {
                 EditorViewModel.Kind.LOADING -> LoadingBox()
                 EditorViewModel.Kind.TEXT -> TextEditor(vm)
-                EditorViewModel.Kind.IMAGE -> ImageViewer(vm)
+                EditorViewModel.Kind.IMAGE -> Column {
+                    if (path.endsWith(".png", ignoreCase = true)) androidx.compose.material3.Button(
+                        onClick = { nav.navigate(Routes.texture(id, path)) },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) { Text(stringResource(R.string.tex_edit)) }
+                    ImageViewer(vm)
+                }
                 EditorViewModel.Kind.BINARY -> Column(Modifier.padding(16.dp)) {
                     InfoCard(stringResource(R.string.editor_binary))
                     Text(stringResource(R.string.file_size, formatSize(vm.size)), Modifier.padding(top = 12.dp))

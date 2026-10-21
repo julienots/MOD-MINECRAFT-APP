@@ -80,6 +80,7 @@ import kotlinx.coroutines.withContext
 private sealed class FileDialog {
     data object NewFile : FileDialog()
     data object NewFolder : FileDialog()
+    data object NewTexture : FileDialog()
     data class Rename(val entry: FileEntry) : FileDialog()
     data class Delete(val entry: FileEntry) : FileDialog()
 }
@@ -158,6 +159,8 @@ fun FileExplorerScreen(nav: NavHostController, id: String, dir: String) {
                         onClick = { fabMenu = false; dialog = FileDialog.NewFile })
                     DropdownMenuItem(text = { Text(stringResource(R.string.new_folder)) }, leadingIcon = { Icon(Icons.Filled.CreateNewFolder, null) },
                         onClick = { fabMenu = false; dialog = FileDialog.NewFolder })
+                    DropdownMenuItem(text = { Text(stringResource(R.string.tex_new)) }, leadingIcon = { Icon(Icons.Filled.Image, null) },
+                        onClick = { fabMenu = false; dialog = FileDialog.NewTexture })
                     DropdownMenuItem(text = { Text(stringResource(R.string.import_file)) }, leadingIcon = { Icon(Icons.Filled.UploadFile, null) },
                         onClick = { fabMenu = false; importLauncher.launch(arrayOf("*/*")) })
                 }
@@ -200,6 +203,18 @@ fun FileExplorerScreen(nav: NavHostController, id: String, dir: String) {
         FileDialog.NewFolder -> TextInputDialog(
             stringResource(R.string.new_folder), stringResource(R.string.file_name), validate = { ProjectFiles.validateName(it) },
             onConfirm = { name -> dialog = null; op { files.createFolder(child(name)); null } },
+            onDismiss = { dialog = null },
+        )
+        FileDialog.NewTexture -> NewTextureDialog(
+            validate = { ProjectFiles.validateName(if (it.endsWith(".png")) it else "$it.png") },
+            onConfirm = { name, w, h ->
+                dialog = null
+                val file = child(if (name.endsWith(".png")) name else "$name.png")
+                scope.launch(Dispatchers.Main.immediate) {
+                    val r = withContext(Dispatchers.IO) { runCatching { files.createFile(file, com.bedrockmodstudio.core.image.PixelImage(w, h).toPng()) } }
+                    r.onSuccess { nav.navigate(Routes.texture(id, file)) }.onFailure { snackbar.showSnackbar(it.message ?: "Erreur") }
+                }
+            },
             onDismiss = { dialog = null },
         )
         is FileDialog.Rename -> TextInputDialog(
@@ -260,4 +275,30 @@ private fun FileRow(
             }
         }
     }
+}
+
+@Composable
+private fun NewTextureDialog(validate: (String) -> String?, onConfirm: (String, Int, Int) -> Unit, onDismiss: () -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var size by remember { mutableStateOf(16 to 16) }
+    val error = if (name.isBlank()) null else validate(name)
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.tex_new)) },
+        text = {
+            Column {
+                androidx.compose.material3.OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.file_name)) }, singleLine = true,
+                    isError = error != null, supportingText = { error?.let { Text(it) } })
+                Text(stringResource(R.string.tex_new_size, size.first, size.second), Modifier.padding(top = 8.dp))
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+                    listOf(16 to 16, 32 to 32, 64 to 64, 64 to 32, 128 to 128).forEach { s ->
+                        androidx.compose.material3.FilterChip(selected = size == s, onClick = { size = s }, label = { Text("${s.first}×${s.second}") })
+                    }
+                }
+                Text(stringResource(R.string.tex_new_help), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        confirmButton = { TextButton(enabled = name.isNotBlank() && error == null, onClick = { onConfirm(name.trim(), size.first, size.second) }) { Text(stringResource(R.string.ok)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
 }

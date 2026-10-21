@@ -47,6 +47,7 @@ import com.bedrockmodstudio.ui.project.ProjectScreen
 import com.bedrockmodstudio.ui.project.ProjectSettingsScreen
 import com.bedrockmodstudio.ui.projects.ProjectsScreen
 import com.bedrockmodstudio.ui.settings.SettingsScreen
+import com.bedrockmodstudio.ui.texture.TextureEditorScreen
 import com.bedrockmodstudio.ui.validation.ValidationScreen
 
 /** Routes de navigation. Les chemins de fichiers sont encodés pour pouvoir passer dans l'URL de route. */
@@ -68,6 +69,7 @@ object Routes {
     fun projectSettings(id: String) = "project/$id/settings"
     fun mob(id: String) = "project/$id/mob"
     fun item(id: String) = "project/$id/item"
+    fun texture(id: String, path: String) = "project/$id/texture?path=${Uri.encode(path)}"
     fun block(id: String) = "project/$id/block"
     fun recipe(id: String) = "project/$id/recipe"
 }
@@ -136,6 +138,10 @@ fun AppNavigation() {
                 composable("project/{id}/export") { ExportScreen(nav, it.arg("id")) }
                 composable("project/{id}/settings") { ProjectSettingsScreen(nav, it.arg("id")) }
                 composable("project/{id}/mob") { MobWizardScreen(nav, it.arg("id")) }
+                composable(
+                    "project/{id}/texture?path={path}",
+                    arguments = listOf(navArgument("path") { type = NavType.StringType; defaultValue = "" }),
+                ) { TextureEditorScreen(nav, it.arg("id"), it.arg("path")) }
                 composable("project/{id}/item") { ItemWizardScreen(nav, it.arg("id")) }
                 composable("project/{id}/block") { BlockWizardScreen(nav, it.arg("id")) }
                 composable("project/{id}/recipe") { RecipeWizardScreen(nav, it.arg("id")) }
