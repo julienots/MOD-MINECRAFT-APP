@@ -328,6 +328,15 @@ Tests exécutés dans l'environnement de développement :
 
 **Non testé :** chargement réel dans Minecraft, et exécution sur un vrai téléphone. Ces deux essais sont à faire en premier.
 
-### Prochaine étape : phase 3
+### Phase 3a — objets, blocs, recettes : livrée (21/10/2026)
 
-Ordre prévu : catalogue des composants valides par version (extrait des échantillons officiels) pour avertir sur les composants inconnus → assistant objets/armes/armures/blocs/recettes → éditeur de textures → éditeur 3D → animations → boss multi-phases → logique par nœuds → scripts → structures, portails et dimensions personnalisées.
+- Générateurs : objets (simple, nourriture, épée, pioche, hache, pelle, 4 pièces d'armure avec rendu porté), blocs (6 styles, lumière, son, butin), recettes (avec forme, sans forme, four/fumoir/haut fourneau).
+- Formats vérifiés : fichiers vanilla de `bedrock-samples` v1.26.50.4 (pomme, lance, armures en fer, recettes) et pages Microsoft Learn (`minecraft:wearable`, `minecraft:digger`, `minecraft:glint`, `minecraft:enchantable`, `minecraft:damage`, tutoriel du bloc dé). Étiquettes d'objets vérifiées sur les fichiers vanilla et le tableau communautaire bedrock.dev.
+- Catalogue des composants connus (402 d'entités, 50 d'objets, 37+1 de blocs) généré à partir des trois versions d'échantillons et des listes officielles : le validateur propose une correction pour les fautes de frappe (« minecraft:helth » → « minecraft:health »).
+- Tests : 41 tests du cœur, 5 parcours d'interface. **Non testé en jeu.**
+
+Point non vérifié à surveiller lors de l'essai en jeu : la capacité d'une pioche personnalisée à récolter les minerais qui exigent un niveau minimum.
+
+### Prochaine étape : phase 3 (suite)
+
+Ordre prévu : éditeur de textures → éditeur 3D → animations → boss multi-phases → logique par nœuds → scripts → structures, portails et dimensions personnalisées.

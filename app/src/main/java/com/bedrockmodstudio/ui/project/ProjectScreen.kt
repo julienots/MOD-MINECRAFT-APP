@@ -11,6 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.GridOn
+import androidx.compose.material.icons.filled.Hardware
+import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Search
@@ -68,6 +71,15 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             val tile = Modifier.fillMaxWidth()
             ActionTile(Icons.Filled.Pets, stringResource(R.string.action_mob), stringResource(R.string.action_mob_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.mob(id))
+            }
+            ActionTile(Icons.Filled.Hardware, stringResource(R.string.action_item), stringResource(R.string.action_item_desc), tile, BmsColors.Secondary) {
+                nav.navigate(Routes.item(id))
+            }
+            ActionTile(Icons.Filled.ViewInAr, stringResource(R.string.action_block), stringResource(R.string.action_block_desc), tile, BmsColors.Secondary) {
+                nav.navigate(Routes.block(id))
+            }
+            ActionTile(Icons.Filled.GridOn, stringResource(R.string.action_recipe), stringResource(R.string.action_recipe_desc), tile, BmsColors.Secondary) {
+                nav.navigate(Routes.recipe(id))
             }
             ActionTile(Icons.Filled.Folder, stringResource(R.string.action_files), stringResource(R.string.action_files_desc), tile) {
                 nav.navigate(Routes.files(id))

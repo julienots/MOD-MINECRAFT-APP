@@ -127,4 +127,50 @@ class AppFlowTest {
         assertEquals("1.26.30", app.defaultVersion)
         rule.onNodeWithText("Aucune erreur enregistrée.").performScrollTo().assertExists()
     }
+
+    @Test
+    fun `assistants objet avec recette, bloc et recette au four`() {
+        click("Créer un mod")
+        waitText("Nouveau mod")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Rubis")
+        click("Créer")
+        waitText("Créer un objet")
+
+        click("Créer un objet")
+        waitText("Nouvel objet")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Épée de rubis")
+        click("Ajouter la recette de fabrication")
+        rule.onNodeWithText("Ajouter la recette de fabrication").performScrollTo()
+        rule.onAllNodes(androidx.compose.ui.test.isToggleable())[1].performScrollTo().performClick()
+        click("Générer l'objet")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        back()
+
+        waitText("Créer un bloc")
+        click("Créer un bloc")
+        waitText("Nouveau bloc")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Minerai de rubis")
+        click("Minerai")
+        click("Générer le bloc")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        back()
+
+        waitText("Créer une recette")
+        click("Créer une recette")
+        waitText("Nouvelle recette")
+        click("Four")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("rubis:minerai_de_rubis")
+        rule.onAllNodes(hasSetTextAction())[1].performTextInput("minecraft:emerald")
+        click("Générer la recette")
+        waitText("Fichiers créés ou modifiés", substring = true)
+
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        assertTrue(files.exists("behavior_pack/items/epee_de_rubis.json"))
+        assertTrue(files.exists("behavior_pack/recipes/epee_de_rubis.json"))
+        assertTrue(files.exists("behavior_pack/blocks/minerai_de_rubis.json"))
+        assertTrue(files.exists("behavior_pack/recipes/emerald_four.json"))
+        val report = app.exporter.validate(project.meta.id)
+        assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
+    }
 }

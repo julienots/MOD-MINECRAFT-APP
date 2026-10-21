@@ -54,6 +54,9 @@ import com.bedrockmodstudio.core.model.Identifiers
 import com.bedrockmodstudio.core.model.ProjectMeta
 import com.bedrockmodstudio.ui.LocalSnackbar
 import com.bedrockmodstudio.ui.common.BmsTopBar
+import com.bedrockmodstudio.ui.common.ColorRow
+import com.bedrockmodstudio.ui.common.LabeledSlider
+import com.bedrockmodstudio.ui.common.PALETTE
 import com.bedrockmodstudio.ui.common.ConfirmDialog
 import com.bedrockmodstudio.ui.common.HelpText
 import com.bedrockmodstudio.ui.common.InfoCard
@@ -64,11 +67,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
-
-private val PALETTE = listOf(
-    0xFF4E8A3E, 0xFF2F5A23, 0xFF6B4F3A, 0xFF8B5A2B, 0xFFB0B0B0, 0xFF3C3C46, 0xFF1F2A44, 0xFF2E6FA8,
-    0xFF7A2E8E, 0xFFB03A2E, 0xFFE0A030, 0xFFE8E4D8, 0xFF2A9D8F, 0xFF101014,
-).map { it.toInt() }
 
 /** Objets vanilla courants pour le butin (identifiants Bedrock). */
 private val LOOT_CHOICES = listOf(
@@ -225,25 +223,5 @@ fun MobWizardScreen(nav: NavHostController, id: String) {
             onConfirm = { pending = null; apply(content, overwrite = true) },
             onDismiss = { pending = null },
         )
-    }
-}
-
-@Composable
-private fun LabeledSlider(label: String, help: String?, value: Float, range: ClosedFloatingPointRange<Float>, onChange: (Float) -> Unit) {
-    Text(label, Modifier.padding(top = 12.dp))
-    Slider(value = value, onValueChange = onChange, valueRange = range)
-    if (help != null) HelpText(help)
-}
-
-@Composable
-private fun ColorRow(selected: Int, onSelect: (Int) -> Unit) {
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        PALETTE.forEach { c ->
-            Box(
-                Modifier.size(40.dp).background(Color(c), CircleShape)
-                    .border(if (c == selected) 3.dp else 1.dp, if (c == selected) Color.White else MaterialTheme.colorScheme.outline, CircleShape)
-                    .clickable { onSelect(c) },
-            )
-        }
     }
 }

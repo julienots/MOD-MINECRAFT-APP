@@ -30,6 +30,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bedrockmodstudio.R
+import com.bedrockmodstudio.ui.content.BlockWizardScreen
+import com.bedrockmodstudio.ui.content.ItemWizardScreen
+import com.bedrockmodstudio.ui.content.RecipeWizardScreen
 import com.bedrockmodstudio.ui.editor.EditorScreen
 import com.bedrockmodstudio.ui.export.ExportScreen
 import com.bedrockmodstudio.ui.files.FileExplorerScreen
@@ -64,6 +67,9 @@ object Routes {
     fun export(id: String) = "project/$id/export"
     fun projectSettings(id: String) = "project/$id/settings"
     fun mob(id: String) = "project/$id/mob"
+    fun item(id: String) = "project/$id/item"
+    fun block(id: String) = "project/$id/block"
+    fun recipe(id: String) = "project/$id/recipe"
 }
 
 /** Messages courts (« Enregistré. ») accessibles depuis tous les écrans. */
@@ -130,6 +136,9 @@ fun AppNavigation() {
                 composable("project/{id}/export") { ExportScreen(nav, it.arg("id")) }
                 composable("project/{id}/settings") { ProjectSettingsScreen(nav, it.arg("id")) }
                 composable("project/{id}/mob") { MobWizardScreen(nav, it.arg("id")) }
+                composable("project/{id}/item") { ItemWizardScreen(nav, it.arg("id")) }
+                composable("project/{id}/block") { BlockWizardScreen(nav, it.arg("id")) }
+                composable("project/{id}/recipe") { RecipeWizardScreen(nav, it.arg("id")) }
             }
         }
     }

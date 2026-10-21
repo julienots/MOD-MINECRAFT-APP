@@ -2,6 +2,7 @@ package com.bedrockmodstudio.core.validation
 
 import com.bedrockmodstudio.core.bedrock.BedrockVersionProfile
 import com.bedrockmodstudio.core.bedrock.BedrockVersions
+import com.bedrockmodstudio.core.bedrock.KnownComponents
 import com.bedrockmodstudio.core.bedrock.LangFile
 import com.bedrockmodstudio.core.image.PngInfo
 import com.bedrockmodstudio.core.json.JsonArray
@@ -77,6 +78,10 @@ class Validator(
         val entities = checkBehaviorIdentifiers()
         checkClientEntities(entities)
         checkTextureAtlases()
+        checkComponentNames()
+        checkItemAndBlockTextures()
+        checkRecipeReferences()
+        checkAttachables()
         checkLang()
         checkIcons()
         return ValidationReport(issues.sortedBy { it.severity.ordinal }, checked)
@@ -259,6 +264,7 @@ class Validator(
                 else if (!Identifiers.isValidIdentifier(id) && !id.startsWith("minecraft:")) add(Severity.WARNING, "IDENTIFIER_FORMAT",
                     "« $id » : utilise uniquement des minuscules, chiffres, _ et . dans les identifiants.", path)
                 defs += Defined(id, kind, path)
+                definedIds += id
                 if (kind == "entité") checkLootReference(v, path)
             }
         }
@@ -283,8 +289,15 @@ class Validator(
         if (!File(bp, table).isFile) refMissing("LOOT_TABLE_MISSING", "Table de butin « $table » introuvable dans le behavior pack.", table, path)
     }
 
+    /**
+     * Ressources vanilla dont l'existence a été vérifiée dans Mojang/bedrock-samples (v1.26.50.4) :
+     * pas d'avertissement quand le projet y fait référence.
+     */
+    private val verifiedVanilla = setOf("textures/misc/enchanted_actor_glint", "textures/misc/enchanted_item_glint")
+
     /** Erreur si la référence porte l'espace de noms du projet, avertissement sinon (peut-être vanilla). */
     private fun refMissing(code: String, message: String, reference: String, file: String) {
+        if (reference in verifiedVanilla) return
         val ours = namespace != null && reference.contains(namespace)
         add(if (ours) Severity.ERROR else Severity.WARNING, code,
             if (ours) message else "$message (peut-être une ressource de Minecraft : vérification impossible)", file)
@@ -374,6 +387,108 @@ class Validator(
     }
 
     // ---- 6. Traductions et icônes ----
+
+    // ---- 7. Composants, textures d'objets et de blocs, recettes, armures portées ----
+
+    private val definedIds = mutableSetOf<String>()
+
+    /** Repère les fautes de frappe dans les noms de composants (ex. « minecraft:helth »). */
+    private fun checkComponentNames() {
+        for ((sub, rootKey, known) in listOf(
+            Triple("entities", "minecraft:entity", KnownComponents.ENTITY),
+            Triple("items", "minecraft:item", KnownComponents.ITEM),
+            Triple("blocks", "minecraft:block", KnownComponents.BLOCK + KnownComponents.BLOCK_EXTRA),
+        )) {
+            for ((path, v) in json(bp, sub)) {
+                val root = v.path(rootKey) as? JsonObject ?: continue
+                val names = mutableListOf<JsonObject>()
+                root.obj("components")?.let { names += it }
+                root.obj("component_groups")?.entries?.forEach { (_, g) -> (g as? JsonObject)?.let { names += it } }
+                root.arr("permutations")?.items?.forEach { pm -> (pm as? JsonObject)?.obj("components")?.let { names += it } }
+                for (o in names) for (key in o.keys) {
+                    if (!key.startsWith("minecraft:") || key in known) continue
+                    val guess = known.minByOrNull { editDistance(it, key) }
+                    val value = o[key]
+                    if (guess != null && editDistance(guess, key) <= 2) {
+                        add(Severity.WARNING, "COMPONENT_TYPO", "Composant inconnu « $key » : vouliez-vous dire « $guess » ?", path, value?.line, value?.column)
+                    } else {
+                        add(Severity.INFO, "COMPONENT_UNLISTED",
+                            "Composant « $key » absent des références officielles connues de l'application (récent, expérimental ou mal orthographié ?).",
+                            path, value?.line, value?.column)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun atlasKeys(file: String): Set<String> =
+        ((parsed["$rpDirName/textures/$file"] as? JsonObject)?.obj("texture_data")?.keys) ?: emptySet()
+
+    private fun checkItemAndBlockTextures() {
+        val items = atlasKeys("item_texture.json")
+        for ((path, v) in json(bp, "items")) {
+            val icon = v.path("minecraft:item", "components", "minecraft:icon")
+            val key = icon?.asString ?: icon.path("textures", "default")?.asString ?: icon.path("texture")?.asString ?: continue
+            if (key !in items) refMissing("ITEM_ICON_MISSING", "Icône « $key » absente de textures/item_texture.json.", key, path)
+        }
+        val terrain = atlasKeys("terrain_texture.json")
+        for ((path, v) in json(bp, "blocks")) {
+            val mats = mutableListOf<JsonObject>()
+            (v.path("minecraft:block", "components", "minecraft:material_instances") as? JsonObject)?.let { mats += it }
+            (v.path("minecraft:block", "permutations") as? JsonArray)?.items?.forEach { pm ->
+                (pm.path("components", "minecraft:material_instances") as? JsonObject)?.let { mats += it }
+            }
+            for (m in mats) for ((_, inst) in m.entries) {
+                val tex = (inst as? JsonObject)?.str("texture") ?: continue
+                if (tex !in terrain) refMissing("BLOCK_TEXTURE_MISSING", "Texture « $tex » absente de textures/terrain_texture.json.", tex, path)
+            }
+        }
+    }
+
+    /** Une recette qui utilise ou produit un objet de l'espace de noms du projet doit le trouver dans le projet. */
+    private fun checkRecipeReferences() {
+        val ns = namespace ?: return
+        // Les œufs d'apparition des entités sont aussi des objets valides.
+        val known = definedIds + definedIds.map { "${it}_spawn_egg" }
+        for ((path, v) in json(bp, "recipes")) {
+            val refs = mutableListOf<String>()
+            fun collect(x: JsonValue?) {
+                when (x) {
+                    is JsonObject -> { x.str("item")?.let { refs += it }; x.entries.forEach { if (it.key != "description") collect(it.value) } }
+                    is JsonArray -> x.items.forEach { collect(it) }
+                    is com.bedrockmodstudio.core.json.JsonString -> if (x.value.startsWith("$ns:")) refs += x.value
+                    else -> Unit
+                }
+            }
+            collect(v)
+            refs.filter { it.startsWith("$ns:") && it !in known }.distinct().forEach {
+                add(Severity.ERROR, "RECIPE_UNKNOWN_ITEM", "La recette utilise « $it », qui n'existe pas dans le projet.", path)
+            }
+        }
+    }
+
+    private fun checkAttachables() {
+        for ((path, v) in json(rp, "attachables")) {
+            val desc = v.path("minecraft:attachable", "description") as? JsonObject ?: continue
+            (desc.obj("textures")?.entries ?: emptySet()).forEach { (_, t) ->
+                val tex = t.asString ?: return@forEach
+                if (!textureExists(tex)) refMissing("TEXTURE_MISSING", "Texture « $tex » introuvable (.png ou .tga).", tex, path)
+            }
+        }
+    }
+
+    private fun editDistance(a: String, b: String): Int {
+        val dp = IntArray(b.length + 1) { it }
+        for (i in 1..a.length) {
+            var prev = dp[0]; dp[0] = i
+            for (j in 1..b.length) {
+                val tmp = dp[j]
+                dp[j] = minOf(dp[j] + 1, dp[j - 1] + 1, prev + if (a[i - 1] == b[j - 1]) 0 else 1)
+                prev = tmp
+            }
+        }
+        return dp[b.length]
+    }
 
     private fun checkLang() {
         if (!rp.isDirectory) return

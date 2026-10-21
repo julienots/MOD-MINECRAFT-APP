@@ -2,7 +2,7 @@
 
 Application Android pour créer des addons **Minecraft Bedrock Edition** depuis un téléphone, sans écrire de code.
 
-> État : **phase 2 (socle fonctionnel)**. Voir [l'audit et le plan](docs/PHASE1_AUDIT_ET_PLAN.md) et le [guide d'utilisation](docs/GUIDE_UTILISATEUR.md).
+> État : **phase 3 en cours** (socle terminé, assistants objets/blocs/recettes livrés). Voir [l'audit et le plan](docs/PHASE1_AUDIT_ET_PLAN.md) et le [guide d'utilisation](docs/GUIDE_UTILISATEUR.md).
 
 ## Ce que l'application fait déjà
 
@@ -11,17 +11,18 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Créer un projet (behavior pack + resource pack liés, UUID, icônes, traductions) | ✅ |
 | Choisir la version de Minecraft ciblée (1.26.30, 1.26.40, 1.26.50) | ✅ |
 | Assistant « Créer une créature » (comportement, vie, vitesse, attaque, taille, couleurs, butin, expérience, apparition naturelle) avec modèle 3D, texture et animations générés | ✅ |
+| Assistants « Créer un objet » (objet, nourriture, épée, pioche, hache, pelle, casque, plastron, jambières, bottes, avec recette optionnelle), « Créer un bloc » et « Créer une recette » (établi avec/sans forme, four) | ✅ |
 | Explorateur de fichiers : ouvrir, créer, renommer, dupliquer, importer un fichier, supprimer (vers une corbeille, avec confirmation) | ✅ |
 | Éditeur de texte/JSON : coloration, numéros de ligne, erreurs localisées (ligne/colonne), mise en forme, annuler/rétablir | ✅ |
 | Historique des versions de chaque fichier, restauration | ✅ |
 | Récupération des modifications après une fermeture inattendue | ✅ |
 | Recherche d'un identifiant ou d'un texte dans tout le projet | ✅ |
-| Vérification : JSON, manifestes, UUID, dépendances, identifiants en double, textures/modèles/animations manquants | ✅ |
+| Vérification : JSON, manifestes, UUID, dépendances, identifiants en double, textures/modèles/animations manquants, fautes de frappe dans les composants, recettes vers des objets inexistants | ✅ |
 | Export `.mcaddon`, `.mcpack` (behavior ou resource) et sauvegarde `.zip` | ✅ |
 | Enregistrer l'export, le partager, l'ouvrir avec Minecraft | ✅ |
 | Import `.mcaddon`, `.mcpack`, `.zip` avec rapport détaillé ; restauration des sauvegardes | ✅ |
 | Projet d'exemple complet | ✅ |
-| Éditeurs 3D, textures, animations, logique par nœuds, scripts, structures, dimensions | ⏳ phase 3 |
+| Éditeurs de textures, 3D, animations, logique par nœuds, scripts, structures, dimensions | ⏳ phase 3 (en cours) |
 
 **Important :** l'application vérifie la *structure* des fichiers. Aucun addon n'a encore été testé dans Minecraft par le développement : seul un essai en jeu (sur ton téléphone) prouve qu'un addon fonctionne. Le guide explique comment faire cet essai et lire les erreurs de Minecraft.
 
@@ -56,8 +57,8 @@ Android 8.0 ou plus récent est nécessaire. Les nouvelles versions s'installent
 ## Tests
 
 ```bash
-./gradlew :core:test              # 32 tests : JSON, projets, validation, export, import, sécurité des archives
-./gradlew :app:testDebugUnitTest  # 4 parcours d'interface simulés (Robolectric)
+./gradlew :core:test              # 41 tests : JSON, projets, validation, export, import, sécurité des archives
+./gradlew :app:testDebugUnitTest  # 5 parcours d'interface simulés (Robolectric)
 ./gradlew :app:lintDebug          # analyse Android Lint
 ```
 

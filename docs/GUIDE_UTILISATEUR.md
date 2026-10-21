@@ -41,6 +41,18 @@ Dans le projet, appuie sur **Créer une créature** :
 
 Appuie sur **Générer la créature**. L'application affiche la liste des fichiers créés. Si une créature du même identifiant existe déjà, elle demande avant de remplacer ; les anciennes versions restent dans l'historique.
 
+## 3 bis. Objets, armes, armures, blocs et recettes
+
+Dans le projet :
+
+- **Créer un objet** : choisis le type (objet simple, nourriture, épée, pioche, hache, pelle, casque, plastron, jambières, bottes), le nom, les couleurs (l'icône se dessine en direct), puis les réglages propres au type : dégâts, durabilité, niveau, protection, nourriture… Pour les équipements, l'option **Ajouter la recette de fabrication** crée la recette vanilla habituelle avec le matériau de ton choix. Les armures sont visibles sur le personnage quand on les porte.
+- **Créer un bloc** : style de texture (pierre, minerai, planches, briques, verre, lampe), couleurs, temps pour le casser, résistance aux explosions, lumière (0 à 15), son, et objet laissé en cassant.
+- **Créer une recette** : *établi avec forme* (touche les cases de la grille 3×3), *établi sans forme* ou *four* (avec l'option fumoir ou haut fourneau). Les objets de ton projet sont proposés en premier.
+
+Les fichiers partagés (`item_texture.json`, `terrain_texture.json`, `blocks.json`) sont complétés sans effacer ce qui y était déjà. Si l'un d'eux contient une erreur JSON, rien n'est généré tant qu'elle n'est pas corrigée.
+
+Pour tester en jeu : `/give @s monmod:mon_objet`.
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.
@@ -106,6 +118,6 @@ Les mods **Java Edition** (`.jar`, Forge, Fabric, `pack.mcmeta`) sont refusés a
 
 ## 9. Ce qui n'est pas encore possible
 
-- Éditeurs de modèles 3D, de textures, d'animations, de logique par blocs, de scripts et de structures : prévus dans la phase 3.
+- Éditeurs de textures, de modèles 3D, d'animations, de logique par blocs, de scripts et de structures : en cours (phase 3).
 - Dimensions personnalisées : Minecraft les permet depuis la version 1.26.30 (par script, la dimension naît vide). Leur assistant arrive dans la phase 3.
 - Les fichiers son et structure se conservent et s'exportent, mais ne se modifient pas encore dans l'application.

@@ -2,6 +2,10 @@ package com.bedrockmodstudio.core.storage
 
 import com.bedrockmodstudio.core.bedrock.GeneratedContent
 import com.bedrockmodstudio.core.bedrock.LangFile
+import com.bedrockmodstudio.core.json.JsonObject
+import com.bedrockmodstudio.core.json.JsonParseResult
+import com.bedrockmodstudio.core.json.JsonParser
+import com.bedrockmodstudio.core.json.JsonWriter
 import java.io.File
 
 data class FileEntry(
@@ -303,11 +307,34 @@ class ProjectFiles(val root: File) {
     fun apply(content: GeneratedContent, overwrite: Boolean, reason: String): ApplyResult {
         val written = mutableListOf<String>()
         val skipped = mutableListOf<String>()
+
+        // Les fichiers partagés sont lus et vérifiés AVANT toute écriture : en cas de JSON cassé,
+        // rien n'est modifié (pas de projet à moitié généré).
+        val merged = LinkedHashMap<String, JsonObject>()
+        for (m in content.merges) {
+            val root = merged.getOrPut(m.path) {
+                if (!exists(m.path)) m.template()
+                else (JsonParser.parse(readText(m.path)) as? JsonParseResult.Success)?.value as? JsonObject
+                    ?: throw UserFacingException("Le fichier ${m.path} contient une erreur JSON : corrige-le (Vérifier) avant de générer.")
+            }
+            var target = root
+            for (segment in m.objectPath) {
+                target = target.obj(segment) ?: JsonObject().also { target[segment] = it }
+            }
+            val existing = target[m.key]
+            if (existing == null || overwrite) target[m.key] = m.value
+            else if (existing != m.value) skipped += "${m.path} → ${m.key}"
+        }
+
         for ((path, bytes) in content.files) {
             val exists = resolve(path).exists()
             if (exists && !overwrite) { skipped += path; continue }
             write(path, bytes, reason)
             written += path
+        }
+        for ((path, root) in merged) {
+            val text = JsonWriter.write(root) + "\n"
+            if (!exists(path) || readText(path) != text) { writeText(path, text, reason); written += path }
         }
         var added = 0
         if (content.lang.isNotEmpty()) {

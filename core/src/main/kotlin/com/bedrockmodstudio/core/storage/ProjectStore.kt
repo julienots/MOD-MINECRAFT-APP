@@ -2,6 +2,15 @@ package com.bedrockmodstudio.core.storage
 
 import com.bedrockmodstudio.core.bedrock.BedrockVersionProfile
 import com.bedrockmodstudio.core.bedrock.BedrockVersions
+import com.bedrockmodstudio.core.bedrock.BlockGenerator
+import com.bedrockmodstudio.core.bedrock.BlockSpec
+import com.bedrockmodstudio.core.bedrock.BlockStyle
+import com.bedrockmodstudio.core.bedrock.ItemGenerator
+import com.bedrockmodstudio.core.bedrock.ItemKind
+import com.bedrockmodstudio.core.bedrock.ItemSpec
+import com.bedrockmodstudio.core.bedrock.RecipeGenerator
+import com.bedrockmodstudio.core.bedrock.RecipeSpec
+import com.bedrockmodstudio.core.bedrock.ToolTier
 import com.bedrockmodstudio.core.bedrock.MobGenerator
 import com.bedrockmodstudio.core.bedrock.MobSpec
 import com.bedrockmodstudio.core.bedrock.MobTemperament
@@ -107,7 +116,7 @@ class ProjectStore(val root: File) {
     fun createExample(): ProjectMeta {
         val meta = create(
             name = "Exemple — Sanglier des mousses",
-            description = "Projet d'exemple : une créature neutre avec modèle, texture, animations, butin et apparition naturelle.",
+            description = "Projet d'exemple : une créature, un objet, une épée et sa recette, un bloc de minerai et une recette au four.",
             author = "Bedrock Mod Studio",
             namespace = "exemple_bms",
         )
@@ -117,7 +126,20 @@ class ProjectStore(val root: File) {
             bodyColor = 0xFF6B4F3A.toInt(), accentColor = 0xFF4F7A3A.toInt(),
             lootItem = "minecraft:porkchop", lootMin = 1, lootMax = 3, spawnNaturally = true,
         )
-        files(meta.id).apply(MobGenerator.generate(meta.namespace, spec, BedrockVersions.byId(meta.targetVersion)!!), overwrite = false, reason = "Exemple")
+        val profile = BedrockVersions.byId(meta.targetVersion)!!
+        val ns = meta.namespace
+        val content = MobGenerator.generate(ns, spec, profile)
+        // Un objet de fabrication, une épée avec sa recette, un bloc et une recette au four.
+        content.addAll(ItemGenerator.generate(ns, ItemSpec("Croc de sanglier", shortId = "croc", kind = ItemKind.SIMPLE,
+            mainColor = 0xFFE8E4D8.toInt(), accentColor = 0xFF8B5A2B.toInt()), profile))
+        content.addAll(ItemGenerator.generate(ns, ItemSpec("Épée en croc", shortId = "epee_croc", kind = ItemKind.SWORD,
+            mainColor = 0xFFE8E4D8.toInt(), accentColor = 0xFF6B4F3A.toInt(), damage = 5, durability = 400, tier = ToolTier.STONE,
+            repairItem = "$ns:croc"), profile))
+        content.addAll(RecipeGenerator.generate(ns, RecipeGenerator.standardFor(ItemKind.SWORD, "$ns:croc", "$ns:epee_croc", "epee_croc")!!, profile))
+        content.addAll(BlockGenerator.generate(ns, BlockSpec("Pierre moussue des bois", shortId = "pierre_moussue", style = BlockStyle.ORE,
+            mainColor = 0xFF6E6E6E.toInt(), accentColor = 0xFF4F7A3A.toInt(), dropItem = "$ns:croc", dropMin = 1, dropMax = 2), profile))
+        content.addAll(RecipeGenerator.generate(ns, RecipeSpec.Furnace("croc_four", "minecraft:bone", "$ns:croc"), profile))
+        files(meta.id).apply(content, overwrite = false, reason = "Exemple")
         return meta
     }
 
