@@ -13,7 +13,7 @@ import com.bedrockmodstudio.ui.theme.BmsColors
  * Ne modifie pas le texte : seules les couleurs changent, les positions restent identiques.
  */
 class SyntaxHighlighter(private val language: Language) : VisualTransformation {
-    enum class Language { JSON, LANG, MCFUNCTION, PLAIN }
+    enum class Language { JSON, LANG, MCFUNCTION, JS, PLAIN }
 
     override fun filter(text: AnnotatedString): TransformedText {
         if (text.length > MAX_HIGHLIGHT || language == Language.PLAIN) return TransformedText(text, OffsetMapping.Identity)
@@ -21,6 +21,7 @@ class SyntaxHighlighter(private val language: Language) : VisualTransformation {
             Language.JSON -> json(text.text)
             Language.LANG -> lineBased(text.text, "##") { line -> line.indexOf('=') }
             Language.MCFUNCTION -> lineBased(text.text, "#") { line -> line.indexOf(' ') }
+            Language.JS -> js(text.text)
             Language.PLAIN -> text
         }
         return TransformedText(styled, OffsetMapping.Identity)
@@ -34,6 +35,7 @@ class SyntaxHighlighter(private val language: Language) : VisualTransformation {
                 "json", "material" -> Language.JSON
                 "lang" -> Language.LANG
                 "mcfunction" -> Language.MCFUNCTION
+                "js", "ts" -> Language.JS
                 else -> Language.PLAIN
             }
         )
@@ -76,6 +78,38 @@ class SyntaxHighlighter(private val language: Language) : VisualTransformation {
                     i = j
                 }
                 c in "{}[],:" -> { style(i, i + 1, BmsColors.JsonPunct); i++ }
+                else -> i++
+            }
+        }
+    }
+
+    private val jsKeywords = setOf(
+        "import", "from", "export", "const", "let", "var", "function", "return", "if", "else", "for", "while", "of", "in",
+        "new", "class", "extends", "async", "await", "true", "false", "null", "undefined", "this", "break", "continue",
+        "switch", "case", "default", "try", "catch", "finally", "throw", "typeof", "instanceof",
+    )
+
+    private fun js(s: String): AnnotatedString = buildAnnotatedString {
+        append(s)
+        var i = 0
+        fun style(a: Int, b: Int, c: androidx.compose.ui.graphics.Color) = addStyle(SpanStyle(color = c), a, b.coerceAtMost(s.length))
+        while (i < s.length) {
+            val c = s[i]
+            when {
+                c == '/' && i + 1 < s.length && s[i + 1] == '/' -> { val e = s.indexOf('\n', i).let { if (it < 0) s.length else it }; style(i, e, BmsColors.JsonComment); i = e }
+                c == '/' && i + 1 < s.length && s[i + 1] == '*' -> { val e = s.indexOf("*/", i + 2).let { if (it < 0) s.length else it + 2 }; style(i, e, BmsColors.JsonComment); i = e }
+                c == '"' || c == '\'' || c == '`' -> {
+                    var j = i + 1
+                    while (j < s.length && s[j] != c && (c == '`' || s[j] != '\n')) { if (s[j] == '\\') j++; j++ }
+                    style(i, j + 1, BmsColors.JsonString); i = j + 1
+                }
+                c.isDigit() -> { var j = i; while (j < s.length && (s[j].isLetterOrDigit() || s[j] == '.')) j++; style(i, j, BmsColors.JsonNumber); i = j }
+                c.isLetter() || c == '_' || c == '$' -> {
+                    var j = i; while (j < s.length && (s[j].isLetterOrDigit() || s[j] == '_' || s[j] == '$')) j++
+                    if (s.substring(i, j) in jsKeywords) style(i, j, BmsColors.JsonKeyword)
+                    else if (j < s.length && s[j] == '(') style(i, j, BmsColors.JsonKey)
+                    i = j
+                }
                 else -> i++
             }
         }

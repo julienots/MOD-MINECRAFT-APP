@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bedrockmodstudio.R
 import com.bedrockmodstudio.ui.content.BlockWizardScreen
+import com.bedrockmodstudio.ui.content.DimensionWizardScreen
 import com.bedrockmodstudio.ui.content.ItemWizardScreen
 import com.bedrockmodstudio.ui.content.RecipeWizardScreen
 import com.bedrockmodstudio.ui.editor.EditorScreen
@@ -72,6 +73,7 @@ object Routes {
     fun texture(id: String, path: String) = "project/$id/texture?path=${Uri.encode(path)}"
     fun block(id: String) = "project/$id/block"
     fun recipe(id: String) = "project/$id/recipe"
+    fun dimension(id: String) = "project/$id/dimension"
 }
 
 /** Messages courts (« Enregistré. ») accessibles depuis tous les écrans. */
@@ -145,6 +147,7 @@ fun AppNavigation() {
                 composable("project/{id}/item") { ItemWizardScreen(nav, it.arg("id")) }
                 composable("project/{id}/block") { BlockWizardScreen(nav, it.arg("id")) }
                 composable("project/{id}/recipe") { RecipeWizardScreen(nav, it.arg("id")) }
+                composable("project/{id}/dimension") { DimensionWizardScreen(nav, it.arg("id")) }
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Hardware
 import androidx.compose.material.icons.filled.ViewInAr
@@ -80,6 +81,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.GridOn, stringResource(R.string.action_recipe), stringResource(R.string.action_recipe_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.recipe(id))
+            }
+            ActionTile(Icons.Filled.Public, stringResource(R.string.action_dimension), stringResource(R.string.action_dimension_desc), tile, BmsColors.Info) {
+                nav.navigate(Routes.dimension(id))
             }
             ActionTile(Icons.Filled.Folder, stringResource(R.string.action_files), stringResource(R.string.action_files_desc), tile) {
                 nav.navigate(Routes.files(id))

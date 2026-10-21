@@ -235,9 +235,75 @@ class Validator(
                     "@minecraft/server $v est une version bêta : il faudra activer les « API bêta » dans les expérimentations du monde.", file)
             }
         }
+        checkScriptImports(deps)
         if (hasJsFiles && scriptModules.isEmpty()) {
             add(Severity.WARNING, "SCRIPT_NOT_DECLARED", "Des fichiers .js existent mais aucun module de script n'est déclaré : ils ne seront pas exécutés.", file)
         }
+    }
+
+    private val importRegex = Regex("""(?m)^\s*(?:import|export)\s+(?:[^'"`;]*?\s+from\s+)?["']([^"']+)["']""")
+
+    /** Chaque import doit désigner un fichier du pack ou un module @minecraft déclaré dans le manifeste. */
+    private fun checkScriptImports(deps: List<JsonObject>) {
+        val scripts = File(bp, "scripts")
+        if (!scripts.isDirectory) return
+        val declared = deps.mapNotNull { it.str("module_name") }.toSet()
+        scripts.walkTopDown().filter { it.isFile && it.extension == "js" }.forEach { f ->
+            val path = rel(f)
+            val text = f.readText()
+            text.lineSequence().forEachIndexed { i, line ->
+                val m = importRegex.find(line) ?: return@forEachIndexed
+                val target = m.groupValues[1]
+                when {
+                    target.startsWith(".") -> {
+                        val resolved = File(f.parentFile, target).canonicalFile
+                        val ok = resolved.isFile || File(resolved.path + ".js").isFile
+                        if (!ok) add(Severity.ERROR, "SCRIPT_IMPORT_MISSING", "Le script importe « $target », fichier introuvable.", path, i + 1)
+                    }
+                    target.startsWith("@minecraft/") -> if (target !in declared) add(Severity.ERROR, "SCRIPT_DEPENDENCY_MISSING",
+                        "Le script utilise « $target » mais le manifeste ne le déclare pas dans ses dépendances.", "$bpDirName/manifest.json", i + 1)
+                    else -> add(Severity.ERROR, "SCRIPT_IMPORT_UNSUPPORTED",
+                        "Import « $target » : Minecraft ne charge que les modules @minecraft/… et les fichiers du pack (pas de paquets npm).", path, i + 1)
+                }
+            }
+            val balance = bracketProblem(text)
+            if (balance != null) add(Severity.ERROR, "SCRIPT_SYNTAX", balance.second, path, balance.first)
+        }
+    }
+
+    /** Vérification légère : parenthèses, crochets, accolades et chaînes équilibrés (hors commentaires). */
+    private fun bracketProblem(code: String): Pair<Int, String>? {
+        val stack = ArrayDeque<Pair<Char, Int>>()
+        var line = 1; var i = 0
+        val pairs = mapOf(')' to '(', ']' to '[', '}' to '{')
+        while (i < code.length) {
+            val c = code[i]
+            when {
+                c == '\n' -> line++
+                c == '/' && i + 1 < code.length && code[i + 1] == '/' -> { while (i < code.length && code[i] != '\n') i++; continue }
+                c == '/' && i + 1 < code.length && code[i + 1] == '*' -> {
+                    val end = code.indexOf("*/", i + 2)
+                    if (end < 0) return line to "Commentaire /* jamais refermé."
+                    line += code.substring(i, end).count { it == '\n' }; i = end + 2; continue
+                }
+                c == '"' || c == '\'' || c == '`' -> {
+                    val start = line; i++
+                    while (i < code.length && code[i] != c) {
+                        if (code[i] == '\\') i++
+                        else if (code[i] == '\n') { if (c != '`') return start to "Texte non terminé (guillemet manquant)."; line++ }
+                        i++
+                    }
+                    if (i >= code.length) return start to "Texte non terminé (guillemet manquant)."
+                }
+                c in "([{" -> stack.addLast(c to line)
+                c in ")]}" -> {
+                    val open = stack.removeLastOrNull() ?: return line to "« $c » fermant sans ouverture correspondante."
+                    if (open.first != pairs[c]) return line to "« $c » ne correspond pas à « ${open.first} » ouvert ligne ${open.second}."
+                }
+            }
+            i++
+        }
+        return stack.lastOrNull()?.let { it.second to "« ${it.first} » ouvert ligne ${it.second} jamais refermé." }
     }
 
     // ---- 4. Identifiants (behavior pack) ----

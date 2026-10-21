@@ -22,6 +22,22 @@ jobs:
       - name: Tests du cœur (JSON, validation, export, import)
         run: ./gradlew :core:test --stacktrace
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Vérification des scripts générés (TypeScript contre l'API officielle @minecraft/server)
+        run: |
+          cd core/build/scripts-check
+          for versions in "2.8.0 2.1.0" "2.9.0 2.1.0" "2.10.0 2.2.0"; do
+            set -- $versions
+            rm -rf node_modules package.json package-lock.json
+            npm init -y > /dev/null
+            npm install --no-audit --no-fund typescript@5 "@minecraft/server@$1" "@minecraft/server-ui@$2"
+            npx tsc -p .
+            echo "Scripts valides pour @minecraft/server $1"
+          done
+
       - name: Tests de l'interface (Robolectric)
         run: ./gradlew :app:testDebugUnitTest --stacktrace
 

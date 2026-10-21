@@ -320,4 +320,29 @@
     <string name="tex_saturation">Saturation</string>
     <string name="tex_brightness">Luminosité</string>
     <string name="tex_opacity">Opacité</string>
+
+    <!-- Dimensions -->
+    <string name="action_dimension">Créer une dimension</string>
+    <string name="action_dimension_desc">Nouveau monde, portail et clé de voyage</string>
+    <string name="dim_title">Nouvelle dimension</string>
+    <string name="dim_limits">Comment ça marche : la dimension est une vraie dimension de Minecraft (API officielle, Minecraft 1.26.30 ou plus récent). Elle naît vide ; son terrain est construit par script au premier voyage. Le ciel, le brouillard et les biomes propres à la dimension ne sont pas encore proposés (non vérifiés). Après l\'ajout, quitte et recharge le monde pour que la dimension soit déclarée.</string>
+    <string name="dim_unsupported">La version ciblée (%1$s) ne permet pas les dimensions personnalisées : choisis Minecraft 1.26.30 ou plus récent dans les paramètres du projet.</string>
+    <string name="dim_name">Nom de la dimension</string>
+    <string name="dim_terrain">Terrain</string>
+    <string name="dim_surface">Bloc de surface</string>
+    <string name="dim_filler">Bloc de remplissage</string>
+    <string name="dim_block_help">Identifiant d\'un bloc vanilla ou de ton projet. Touche une suggestion :</string>
+    <string name="dim_radius">Taille du terrain : %1$d blocs de rayon</string>
+    <string name="dim_spawn_y">Hauteur d\'arrivée : %1$d</string>
+    <string name="dim_access">Moyens d\'accès</string>
+    <string name="dim_portal">Bloc portail</string>
+    <string name="dim_portal_help">Pose le bloc et monte dessus pour voyager. Un portail de retour est construit dans la dimension.</string>
+    <string name="dim_portal_color">Couleur du portail</string>
+    <string name="dim_key">Clé de voyage</string>
+    <string name="dim_key_help">Un objet : clic droit pour partir ou revenir.</string>
+    <string name="dim_command">Commande</string>
+    <string name="dim_command_help">Tape /%1$s pour partir ou revenir.</string>
+    <string name="dim_message">Message d\'arrivée (facultatif)</string>
+    <string name="dim_generate">Générer la dimension</string>
+    <string name="dim_test_hint">Pour tester : exporte l\'addon, active-le dans un monde puis recharge le monde. Ensuite : /give @s %1$s_key (clé), /give @s %1$s_portal (portail) ou /%1$s.</string>
 </resources>

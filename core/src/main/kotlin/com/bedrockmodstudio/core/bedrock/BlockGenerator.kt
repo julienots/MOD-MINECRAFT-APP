@@ -10,7 +10,7 @@ import com.bedrockmodstudio.core.model.Identifiers
 import java.util.Locale
 
 enum class BlockStyle(val labelFr: String) {
-    STONE("Pierre"), ORE("Minerai"), PLANKS("Planches"), BRICKS("Briques"), GLASS("Verre / cristal"), LAMP("Lampe"),
+    STONE("Pierre"), ORE("Minerai"), PLANKS("Planches"), BRICKS("Briques"), GLASS("Verre / cristal"), LAMP("Lampe"), PORTAL("Portail"),
 }
 
 /** Sons de blocs vanilla (blocks.json). */
@@ -133,6 +133,16 @@ object BlockGenerator {
                 for (i in 0 until 16) { c[i, 0] = main; c[i, 15] = main; c[0, i] = main; c[15, i] = main }
                 c[3, 3] = PixelCanvas.shade(main, 60); c[4, 4] = PixelCanvas.shade(main, 60); c[4, 3] = PixelCanvas.shade(main, 40)
                 c[11, 11] = PixelCanvas.shade(main, 40)
+            }
+            BlockStyle.PORTAL -> {
+                // Spirale : la teinte varie avec la distance au centre et l'angle.
+                for (y in 0 until 16) for (x in 0 until 16) {
+                    val dx = x - 7.5; val dy = y - 7.5
+                    val d = Math.sqrt(dx * dx + dy * dy)
+                    val a = Math.atan2(dy, dx)
+                    val wave = Math.sin(d * 1.3 - a * 2)
+                    c[x, y] = PixelCanvas.shade(main, (wave * 45).toInt() + if (d < 2.5) 70 else 0)
+                }
             }
             BlockStyle.LAMP -> {
                 c.noiseRect(0, 0, 16, 16, PixelCanvas.shade(main, -40), seed, 10)

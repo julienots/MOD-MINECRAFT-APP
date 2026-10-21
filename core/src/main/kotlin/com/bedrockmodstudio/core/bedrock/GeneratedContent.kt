@@ -26,9 +26,22 @@ class GeneratedContent {
     val merges = mutableListOf<JsonMerge>()
     /** Traductions communes à toutes les langues, écrites dans en_US et fr_FR si absentes. */
     val lang = LinkedHashMap<String, String>()
+    /** Modules de script (chemins relatifs à `behavior_pack/scripts/`) à importer depuis le point d'entrée. */
+    val scriptModules = mutableListOf<String>()
+    /** Le contenu utilise les formulaires `@minecraft/server-ui`. */
+    var needsServerUi = false
+    /** Fonctionnalité Bedrock indispensable (vérifiée contre la version ciblée avant installation). */
+    val requiredFeatures = mutableSetOf<BedrockFeature>()
 
     fun text(path: String, content: String) { files[path] = content.toByteArray(Charsets.UTF_8) }
     fun bytes(path: String, content: ByteArray) { files[path] = content }
+
+    /** Ajoute un module de script dans `behavior_pack/scripts/` et le déclare pour import. */
+    fun script(modulePath: String, code: String) {
+        text("$BP/scripts/$modulePath", code)
+        if (modulePath !in scriptModules) scriptModules += modulePath
+        requiredFeatures += BedrockFeature.SCRIPT_API
+    }
 
     /** Ajoute une texture d'objet dans `textures/item_texture.json`. */
     fun itemTexture(key: String, texturePath: String) {
@@ -48,6 +61,9 @@ class GeneratedContent {
     /** Fusionne un autre contenu généré dans celui-ci (ex. objet + sa recette). */
     fun addAll(other: GeneratedContent) {
         files.putAll(other.files); merges += other.merges; lang.putAll(other.lang)
+        scriptModules += other.scriptModules.filter { it !in scriptModules }
+        needsServerUi = needsServerUi || other.needsServerUi
+        requiredFeatures += other.requiredFeatures
     }
 
     companion object {

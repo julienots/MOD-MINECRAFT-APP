@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bedrockmodstudio.R
 import com.bedrockmodstudio.container
+import com.bedrockmodstudio.core.bedrock.ContentInstaller
 import com.bedrockmodstudio.core.bedrock.GeneratedContent
 import com.bedrockmodstudio.ui.LocalSnackbar
 import com.bedrockmodstudio.ui.theme.BmsColors
@@ -137,7 +138,7 @@ fun rememberGenerator(projectId: String, reason: String): Pair<GenerationControl
         ctl.busy = true
         scope.launch(Dispatchers.Main.immediate) {
             val r = withContext(Dispatchers.IO) {
-                runCatching { app.store.files(projectId).apply(content, overwrite, reason).also { app.store.touch(projectId) } }
+                runCatching { ContentInstaller.install(app.store, projectId, content, overwrite, reason).also { app.store.touch(projectId) } }
             }
             ctl.busy = false
             r.onSuccess { ctl.written = it.written; ctl.skipped = it.skippedExisting; snackbar.showSnackbar(context.getString(R.string.mob_created, it.written.size)) }

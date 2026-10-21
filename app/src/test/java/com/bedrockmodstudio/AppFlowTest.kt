@@ -209,4 +209,25 @@ class AppFlowTest {
         assertEquals(com.bedrockmodstudio.core.image.PngInfo.Size(16, 16), com.bedrockmodstudio.core.image.PngInfo.read(after))
         assertEquals(1, app.store.files(project.meta.id).history(path).size)
     }
+
+    @Test
+    fun `assistant dimension personnalisee`() {
+        click("Créer un mod")
+        waitText("Nouveau mod")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Mondes")
+        click("Créer")
+        waitText("Créer une dimension")
+        click("Créer une dimension")
+        waitText("Nouvelle dimension")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Abysse")
+        click("Plaine plate")
+        click("Générer la dimension")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        assertTrue(files.readText("behavior_pack/scripts/main.js").contains("dimension_abysse.js"))
+        assertTrue(files.readText("behavior_pack/scripts/bms/dimension_abysse.js").contains("\"FLAT\""))
+        val report = app.exporter.validate(project.meta.id)
+        assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
+    }
 }
