@@ -83,7 +83,7 @@ android {
     }
 
     packaging {
-        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        resources.excludes += listOf("/META-INF/{AL2.0,LGPL2.1}", "/META-INF/DEPENDENCIES", "/META-INF/LICENSE*", "/META-INF/NOTICE*", "/META-INF/INDEX.LIST")
     }
 }
 
@@ -93,6 +93,8 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
+    // Assistant IA facultatif : SDK officiel Anthropic, utilisé seulement si l'utilisateur fournit sa propre clé.
+    implementation(libs.anthropic.java)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

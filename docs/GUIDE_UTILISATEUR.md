@@ -85,6 +85,19 @@ Tuile **Bibliothèque de composants** : recherche une propriété (« feu », «
 - L'aperçu est une approximation : lumière et aspect exact se vérifient dans Minecraft avec « /particle <identifiant> ~ ~1 ~ » ou l'action « Afficher des particules » de l'éditeur de comportements.
 - Un fichier qui utilise des réglages que l'éditeur ne sait pas reprendre (expressions Molang, autres composants) s'ouvre en **aperçu seul** : il reste modifiable dans l'éditeur de texte, et l'application ne le réécrit jamais à ta place.
 
+## 3 octies. Assistant (décris ton idée)
+
+- Tuile **Assistant** : écris ta demande en français, par exemple « un zombie de feu rouge hostile avec 40 points de vie, une épée de glace bleue et une tour », puis « Analyser (hors ligne) ».
+- L'assistant propose un **plan** : une ligne par élément (créature, objet, bloc, particules, structure, dimension). Décoche ce que tu ne veux pas, puis « Créer ». Rien n'est créé avant, et un fichier existant n'est jamais remplacé sans confirmation.
+- L'analyse hors ligne repère des mots-clés (types, couleurs, « hostile », « boss », « 40 points de vie », « lumineux »…). Pour une demande plus libre, l'**IA facultative** peut aider :
+  - elle est désactivée tant que tu n'as pas ajouté ta propre clé d'API Anthropic (Claude) ;
+  - la clé est chiffrée sur le téléphone ;
+  - seul le texte de ta demande est envoyé, et l'utilisation est facturée sur ton compte Anthropic ;
+  - la réponse ne peut contenir que des éléments du plan, que l'application vérifie ;
+  - aucun code n'est exécuté ;
+  - demande l'accord d'un adulte avant d'ajouter une clé.
+- Les mods Java (Forge, Fabric) ne sont pas possibles : l'assistant le dit au lieu d'inventer.
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.
@@ -150,5 +163,4 @@ Les mods **Java Edition** (`.jar`, Forge, Fabric, `pack.mcmeta`) sont refusés a
 
 ## 9. Ce qui n'est pas encore possible
 
-- Assistant en langage naturel : prochaine étape.
 - Les fichiers son se conservent et s'exportent, mais ne se modifient pas dans l'application.

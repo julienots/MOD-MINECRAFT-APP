@@ -557,4 +557,27 @@
     <string name="particles_color_help">La texture est un point blanc adouci (créé par l\'application) que Minecraft colore avec ces teintes.</string>
     <string name="particles_replay">Rejouer</string>
     <string name="particles_open_editor">Ouvrir dans l\'éditeur de particules (aperçu animé)</string>
+    <!-- Assistant -->
+    <string name="action_assistant">Assistant (décris ton idée)</string>
+    <string name="action_assistant_desc">Écris ce que tu veux en français : l\'assistant propose un plan, tu choisis quoi créer.</string>
+    <string name="assistant_title">Assistant</string>
+    <string name="assistant_intro">Décris ce que tu veux créer. L\'analyse hors ligne reconnaît les créatures, objets, blocs, particules, structures et dimensions. Rien n\'est créé avant que tu valides le plan, et les fichiers existants ne sont jamais remplacés sans confirmation.</string>
+    <string name="assistant_request">Ta demande</string>
+    <string name="assistant_example">Ex. : un zombie de feu rouge hostile avec 40 points de vie, une épée de glace bleue et une tour</string>
+    <string name="assistant_analyze">Analyser (hors ligne)</string>
+    <string name="assistant_ask_ai">Demander à l\'IA (Internet)</string>
+    <string name="assistant_ai_running">L\'IA réfléchit…</string>
+    <string name="assistant_source_offline">analyse hors ligne</string>
+    <string name="assistant_source_ai">IA</string>
+    <string name="assistant_plan">Plan proposé (%1$s)</string>
+    <string name="assistant_review">Décoche ce que tu ne veux pas. Chaque élément est ensuite modifiable avec son assistant ou dans les fichiers.</string>
+    <string name="assistant_apply">Créer les %1$d éléments cochés</string>
+    <string name="assistant_after">Vérifie le projet (tuile « Vérifier »), puis exporte et teste dans Minecraft.</string>
+    <string name="assistant_ai_title">IA facultative</string>
+    <string name="assistant_ai_help">Facultatif et désactivé par défaut. Avec ta propre clé d\'API Anthropic (Claude), le texte de ta demande — et seulement lui — est envoyé à Anthropic ; l\'utilisation est facturée sur ton compte Anthropic. La réponse ne peut contenir que des éléments du plan, vérifiés par l\'application ; aucun code n\'est exécuté. Demande l\'accord d\'un adulte avant d\'ajouter une clé.</string>
+    <string name="assistant_key_add">Ajouter une clé d\'API</string>
+    <string name="assistant_key_label">Clé d\'API Anthropic</string>
+    <string name="assistant_key_save">Enregistrer la clé (chiffrée sur ce téléphone)</string>
+    <string name="assistant_key_saved">Une clé est enregistrée, chiffrée par le téléphone. Elle n\'est jamais exportée.</string>
+    <string name="assistant_key_delete">Supprimer la clé</string>
 </resources>

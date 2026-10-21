@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Réseau : uniquement pour l'assistant IA facultatif, quand l'utilisateur l'active avec sa propre clé. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Aucune permission de stockage : tous les accès passent par le sélecteur de fichiers Android. -->
 
     <queries>

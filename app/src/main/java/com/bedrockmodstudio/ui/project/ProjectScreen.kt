@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Domain
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
@@ -74,6 +75,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
         ) {
             if (project.imported) InfoCard(stringResource(R.string.project_imported_note))
             val tile = Modifier.fillMaxWidth()
+            ActionTile(Icons.AutoMirrored.Filled.Chat, stringResource(R.string.action_assistant), stringResource(R.string.action_assistant_desc), tile, BmsColors.Primary) {
+                nav.navigate(Routes.assistant(id))
+            }
             ActionTile(Icons.Filled.Pets, stringResource(R.string.action_mob), stringResource(R.string.action_mob_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.mob(id))
             }

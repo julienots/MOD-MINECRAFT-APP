@@ -369,4 +369,20 @@ Phase 3j — particules : livrée (21/10/2026). Format vérifié dans Microsoft 
 
 Limite de l'environnement de test : l'Android simulé ne fait pas défiler deux zones imbriquées (rangée horizontale dans une page verticale) ; le parcours utilise alors l'action d'accessibilité équivalente au toucher.
 
-Reste à faire : assistant en langage naturel (hors ligne + IA optionnelle).
+Phase 3k — assistant en langage naturel : livrée (21/10/2026).
+
+- **Plan structuré.** Les deux sources produisent le même plan : l'analyse hors ligne par mots-clés et l'IA facultative.
+- **Validation.** Le plan est relu strictement : types connus, valeurs bornées, 8 étapes au maximum. Il est ensuite converti en fichiers par les générateurs existants, après accord de l'utilisateur.
+- **IA facultative** (SDK officiel `com.anthropic:anthropic-java`, modèle `claude-opus-5-5`) :
+  - la réponse est contrainte par un schéma JSON (sorties structurées) ;
+  - repli côté serveur en cas de refus ;
+  - la clé appartient à l'utilisateur et est chiffrée avec le Keystore Android ;
+  - seul le texte de la demande est envoyé.
+- **Ajout du réseau.** La permission `INTERNET` est ajoutée uniquement pour cette fonction. Le reste de l'application fonctionne hors ligne.
+- **Vérification.**
+  - Tests du cœur : demandes en français, plan JSON hostile (valeurs hors bornes, types inconnus), installation de chaque type d'étape avec un projet valide.
+  - Parcours d'interface hors ligne.
+  - Construction de la requête IA vérifiée sans réseau.
+  - **Non vérifié** : un appel réel avec une clé, et le SDK sur un vrai téléphone.
+
+Phase 3 terminée. Prochaines étapes : phase 4 (essais sur téléphone et en jeu, corrections) et phase 5 (livraison).

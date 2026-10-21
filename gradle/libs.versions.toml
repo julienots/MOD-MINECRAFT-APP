@@ -1,4 +1,5 @@
 [versions]
+anthropic-java = "2.34.0"
 agp = "8.13.2"
 kotlin = "2.2.21"
 composeBom = "2025.06.00"
@@ -12,6 +13,7 @@ robolectric = "4.15.1"
 androidxTestCore = "1.6.1"
 
 [libraries]
+anthropic-java = { module = "com.anthropic:anthropic-java", version.ref = "anthropic-java" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }

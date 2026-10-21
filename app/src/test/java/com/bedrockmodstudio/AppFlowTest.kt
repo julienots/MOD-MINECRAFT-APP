@@ -412,4 +412,28 @@ class AppFlowTest {
         assertEquals(com.bedrockmodstudio.core.particle.EmitDirection.UP, spec.spec!!.direction)
         assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
     }
+
+    @Test
+    fun `assistant hors ligne - plan, decocher, creation, projet valide`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Assistant (décris ton idée)")
+        click("Assistant (décris ton idée)")
+        waitText("Ta demande")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("assistant_request")).performTextInput("un golem bleu gentil, une pioche de cristal et une tour")
+        click("Analyser (hors ligne)")
+        waitText("Plan proposé (analyse hors ligne)")
+        waitText("Golem bleu gentil", substring = true)
+        // On décoche la tour : seules deux créations restent.
+        rule.onAllNodes(androidx.compose.ui.test.isToggleable())[2].performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        waitText("Créer les 2 éléments cochés")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("assistant_apply")).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        waitText("Fichiers créés ou modifiés", substring = true)
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        val ids = com.bedrockmodstudio.core.bedrock.ProjectIndex.scan(files).map { it.id }
+        assertTrue(ids.toString(), ids.any { it.endsWith(":golem_bleu_gentil") })
+        assertTrue(ids.toString(), ids.any { it.endsWith(":pioche_de_cristal") })
+        assertTrue(com.bedrockmodstudio.core.bedrock.ProjectIndex.structures(files).isEmpty())
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+    }
 }
