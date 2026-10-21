@@ -40,8 +40,9 @@ class OrbitCamera {
     var distance by mutableFloatStateOf(48f)
     var target by mutableStateOf(Vec3(0.0, 8.0, 0.0))
 
-    fun frame(model: GeoModel) {
-        val faces = MeshBuilder.build(model)
+    fun frame(model: GeoModel) = frame(MeshBuilder.build(model))
+
+    fun frame(faces: List<MeshFace>) {
         if (faces.isEmpty()) return
         val pts = faces.flatMap { it.corners }
         val min = Vec3(pts.minOf { it.x }, pts.minOf { it.y }, pts.minOf { it.z })
@@ -117,16 +118,42 @@ fun ModelViewport(
     modifier: Modifier = Modifier,
     onSelect: (bone: Int, cube: Int) -> Unit,
 ) {
-    var size by remember { mutableStateOf(IntSize.Zero) }
     val faces = remember(model, poses) { MeshBuilder.build(model, poses) }
+    MeshViewport(
+        faces, texture, model.textureWidth, model.textureHeight, camera, lighting, lightAngle, modifier,
+        selected = { it.boneIndex == selectedBone && (selectedCube == null || it.cubeIndex == selectedCube) },
+        selectionKey = selectedBone to selectedCube,
+    ) { onSelect(it.boneIndex, it.cubeIndex) }
+}
+
+/**
+ * Vue 3D de faces quelconques : texturées si [texture] est fournie, sinon colorées par [faceColor].
+ * Un doigt tourne, deux doigts zooment et déplacent, un simple toucher sélectionne la face visible sous le doigt.
+ */
+@Composable
+fun MeshViewport(
+    faces: List<MeshFace>,
+    texture: Bitmap?,
+    textureWidth: Int,
+    textureHeight: Int,
+    camera: OrbitCamera,
+    lighting: Boolean,
+    lightAngle: Float,
+    modifier: Modifier = Modifier,
+    faceColor: ((MeshFace) -> Int)? = null,
+    selected: (MeshFace) -> Boolean = { false },
+    selectionKey: Any? = null,
+    onTap: (MeshFace) -> Unit,
+) {
+    var size by remember { mutableStateOf(IntSize.Zero) }
     val projected = remember(faces, size, camera.yaw, camera.pitch, camera.distance, camera.target, lighting, lightAngle) {
         if (size.width == 0) emptyList() else project(faces, camera, size.width, size.height, lighting, lightAngle)
     }
-    val frame = remember(projected, texture, selectedBone, selectedCube, size) {
-        if (size.width == 0) null else render(projected, texture, model, selectedBone, selectedCube, size)
+    val frame = remember(projected, texture, selectionKey, size, faceColor) {
+        if (size.width == 0) null else render(projected, texture, textureWidth, textureHeight, selected, faceColor, size)
     }
     Canvas(
-        modifier.testTag("model_viewport").onSizeChanged { size = it }.pointerInput(model) {
+        modifier.testTag("model_viewport").onSizeChanged { size = it }.pointerInput(faces) {
             awaitEachGesture {
                 val down = awaitFirstDown()
                 var moved = false
@@ -156,9 +183,9 @@ fun ModelViewport(
                     ev.changes.forEach { it.consume() }
                 }
                 if (!moved) {
-                    // Toucher sans glisser : sélection du cube le plus proche sous le doigt.
+                    // Toucher sans glisser : sélection de la face la plus proche sous le doigt.
                     val hit = projected.lastOrNull { inside(down.position.x, down.position.y, it.pts) }
-                    if (hit != null) onSelect(hit.face.boneIndex, hit.face.cubeIndex)
+                    if (hit != null) onTap(hit.face)
                 }
             }
         },
@@ -169,7 +196,9 @@ fun ModelViewport(
 
 private val shaderCache = HashMap<Bitmap, BitmapShader>()
 
-private fun render(projected: List<Projected>, texture: Bitmap?, model: GeoModel, selBone: Int?, selCube: Int?, size: IntSize): Bitmap {
+private fun render(
+    projected: List<Projected>, texture: Bitmap?, texW: Int, texH: Int, selected: (MeshFace) -> Boolean, faceColor: ((MeshFace) -> Int)?, size: IntSize,
+): Bitmap {
     val bmp = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bmp)
     canvas.drawColor(0xFF15181D.toInt())
@@ -181,8 +210,8 @@ private fun render(projected: List<Projected>, texture: Bitmap?, model: GeoModel
     val flat = Paint(Paint.ANTI_ALIAS_FLAG)
     val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 3f; color = 0xFFFFD166.toInt() }
     val edge = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 1f; color = 0x40000000 }
-    val sx = if (texture != null) texture.width.toFloat() / model.textureWidth else 1f
-    val sy = if (texture != null) texture.height.toFloat() / model.textureHeight else 1f
+    val sx = if (texture != null) texture.width.toFloat() / texW else 1f
+    val sy = if (texture != null) texture.height.toFloat() / texH else 1f
     for (p in projected) {
         val shadeByte = (p.shade * 255).toInt().coerceIn(0, 255)
         val tint = (0xFF shl 24) or (shadeByte shl 16) or (shadeByte shl 8) or shadeByte
@@ -191,13 +220,13 @@ private fun render(projected: List<Projected>, texture: Bitmap?, model: GeoModel
             p.face.uvs.forEachIndexed { i, (u, v) -> texs[i * 2] = (u * sx).toFloat(); texs[i * 2 + 1] = (v * sy).toFloat() }
             canvas.drawVertices(android.graphics.Canvas.VertexMode.TRIANGLE_FAN, 8, p.pts, 0, texs, 0, IntArray(4) { tint }, 0, null, 0, 0, texPaint)
         } else {
-            val base = 0xFF8FA3B8.toInt()
+            val base = faceColor?.invoke(p.face) ?: 0xFF8FA3B8.toInt()
             fun ch(c: Int) = ((c and 0xFF) * p.shade).toInt().coerceIn(0, 255)
             flat.color = (0xFF shl 24) or (ch(base shr 16) shl 16) or (ch(base shr 8) shl 8) or ch(base)
             canvas.drawPath(quad(p.pts), flat)
         }
         canvas.drawPath(quad(p.pts), edge)
-        if (p.face.boneIndex == selBone && (selCube == null || p.face.cubeIndex == selCube)) canvas.drawPath(quad(p.pts), outline)
+        if (selected(p.face)) canvas.drawPath(quad(p.pts), outline)
     }
     return bmp
 }

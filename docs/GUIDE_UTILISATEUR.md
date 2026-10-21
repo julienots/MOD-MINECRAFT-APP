@@ -64,6 +64,16 @@ Pour tester en jeu : `/give @s monmod:mon_objet`.
 - **Textures** : ouvre une image .png dans les fichiers puis « Modifier dans l'éditeur de textures ». Un doigt dessine, deux doigts zooment et déplacent. Outils : crayon, gomme, remplissage, pipette, symétrie gauche/droite, grille, taille de l'image. « Nouvelle texture » est dans le bouton + de l'explorateur.
 - **Modèles 3D et animations** (tableau de bord du projet) : un doigt fait tourner la vue, deux doigts zooment, un toucher sélectionne un cube. Onglets : *Structure* (os, cubes, dupliquer, miroir), *Propriétés* (position, taille, pivot, rotation, UV), *Texture* (choix de l'image, éclairage), *Animation* (modèles de départ, lecture, images clés). L'aperçu est une approximation : le rendu exact se vérifie dans Minecraft. Les animations écrites en Molang sont conservées mais ne s'animent pas dans l'aperçu.
 
+## 3 quinquies. Structures
+
+- Tuile **Structures** : donne un nom, choisis un modèle de départ (vide, maison, tour, salle au trésor, arche) et touche « Créer la structure ».
+- Onglet **Couches** : chaque couche est vue de dessus (nord en haut). Choisis un bloc puis touche les cases. « Vide » garde le terrain du monde, « Air » le creuse. « Coffre à butin » pose un coffre. Les boutons + / − changent de couche ; la taille va jusqu'à 64 × 256 × 64.
+- Onglet **Aperçu 3D** : un doigt tourne, deux doigts zooment ; touche un bloc pour voir son nom.
+- Onglet **Butin et apparition** : contenu des coffres (trésor, provisions, aventurier) et apparition naturelle (biomes, rareté, enterrée ou non).
+- Touche l'icône Enregistrer pour écrire le fichier ; l'ancienne version reste dans l'historique.
+- Pour tester : « /structure load <identifiant> ~ ~ ~ » dans un monde avec commandes, ou l'action « Placer une structure » de l'éditeur de comportements. L'apparition naturelle ne touche que les **nouveaux** tronçons du monde.
+- Limites : les blocs sont posés avec leurs états par défaut (orientation…). Pour des blocs orientés précisément, construis dans Minecraft, enregistre avec un bloc de structure, et importe le fichier. Le lien coffre ↔ table de butin n'a pas encore été vérifié en jeu.
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.
@@ -129,5 +139,5 @@ Les mods **Java Edition** (`.jar`, Forge, Fabric, `pack.mcmeta`) sont refusés a
 
 ## 9. Ce qui n'est pas encore possible
 
-- Structures (.mcstructure), bibliothèque de composants et assistant en langage naturel : prochaines étapes.
-- Les fichiers son et structure se conservent et s'exportent, mais ne se modifient pas encore dans l'application.
+- Bibliothèque de composants, assistant en langage naturel et aperçu des particules : prochaines étapes.
+- Les fichiers son se conservent et s'exportent, mais ne se modifient pas dans l'application.

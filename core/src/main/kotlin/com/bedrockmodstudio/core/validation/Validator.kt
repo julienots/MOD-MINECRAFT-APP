@@ -12,6 +12,10 @@ import com.bedrockmodstudio.core.json.JsonParser
 import com.bedrockmodstudio.core.json.JsonValue
 import com.bedrockmodstudio.core.json.path
 import com.bedrockmodstudio.core.model.Identifiers
+import com.bedrockmodstudio.core.nbt.Nbt
+import com.bedrockmodstudio.core.storage.UserFacingException
+import com.bedrockmodstudio.core.structure.StructureCodec
+import com.bedrockmodstudio.core.structure.StructureGenerator
 import java.io.File
 
 enum class Severity(val labelFr: String) {
@@ -82,6 +86,7 @@ class Validator(
         checkItemAndBlockTextures()
         checkRecipeReferences()
         checkAttachables()
+        checkStructures()
         checkLang()
         checkIcons()
         return ValidationReport(issues.sortedBy { it.severity.ordinal }, checked)
@@ -540,6 +545,47 @@ class Validator(
                 val tex = t.asString ?: return@forEach
                 if (!textureExists(tex)) refMissing("TEXTURE_MISSING", "Texture « $tex » introuvable (.png ou .tga).", tex, path)
             }
+        }
+    }
+
+    // ---- Structures et génération naturelle ----
+
+    private fun checkStructures() {
+        val dir = File(bp, "structures")
+        val ids = mutableSetOf<String>()
+        if (dir.isDirectory) dir.walkTopDown().filter { it.isFile && it.extension.lowercase() == "mcstructure" }.forEach { f ->
+            checked++
+            val path = rel(f)
+            StructureGenerator.idForPath(path.removePrefix("$bpDirName/").let { "behavior_pack/$it" })?.let { ids += it }
+            val s = try { StructureCodec.read(f.readBytes()) } catch (e: UserFacingException) {
+                if (e.message?.contains("trop grandes") != true) add(Severity.ERROR, "STRUCTURE_INVALID", e.message ?: "Structure illisible.", path)
+                return@forEach
+            }
+            for (entry in s.positionData.map.values) {
+                val table = ((entry as? Nbt.Compound)?.get("block_entity_data") as? Nbt.Compound)?.get("LootTable") as? Nbt.Str ?: continue
+                if (!File(bp, table.v).isFile) refMissing("LOOT_TABLE_MISSING", "Table de butin « ${table.v} » du coffre introuvable.", table.v, path)
+            }
+            s.palette.filter { it.name.isBlank() }.forEach { _ -> add(Severity.ERROR, "STRUCTURE_INVALID", "Bloc sans nom dans la palette.", path) }
+        }
+        val features = mutableSetOf<String>()
+        for ((path, v) in json(bp, "features")) {
+            val root = (v as? JsonObject)?.entries?.firstOrNull { it.key.startsWith("minecraft:") }?.value as? JsonObject ?: continue
+            val id = root.path("description", "identifier")?.asString ?: continue
+            features += id
+            if (id.substringAfter(':') != path.substringAfterLast('/').removeSuffix(".json")) {
+                add(Severity.WARNING, "FEATURE_FILE_NAME", "Le nom du fichier doit être identique à l'identifiant (« ${id.substringAfter(':')}.json »).", path)
+            }
+            val structure = (v as JsonObject).obj("minecraft:structure_template_feature")?.str("structure_name") ?: continue
+            if (structure !in ids) refMissing("STRUCTURE_MISSING", "Structure « $structure » introuvable dans behavior_pack/structures.", structure, path)
+        }
+        for ((path, v) in json(bp, "feature_rules")) {
+            val desc = v.path("minecraft:feature_rules", "description") as? JsonObject ?: continue
+            val id = desc.str("identifier") ?: continue
+            if (id.substringAfter(':') != path.substringAfterLast('/').removeSuffix(".json")) {
+                add(Severity.WARNING, "FEATURE_FILE_NAME", "Le nom du fichier doit être identique à l'identifiant (« ${id.substringAfter(':')}.json »).", path)
+            }
+            val placed = desc.str("places_feature") ?: continue
+            if (placed !in features) refMissing("FEATURE_MISSING", "Élément de génération « $placed » introuvable dans behavior_pack/features.", placed, path)
         }
     }
 

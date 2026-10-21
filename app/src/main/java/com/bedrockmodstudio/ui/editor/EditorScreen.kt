@@ -137,6 +137,10 @@ fun EditorScreen(nav: NavHostController, id: String, path: String, line: Int) {
                     ImageViewer(vm)
                 }
                 EditorViewModel.Kind.BINARY -> Column(Modifier.padding(16.dp)) {
+                    if (path.endsWith(".mcstructure", ignoreCase = true)) androidx.compose.material3.Button(
+                        onClick = { nav.navigate(Routes.structure(id, path)) },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    ) { Text(stringResource(R.string.file_open_structure)) }
                     InfoCard(stringResource(R.string.editor_binary))
                     Text(stringResource(R.string.file_size, formatSize(vm.size)), Modifier.padding(top = 12.dp))
                 }

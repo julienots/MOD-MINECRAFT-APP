@@ -315,4 +315,42 @@ class AppFlowTest {
         assertTrue(files.readText("resource_pack/animations/sanglier_mousses.animation.json").contains("query.modified_distance_moved"))
         assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
     }
+
+    @Test
+    fun `editeur de structures - maison, coffre a butin, apparition naturelle, apercu 3D`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Structures")
+        click("Structures")
+        waitText("Nouvelle structure")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("structure_name")).performTextInput("Cabane du bois")
+        click("Créer la structure")
+        waitText("Couches")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("layer_up")).performClick()
+        waitText("Couche (hauteur) 1 sur 5")
+        click("Coffre à butin")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("structure_grid")).performScrollTo().performTouchInput { down(center); up() }
+        click("Butin et apparition")
+        waitText("Trésor")
+        click("Trésor")
+        click("Créer les fichiers d'apparition")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        rule.onNode(androidx.compose.ui.test.hasTestTag("structure_save")).performClick()
+        val project = app.store.list().single()
+        val ns = project.meta.namespace
+        val files = app.store.files(project.meta.id)
+        val path = "behavior_pack/structures/$ns/cabane_du_bois.mcstructure"
+        rule.waitUntil(10_000) { files.exists("behavior_pack/loot_tables/$ns/cabane_du_bois_coffre.json") }
+        rule.waitUntil(10_000) {
+            com.bedrockmodstudio.core.structure.StructureCodec.read(files.readBytes(path)).positionData.map.isNotEmpty()
+        }
+        val s = com.bedrockmodstudio.core.structure.StructureCodec.read(files.readBytes(path))
+        assertEquals("minecraft:chest", s[3, 1, 3]?.name)
+        assertTrue(files.exists("behavior_pack/features/cabane_du_bois_feature.json"))
+        assertTrue(files.readText("behavior_pack/feature_rules/cabane_du_bois_rule.json").contains("surface_pass"))
+        click("Aperçu 3D")
+        rule.waitForIdle()
+        rule.onNode(androidx.compose.ui.test.hasTestTag("model_viewport")).performTouchInput { down(center); up() }
+        waitText("minecraft:", substring = true)
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+    }
 }

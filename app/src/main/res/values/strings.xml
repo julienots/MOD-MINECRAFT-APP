@@ -231,7 +231,7 @@
     <string name="settings_about">À propos</string>
     <string name="settings_about_body">Bedrock Mod Studio %1$s\nÉditeur d\'addons pour Minecraft Bedrock Edition. Fonctionne entièrement hors ligne.\n\nCe logiciel n\'est ni affilié ni approuvé par Mojang ou Microsoft. « Minecraft » est une marque de Mojang Synergies AB.\n\nToutes les textures et modèles générés par l\'application sont originaux.</string>
     <string name="settings_limits">Limites connues</string>
-    <string name="settings_limits_body">• L\'application vérifie la structure des fichiers ; seul Minecraft peut confirmer le fonctionnement en jeu.\n• Les mods Java Edition (.jar, Forge, Fabric) ne sont pas compatibles avec Bedrock.\n• Les dimensions personnalisées existent depuis Minecraft 1.26.30 (API de scripts) ; elles naissent vides et leur éditeur arrive dans une prochaine version.\n• Les fichiers binaires (sons, structures) sont conservés mais pas encore modifiables.</string>
+    <string name="settings_limits_body">• L\'application vérifie la structure des fichiers ; seul Minecraft peut confirmer le fonctionnement en jeu.\n• Les mods Java Edition (.jar, Forge, Fabric) ne sont pas compatibles avec Bedrock.\n• Les dimensions personnalisées existent depuis Minecraft 1.26.30 (API de scripts) ; elles naissent vides et le terrain est construit par script.\n• Les sons sont conservés mais pas modifiables. Les structures (.mcstructure) se modifient dans l\'éditeur de structures (jusqu\'à 64 × 256 × 64).</string>
     <!-- Assistants objets, blocs, recettes -->
     <string name="gen_kept_existing">Entrées déjà présentes, conservées sans modification :</string>
     <string name="action_item">Créer un objet</string>
@@ -454,4 +454,57 @@
     <string name="anim_create">Créer l\'animation</string>
     <string name="anim_template">Modèle de départ</string>
     <string name="anim_template_help">La marche anime les os dont le nom contient leg, jambe, arm ou bras ; les autres modèles animent l\'os sélectionné. Entre deux images clés, l\'aperçu interpole en ligne droite.</string>
+
+    <!-- Structures -->
+    <string name="action_structures">Structures</string>
+    <string name="action_structures_desc">Constructions en blocs (.mcstructure) : maisons, tours, salles au trésor, génération naturelle.</string>
+    <string name="structures_title">Structures</string>
+    <string name="structures_intro">Une structure est un assemblage de blocs enregistré au format Bedrock (.mcstructure). Elle peut apparaître naturellement dans le monde, être placée par la commande /structure ou par un comportement « Placer une structure ».</string>
+    <string name="structures_new">Nouvelle structure</string>
+    <string name="structures_name">Nom de la structure</string>
+    <string name="structures_create">Créer la structure</string>
+    <string name="structures_existing">Structures du projet</string>
+    <string name="structures_empty">Aucune structure dans ce projet.</string>
+    <string name="structure_unsaved">non enregistrée</string>
+    <string name="structure_saved_loot_kept">Enregistré. La table de butin existante a été conservée telle quelle.</string>
+    <string name="structure_tab_layers">Couches</string>
+    <string name="structure_tab_3d">Aperçu 3D</string>
+    <string name="structure_tab_generation">Butin et apparition</string>
+    <string name="structure_layer">Couche (hauteur) %1$d sur %2$d</string>
+    <string name="structure_grid_help">Touche une case pour y poser le bloc choisi. La couche du dessous apparaît en transparence.</string>
+    <string name="structure_north_up">Vue de dessus : le nord est en haut, l\'est à droite.</string>
+    <string name="structure_palette">Bloc à poser</string>
+    <string name="structure_brush_void">Vide (garde le terrain)</string>
+    <string name="structure_brush_air">Air (creuse)</string>
+    <string name="structure_brush_chest">Coffre à butin</string>
+    <string name="structure_custom_block">Autre bloc (identifiant)</string>
+    <string name="structure_use_block">Utiliser</string>
+    <string name="structure_states_help">Les blocs sont posés avec leurs états par défaut (orientation, couleur…). Pour un état précis, place le bloc dans Minecraft, enregistre-le avec un bloc de structure, puis importe le fichier .mcstructure.</string>
+    <string name="structure_tools">Outils de couche</string>
+    <string name="structure_fill_layer">Remplir la couche</string>
+    <string name="structure_clear_layer">Vider la couche</string>
+    <string name="structure_copy_below">Copier la couche du dessous</string>
+    <string name="structure_size">Taille</string>
+    <string name="structure_size_help">Maximum 64 × 256 × 64. Réduire la taille supprime les blocs qui dépassent (enregistrer garde l\'ancienne version dans l\'historique du fichier).</string>
+    <string name="structure_count">%1$d blocs posés, %2$d types de blocs.</string>
+    <string name="structure_preview_help">Un doigt fait tourner la vue, deux doigts zooment. Touche un bloc pour voir son nom et aller à sa couche.</string>
+    <string name="structure_preview_truncated">Aperçu limité aux %1$d premiers blocs visibles (le fichier, lui, est complet).</string>
+    <string name="structure_loot_title">Butin des coffres</string>
+    <string name="structure_loot_help">Choisis le contenu des coffres de la structure ; il sera appliqué à l\'enregistrement.</string>
+    <string name="structure_loot_no_chest">Aucun coffre pour l\'instant : pose un « Coffre à butin » dans l\'onglet Couches.</string>
+    <string name="structure_loot_none">Aucun</string>
+    <string name="structure_loot_unverified">Le lien entre coffre et table de butin utilise le champ « LootTable » documenté par la communauté ; il n\'a pas encore été vérifié en jeu par l\'application.</string>
+    <string name="structure_natural_title">Apparition naturelle</string>
+    <string name="structure_natural_switch">Apparaît dans le monde</string>
+    <string name="structure_biomes">Biomes</string>
+    <string name="structure_biomes_help">Aucun biome coché : la structure peut apparaître partout.</string>
+    <string name="structure_rarity">Rareté : une chance sur %1$d par tronçon</string>
+    <string name="structure_rarity_help">Un tronçon mesure 16 × 16 blocs. 1 = presque partout, 400 = très rare.</string>
+    <string name="structure_buried">Enterrée (sous terre)</string>
+    <string name="structure_natural_limits">Seuls les nouveaux tronçons jamais visités reçoivent la structure : explore loin ou crée un nouveau monde pour la voir.</string>
+    <string name="structure_natural_apply">Créer les fichiers d\'apparition</string>
+    <string name="structure_test_hint">Pour tester : enregistre la structure, exporte l\'addon, puis dans un monde avec les commandes activées tape « /structure load %1$s ~ ~ ~ ».</string>
+    <string name="structure_manual_hint">Sans apparition naturelle, place la structure avec « /structure load %1$s ~ ~ ~ » ou un comportement « Placer une structure ».</string>
+    <string name="file_open_structure">Ouvrir dans l\'éditeur de structures</string>
+    <string name="logic_no_structures">Aucune structure dans le projet : crée-en une depuis la tuile « Structures ».</string>
 </resources>

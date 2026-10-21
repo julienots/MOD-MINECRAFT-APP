@@ -352,6 +352,15 @@ Limite de l'environnement de test découverte : l'Android simulé (Robolectric) 
 
 **Toujours non testé en jeu.**
 
+### Phase 3h — structures : livrée (21/10/2026)
+
+- Lecture/écriture NBT petit-boutiste et du format `.mcstructure` (ordre des blocs `(x × tailleY + y) × tailleZ + z`, deux couches, palette, données de blocs, entités conservées). Source : wiki.bedrock.dev (format communautaire, pas de documentation Microsoft complète).
+- Éditeur par couches + aperçu 3D, modèles de départ (maison, tour, salle au trésor, arche), coffres à butin.
+- Apparition naturelle : `features/` (`minecraft:structure_template_feature`) et `feature_rules/` (format 1.13.0, Microsoft Learn).
+- Action « Placer une structure » (`world.structureManager.place`) vérifiée par TypeScript.
+- Vérification : en-tête NBT octet par octet, aller-retour, fichiers endommagés refusés, références cassées détectées, parcours d'interface complet.
+- **Non vérifié en jeu** : le champ `LootTable` des coffres et la valeur `version` des blocs proviennent de la documentation communautaire.
+
 ### Prochaine étape : phase 3 (suite)
 
-Reste à faire : structures (.mcstructure, NBT), bibliothèque de composants, assistant en langage naturel (hors ligne + IA optionnelle), aperçu des particules.
+Reste à faire : bibliothèque de composants, assistant en langage naturel (hors ligne + IA optionnelle), aperçu des particules.

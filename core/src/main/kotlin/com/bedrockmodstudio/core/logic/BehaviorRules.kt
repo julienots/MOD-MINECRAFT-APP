@@ -18,7 +18,7 @@ import com.bedrockmodstudio.core.model.Identifiers
  */
 enum class BlockCategory(val labelFr: String) { EVENT("Quand"), CONDITION("Si"), ACTION("Alors") }
 
-enum class ParamType { TEXT, NUMBER, ITEM, BLOCK, ENTITY, EFFECT, DIMENSION, SOUND, TAG, COMMAND_NAME }
+enum class ParamType { TEXT, NUMBER, ITEM, BLOCK, ENTITY, EFFECT, DIMENSION, SOUND, TAG, COMMAND_NAME, STRUCTURE }
 
 data class ParamSpec(
     val key: String,
@@ -138,6 +138,8 @@ object BehaviorCatalog {
         },
         BlockDef("run_command", BlockCategory.ACTION, "Exécuter une commande", "Commande Minecraft sans le « / », exécutée par le joueur ou à l'endroit de l'événement.",
             listOf(p("command", "Commande", ParamType.TEXT, "say Bonjour"))) { "exécuter « /${it["command"]} »" },
+        BlockDef("place_structure", BlockCategory.ACTION, "Placer une structure", "Structure du projet (ou vanilla), posée à la position de l'événement (coin nord-ouest en bas).",
+            listOf(p("structure", "Structure", ParamType.STRUCTURE, "mystructure:maison"))) { "placer la structure ${it["structure"]}" },
         BlockDef("wait", BlockCategory.ACTION, "Attendre", "Les actions suivantes ont lieu après ce délai.",
             listOf(p("seconds", "Secondes", ParamType.NUMBER, "2", 0.05, 3600.0))) { "attendre ${it["seconds"]} s" },
     )
@@ -186,6 +188,7 @@ object BehaviorCompiler {
                     ParamType.EFFECT -> if (!Regex("^[a-z_]+$").matches(v)) add("$where : effet invalide « $v ».")
                     ParamType.SOUND -> if (!Regex("^[a-z0-9_.]+$").matches(v)) add("$where : son invalide « $v ».")
                     ParamType.TAG -> if (!Regex("^[A-Za-z0-9_]{1,32}$").matches(v)) add("$where : lettres, chiffres et _ uniquement (32 au maximum).")
+                    ParamType.STRUCTURE -> if (!Regex("^[a-z0-9_.-]+:[a-z0-9_./-]+$").matches(v)) add("$where : identifiant de structure invalide « $v » (ex. mystructure:maison).")
                     ParamType.COMMAND_NAME -> if (!Regex("^[a-z0-9_]{1,32}$").matches(v)) add("$where : minuscules, chiffres et _ uniquement.")
                     ParamType.TEXT -> if (v.isEmpty()) add("$where : texte vide.") else if (v.length > 500) add("$where : 500 caractères au maximum.")
                 }
@@ -290,6 +293,7 @@ object BehaviorCompiler {
                 "add_tag" -> "player.addTag(${Js.str(a["tag"])});"
                 "remove_tag" -> "player.removeTag(${Js.str(a["tag"])});"
                 "counter_add" -> "player.setDynamicProperty(\"bms_counter:\" + ${Js.str(a["counter"])}, counter(player, ${Js.str(a["counter"])}) + ${Js.num(num(a, "amount"))});"
+                "place_structure" -> "world.structureManager.place(${Js.str(a["structure"])}, dimension, { x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) });"
                 "run_command" -> "(player ?? dimension).runCommand(${Js.str(a["command"].removePrefix("/"))});"
                 "wait" -> {
                     sb.append(indent).append("system.runTimeout(() => {\n")

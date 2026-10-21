@@ -108,6 +108,7 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
     val snackbar = LocalSnackbar.current
     var meta by remember { mutableStateOf<ProjectMeta?>(null) }
     var projectItems by remember { mutableStateOf(emptyList<String>()) }
+    var projectStructures by remember { mutableStateOf(emptyList<String>()) }
     val rules = remember { mutableStateListOf<BehaviorRule>() }
     var loaded by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<Int?>(null) }
@@ -122,6 +123,7 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
         withContext(Dispatchers.IO) {
             meta = runCatching { app.store.load(id) }.getOrNull()
             projectItems = runCatching { ProjectIndex.usableItems(app.store.files(id)) }.getOrDefault(emptyList())
+            projectStructures = runCatching { ProjectIndex.structures(app.store.files(id)) }.getOrDefault(emptyList())
             val files = app.store.files(id)
             val list = runCatching {
                 if (files.exists(BehaviorRulesFile.PATH)) BehaviorRulesFile.parse(files.readText(BehaviorRulesFile.PATH)) else emptyList()
@@ -167,7 +169,9 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
         val m = meta
         if (!loaded || m == null || busy) { LoadingBox(); return@Scaffold }
         if (current != null && current in rules.indices) {
-            RuleEditor(rules[current], m.namespace, projectItems, Modifier.padding(padding)) { updated -> rules[current] = updated; dirty = true }
+            androidx.compose.runtime.CompositionLocalProvider(LocalProjectStructures provides projectStructures) {
+                RuleEditor(rules[current], m.namespace, projectItems, Modifier.padding(padding)) { updated -> rules[current] = updated; dirty = true }
+            }
             return@Scaffold
         }
         Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -216,6 +220,9 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
             onConfirm = { if (i in rules.indices) rules.removeAt(i); dirty = true; toDelete = null }, onDismiss = { toDelete = null })
     }
 }
+
+/** Structures du projet proposées pour l'action « Placer une structure ». */
+private val LocalProjectStructures = androidx.compose.runtime.staticCompositionLocalOf { emptyList<String>() }
 
 @Composable
 private fun RuleEditor(rule: BehaviorRule, ns: String, projectItems: List<String>, modifier: Modifier, onChange: (BehaviorRule) -> Unit) {
@@ -313,6 +320,14 @@ private fun BlockCard(
                 fun set(v: String) = onChange(inst.copy(params = inst.params + (ps.key to v)))
                 when (ps.type) {
                     ParamType.ITEM, ParamType.ENTITY, ParamType.BLOCK -> ItemField(ps.labelFr, value, ::set, projectItems)
+                    ParamType.STRUCTURE -> {
+                        OutlinedTextField(value, { set(it.trim().lowercase()) }, Modifier.fillMaxWidth(), label = { Text(ps.labelFr) }, singleLine = true)
+                        val structures = LocalProjectStructures.current
+                        if (structures.isEmpty()) HelpText(stringResource(R.string.logic_no_structures))
+                        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            structures.forEach { sid -> AssistChip(onClick = { set(sid) }, label = { Text(sid.substringAfter(':')) }) }
+                        }
+                    }
                     ParamType.EFFECT -> {
                         Text(ps.labelFr)
                         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
