@@ -53,6 +53,17 @@ Les fichiers partagés (`item_texture.json`, `terrain_texture.json`, `blocks.jso
 
 Pour tester en jeu : `/give @s monmod:mon_objet`.
 
+## 3 ter. Boss, dimensions, comportements
+
+- **Boss** : dans « Créer une créature », active « C'est un boss ». Tu obtiens une barre de vie, des immunités, un butin rare et des **phases** : chacune commence sous un seuil de vie et change les dégâts et la vitesse, avec un message facultatif.
+- **Créer une dimension** : une vraie nouvelle dimension (Minecraft 1.26.30 ou plus). Choisis le terrain (plateforme, îles flottantes, plaine), les blocs, et les accès : bloc portail (monte dessus), clé (clic droit) ou commande. Après l'ajout, **quitte et recharge le monde**. Ciel et brouillard propres à la dimension ne sont pas encore proposés.
+- **Comportements (blocs)** : des règles « QUAND … SI … ALORS … » sans code. Exemples prêts à l'emploi : message de bienvenue, bâton de vitesse, minerai chanceux, commande de soin. « Enregistrer et compiler » crée le script ; une règle incomplète est signalée et rien n'est écrit.
+
+## 3 quater. Textures, modèles 3D et animations
+
+- **Textures** : ouvre une image .png dans les fichiers puis « Modifier dans l'éditeur de textures ». Un doigt dessine, deux doigts zooment et déplacent. Outils : crayon, gomme, remplissage, pipette, symétrie gauche/droite, grille, taille de l'image. « Nouvelle texture » est dans le bouton + de l'explorateur.
+- **Modèles 3D et animations** (tableau de bord du projet) : un doigt fait tourner la vue, deux doigts zooment, un toucher sélectionne un cube. Onglets : *Structure* (os, cubes, dupliquer, miroir), *Propriétés* (position, taille, pivot, rotation, UV), *Texture* (choix de l'image, éclairage), *Animation* (modèles de départ, lecture, images clés). L'aperçu est une approximation : le rendu exact se vérifie dans Minecraft. Les animations écrites en Molang sont conservées mais ne s'animent pas dans l'aperçu.
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.
@@ -118,6 +129,5 @@ Les mods **Java Edition** (`.jar`, Forge, Fabric, `pack.mcmeta`) sont refusés a
 
 ## 9. Ce qui n'est pas encore possible
 
-- Éditeurs de textures, de modèles 3D, d'animations, de logique par blocs, de scripts et de structures : en cours (phase 3).
-- Dimensions personnalisées : Minecraft les permet depuis la version 1.26.30 (par script, la dimension naît vide). Leur assistant arrive dans la phase 3.
+- Structures (.mcstructure), bibliothèque de composants et assistant en langage naturel : prochaines étapes.
 - Les fichiers son et structure se conservent et s'exportent, mais ne se modifient pas encore dans l'application.

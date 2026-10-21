@@ -122,7 +122,13 @@ fun EditorScreen(nav: NavHostController, id: String, path: String, line: Int) {
         Box(Modifier.padding(padding).fillMaxSize().imePadding()) {
             when (vm.kind) {
                 EditorViewModel.Kind.LOADING -> LoadingBox()
-                EditorViewModel.Kind.TEXT -> TextEditor(vm)
+                EditorViewModel.Kind.TEXT -> Column {
+                    if (path.endsWith(".geo.json", ignoreCase = true)) androidx.compose.material3.OutlinedButton(
+                        onClick = { nav.navigate(Routes.model(id, path)) },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    ) { Text(stringResource(R.string.model_open_editor)) }
+                    TextEditor(vm)
+                }
                 EditorViewModel.Kind.IMAGE -> Column {
                     if (path.endsWith(".png", ignoreCase = true)) androidx.compose.material3.Button(
                         onClick = { nav.navigate(Routes.texture(id, path)) },

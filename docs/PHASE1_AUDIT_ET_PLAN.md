@@ -337,6 +337,21 @@ Tests exécutés dans l'environnement de développement :
 
 Point non vérifié à surveiller lors de l'essai en jeu : la capacité d'une pioche personnalisée à récolter les minerais qui exigent un niveau minimum.
 
+### Phase 3b à 3g : livrées (21/10/2026)
+
+| Lot | Contenu | Vérification |
+|---|---|---|
+| 3b | Éditeur de textures pixel art | tests du cœur (trait, remplissage 1024², redimensionnement) + parcours « dessin au doigt » |
+| 3c | Scripts : activation, `main.js` géré, validation des imports | **TypeScript contre @minecraft/server 2.8.0 / 2.9.0 / 2.10.0** en CI ; contrôle négatif vérifié |
+| 3d | Dimensions personnalisées, portail, clé, commande | scripts vérifiés par TypeScript ; parcours d'interface |
+| 3e | Boss multi-phases | capteur `environment_sensor` + `int_property` + groupes de composants, formats relevés dans les fichiers vanilla ; script de messages vérifié |
+| 3f | Éditeur de comportements par blocs | chaque événement/condition/action compilé ensemble et vérifié par TypeScript |
+| 3g | Éditeur 3D et animations | lecture/écriture .geo.json (formats moderne et ancien), patron UV, normales, OBJ, animations (Molang conservé) ; parcours d'interface |
+
+Limite de l'environnement de test découverte : l'Android simulé (Robolectric) se bloque dès qu'une boîte de dialogue contient un champ de texte. Ces boîtes (renommer, nouveau fichier, nouvelle texture…) ne sont donc pas couvertes par les tests automatiques et doivent être essayées sur un téléphone.
+
+**Toujours non testé en jeu.**
+
 ### Prochaine étape : phase 3 (suite)
 
-Ordre prévu : éditeur de textures → éditeur 3D → animations → boss multi-phases → logique par nœuds → scripts → structures, portails et dimensions personnalisées.
+Reste à faire : structures (.mcstructure, NBT), bibliothèque de composants, assistant en langage naturel (hors ligne + IA optionnelle), aperçu des particules.

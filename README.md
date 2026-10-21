@@ -2,7 +2,7 @@
 
 Application Android pour créer des addons **Minecraft Bedrock Edition** depuis un téléphone, sans écrire de code.
 
-> État : **phase 3 en cours** (socle terminé, assistants objets/blocs/recettes livrés). Voir [l'audit et le plan](docs/PHASE1_AUDIT_ET_PLAN.md) et le [guide d'utilisation](docs/GUIDE_UTILISATEUR.md).
+> État : **phase 3 bien avancée** (socle, assistants, éditeurs de textures, 3D, animations, comportements, dimensions et boss livrés). Voir [l'audit et le plan](docs/PHASE1_AUDIT_ET_PLAN.md) et le [guide d'utilisation](docs/GUIDE_UTILISATEUR.md).
 
 ## Ce que l'application fait déjà
 
@@ -22,7 +22,14 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Enregistrer l'export, le partager, l'ouvrir avec Minecraft | ✅ |
 | Import `.mcaddon`, `.mcpack`, `.zip` avec rapport détaillé ; restauration des sauvegardes | ✅ |
 | Projet d'exemple complet | ✅ |
-| Éditeurs de textures, 3D, animations, logique par nœuds, scripts, structures, dimensions | ⏳ phase 3 (en cours) |
+| Éditeur de textures pixel art (crayon, gomme, remplissage, pipette, symétrie, zoom à deux doigts, redimensionnement) | ✅ |
+| Éditeur de modèles 3D (os, cubes, pivots, rotations, UV, miroir, duplication, caméra orbitale tactile, éclairage, export OBJ) | ✅ |
+| Éditeur d'animations (timeline, images clés, boucle, modèles marche/attaque/apparition/mort/transformation) | ✅ |
+| Boss multi-phases (barre de boss, seuils de vie, immunités, butin rare, messages) | ✅ |
+| Dimensions personnalisées (API officielle ≥ 1.26.30) avec portail, clé et commande | ✅ |
+| Éditeur de comportements par blocs (quand / si / alors → script vérifié) | ✅ |
+| Scripts : activation automatique, point d'entrée géré, vérification des imports, coloration | ✅ |
+| Structures (.mcstructure), bibliothèque de composants, assistant en langage naturel | ⏳ à venir |
 
 **Important :** l'application vérifie la *structure* des fichiers. Aucun addon n'a encore été testé dans Minecraft par le développement : seul un essai en jeu (sur ton téléphone) prouve qu'un addon fonctionne. Le guide explique comment faire cet essai et lire les erreurs de Minecraft.
 
@@ -57,12 +64,14 @@ Android 8.0 ou plus récent est nécessaire. Les nouvelles versions s'installent
 ## Tests
 
 ```bash
-./gradlew :core:test              # 41 tests : JSON, projets, validation, export, import, sécurité des archives
-./gradlew :app:testDebugUnitTest  # 5 parcours d'interface simulés (Robolectric)
+./gradlew :core:test              # 59 tests : JSON, projets, validation, export, import, sécurité des archives
+./gradlew :app:testDebugUnitTest  # 10 parcours d'interface simulés (Robolectric)
 ./gradlew :app:lintDebug          # analyse Android Lint
 ```
 
 Les tests d'interface simulent Android sur l'ordinateur ; ils ne remplacent pas un essai sur un vrai téléphone.
+Les scripts générés (dimensions, boss, comportements) sont en plus vérifiés par TypeScript contre les définitions
+officielles `@minecraft/server` 2.8.0, 2.9.0 et 2.10.0 (étape « scripts » de GitHub Actions).
 
 ## Organisation du code
 

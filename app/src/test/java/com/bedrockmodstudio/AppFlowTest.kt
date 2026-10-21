@@ -284,4 +284,35 @@ class AppFlowTest {
         assertEquals(script, files.readText("behavior_pack/scripts/bms/comportements.js"))
         assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
     }
+
+    @Test
+    fun `editeur 3D - selection au doigt, ajout de cube, animation, enregistrement`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Modèles 3D et animations")
+        click("Modèles 3D et animations")
+        waitText("sanglier_mousses.geo.json")
+        click("sanglier_mousses.geo.json")
+        waitText("Structure")
+        rule.waitForIdle()
+        // Toucher le centre de la vue sélectionne un cube et ouvre ses propriétés.
+        rule.onNode(androidx.compose.ui.test.hasTestTag("model_viewport")).performTouchInput { down(center); up() }
+        waitText("Pas :")
+        click("Structure")
+        click("+ Cube")
+        click("Animation")
+        click("+ Animation")
+        waitText("Modèle de départ")
+        click("Créer l'animation")
+        waitText("En boucle")
+        rule.onNodeWithContentDescription("Enregistrer").performClick()
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        rule.waitUntil(10_000) { files.exists("resource_pack/animations/sanglier_mousses.animation.json") &&
+            files.readText("resource_pack/animations/sanglier_mousses.animation.json").contains("marche") }
+        val geo = com.bedrockmodstudio.core.model3d.GeoCodec.parse(files.readText("resource_pack/models/entity/sanglier_mousses.geo.json"))
+        assertEquals(7, geo.models.single().bones.sumOf { it.cubes.size }) // 6 cubes d'origine + 1
+        // L'ancienne animation (Molang) est conservée à côté de la nouvelle.
+        assertTrue(files.readText("resource_pack/animations/sanglier_mousses.animation.json").contains("query.modified_distance_moved"))
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+    }
 }

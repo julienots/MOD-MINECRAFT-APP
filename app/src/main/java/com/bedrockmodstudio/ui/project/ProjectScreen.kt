@@ -83,6 +83,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             ActionTile(Icons.Filled.GridOn, stringResource(R.string.action_recipe), stringResource(R.string.action_recipe_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.recipe(id))
             }
+            ActionTile(Icons.Filled.ViewInAr, stringResource(R.string.action_models), stringResource(R.string.action_models_desc), tile, BmsColors.Info) {
+                nav.navigate(Routes.models(id))
+            }
             ActionTile(Icons.Filled.Extension, stringResource(R.string.action_logic), stringResource(R.string.action_logic_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.logic(id))
             }
