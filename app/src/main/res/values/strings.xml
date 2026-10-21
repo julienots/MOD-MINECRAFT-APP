@@ -345,4 +345,23 @@
     <string name="dim_message">Message d\'arrivée (facultatif)</string>
     <string name="dim_generate">Générer la dimension</string>
     <string name="dim_test_hint">Pour tester : exporte l\'addon, active-le dans un monde puis recharge le monde. Ensuite : /give @s %1$s_key (clé), /give @s %1$s_portal (portail) ou /%1$s.</string>
+
+    <!-- Boss -->
+    <string name="boss_toggle">C\'est un boss</string>
+    <string name="boss_toggle_help">Barre de vie à l\'écran, phases de combat, immunités et butin rare.</string>
+    <string name="boss_bar">Barre de vie de boss</string>
+    <string name="boss_dark_sky">Assombrir le ciel pendant le combat</string>
+    <string name="boss_no_knockback">Ne recule pas quand on le frappe</string>
+    <string name="boss_immune_fall">Insensible aux chutes</string>
+    <string name="boss_immune_fire">Insensible au feu et à la lave</string>
+    <string name="boss_immune_projectiles">Insensible aux flèches et projectiles</string>
+    <string name="boss_phases">Phases de combat</string>
+    <string name="boss_phases_help">La phase 1 utilise les réglages ci-dessus. Chaque phase suivante commence quand la vie passe sous un seuil et change les dégâts et la vitesse.</string>
+    <string name="boss_phase_n">Phase %1$d</string>
+    <string name="boss_phase_threshold">Commence sous %1$d %% de vie</string>
+    <string name="boss_phase_message">Message aux joueurs (facultatif)</string>
+    <string name="boss_add_phase">Ajouter une phase</string>
+    <string name="boss_rare_loot">Butin rare</string>
+    <string name="boss_rare_loot_item">Objet rare (facultatif)</string>
+    <string name="boss_rare_chance">Probabilité : %1$d %%</string>
 </resources>

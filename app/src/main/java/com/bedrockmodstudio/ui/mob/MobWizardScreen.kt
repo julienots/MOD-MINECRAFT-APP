@@ -40,12 +40,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bedrockmodstudio.R
 import com.bedrockmodstudio.container
 import com.bedrockmodstudio.core.bedrock.BedrockVersions
+import com.bedrockmodstudio.core.bedrock.BossPhase
+import com.bedrockmodstudio.core.bedrock.BossSpec
+import com.bedrockmodstudio.core.bedrock.ContentInstaller
 import com.bedrockmodstudio.core.bedrock.GeneratedContent
 import com.bedrockmodstudio.core.bedrock.MobGenerator
 import com.bedrockmodstudio.core.bedrock.MobSpec
@@ -105,6 +109,16 @@ fun MobWizardScreen(nav: NavHostController, id: String) {
     var lootMax by remember { mutableStateOf(2f) }
     var spawn by remember { mutableStateOf(false) }
     var weight by remember { mutableStateOf(8f) }
+    var isBoss by remember { mutableStateOf(false) }
+    var bossBar by remember { mutableStateOf(true) }
+    var darkSky by remember { mutableStateOf(false) }
+    var immuneFall by remember { mutableStateOf(true) }
+    var immuneFire by remember { mutableStateOf(false) }
+    var immuneProj by remember { mutableStateOf(false) }
+    var noKnockback by remember { mutableStateOf(true) }
+    var rareLoot by remember { mutableStateOf("") }
+    var rareChance by remember { mutableStateOf(0.25f) }
+    val phases = remember { androidx.compose.runtime.mutableStateListOf<BossPhase>() }
     var pending by remember { mutableStateOf<Pair<GeneratedContent, List<String>>?>(null) }
     var written by remember { mutableStateOf<List<String>?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -116,6 +130,11 @@ fun MobWizardScreen(nav: NavHostController, id: String) {
         scale = Math.round(scale * 10) / 10.0, bodyColor = body, accentColor = accent, xpOnDeath = xp.toInt(),
         lootItem = loot, lootMin = lootMin.toInt(), lootMax = maxOf(lootMin.toInt(), lootMax.toInt()),
         spawnNaturally = spawn, spawnWeight = weight.toInt(),
+        boss = if (!isBoss) null else BossSpec(
+            bossBar = bossBar, darkenSky = darkSky, phases = phases.toList(), immuneFall = immuneFall, immuneFire = immuneFire,
+            immuneProjectiles = immuneProj, knockbackResistant = noKnockback, rareLoot = rareLoot.ifBlank { null },
+            rareChance = Math.round(rareChance * 100) / 100.0,
+        ),
     )
     val errors = spec.validate()
     val preview = remember(effectiveId, body, accent) {
@@ -126,7 +145,7 @@ fun MobWizardScreen(nav: NavHostController, id: String) {
         busy = true
         scope.launch(Dispatchers.Main.immediate) {
             val r = withContext(Dispatchers.IO) {
-                runCatching { app.store.files(id).apply(content, overwrite, "Assistant créature").also { app.store.touch(id) } }
+                runCatching { ContentInstaller.install(app.store, id, content, overwrite, "Assistant créature").also { app.store.touch(id) } }
             }
             busy = false
             r.onSuccess { written = it.written; snackbar.showSnackbar(context.getString(R.string.mob_created, it.written.size)) }
@@ -198,6 +217,57 @@ fun MobWizardScreen(nav: NavHostController, id: String) {
             }
             if (spawn) LabeledSlider(stringResource(R.string.mob_spawn_weight, weight.toInt()), null, weight, 1f..100f) { weight = it }
 
+            // ---- Boss ----
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.boss_toggle), style = MaterialTheme.typography.titleMedium)
+                    HelpText(stringResource(R.string.boss_toggle_help))
+                }
+                Switch(isBoss, { isBoss = it; if (it && health < 100f) health = 200f },
+                    modifier = Modifier.testTag("boss_switch"))
+            }
+            if (isBoss) {
+                BossOption(stringResource(R.string.boss_bar), bossBar) { bossBar = it }
+                BossOption(stringResource(R.string.boss_dark_sky), darkSky) { darkSky = it }
+                BossOption(stringResource(R.string.boss_no_knockback), noKnockback) { noKnockback = it }
+                BossOption(stringResource(R.string.boss_immune_fall), immuneFall) { immuneFall = it }
+                BossOption(stringResource(R.string.boss_immune_fire), immuneFire) { immuneFire = it }
+                BossOption(stringResource(R.string.boss_immune_projectiles), immuneProj) { immuneProj = it }
+
+                SectionTitle(stringResource(R.string.boss_phases))
+                HelpText(stringResource(R.string.boss_phases_help))
+                phases.forEachIndexed { i, p ->
+                    androidx.compose.material3.Card(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                        Column(Modifier.padding(12.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(R.string.boss_phase_n, i + 2), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                                androidx.compose.material3.TextButton(onClick = { phases.removeAt(i) }) { Text(stringResource(R.string.delete)) }
+                            }
+                            LabeledSlider(stringResource(R.string.boss_phase_threshold, p.healthPercent), null, p.healthPercent.toFloat(), 1f..99f) {
+                                phases[i] = p.copy(healthPercent = it.toInt())
+                            }
+                            if (temperament != MobTemperament.PASSIVE) LabeledSlider(stringResource(R.string.mob_damage, p.attackDamage, fmt(p.attackDamage / 2.0)), null,
+                                p.attackDamage.toFloat(), 0f..60f) { phases[i] = p.copy(attackDamage = it.toInt()) }
+                            LabeledSlider(stringResource(R.string.mob_speed, fmt(p.speed)), null, p.speed.toFloat(), 0.05f..0.8f) {
+                                phases[i] = p.copy(speed = Math.round(it * 100) / 100.0)
+                            }
+                            androidx.compose.material3.OutlinedTextField(p.message, { phases[i] = p.copy(message = it) }, Modifier.fillMaxWidth(),
+                                label = { Text(stringResource(R.string.boss_phase_message)) })
+                        }
+                    }
+                }
+                if (phases.size < 4) androidx.compose.material3.OutlinedButton(onClick = {
+                    val last = phases.lastOrNull()
+                    val threshold = ((last?.healthPercent ?: 100) * 0.6).toInt().coerceAtLeast(1)
+                    phases.add(BossPhase(threshold, ((last?.attackDamage ?: damage.toInt()) * 1.5).toInt(), ((last?.speed ?: speed.toDouble()) + 0.05).coerceAtMost(0.8)))
+                }) { Text(stringResource(R.string.boss_add_phase)) }
+
+                SectionTitle(stringResource(R.string.boss_rare_loot))
+                androidx.compose.material3.OutlinedTextField(rareLoot, { rareLoot = it.trim().lowercase() }, Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.boss_rare_loot_item)) }, placeholder = { Text("minecraft:nether_star") }, singleLine = true)
+                if (rareLoot.isNotBlank()) LabeledSlider(stringResource(R.string.boss_rare_chance, (rareChance * 100).toInt()), null, rareChance, 0.01f..1f) { rareChance = it }
+            }
+
             if (errors.isNotEmpty() && name.isNotBlank()) InfoCard(errors.joinToString("\n"), color = BmsColors.Error)
             Spacer(Modifier.height(16.dp))
             Button(
@@ -223,5 +293,12 @@ fun MobWizardScreen(nav: NavHostController, id: String) {
             onConfirm = { pending = null; apply(content, overwrite = true) },
             onDismiss = { pending = null },
         )
+    }
+}
+
+@Composable
+private fun BossOption(label: String, value: Boolean, onChange: (Boolean) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Text(label, Modifier.weight(1f)); Switch(value, onChange)
     }
 }

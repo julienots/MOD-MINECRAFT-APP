@@ -15,6 +15,43 @@ enum class MobTemperament(val labelFr: String, val explanationFr: String) {
     HOSTILE("Hostile", "Attaque les joueurs qu'il voit."),
 }
 
+/** Phase d'un boss : déclenchée quand la vie passe sous [healthPercent] % du maximum. */
+data class BossPhase(
+    val healthPercent: Int,
+    val attackDamage: Int,
+    val speed: Double,
+    /** Message envoyé à tous les joueurs au changement de phase (vide = aucun). */
+    val message: String = "",
+)
+
+data class BossSpec(
+    val bossBar: Boolean = true,
+    val darkenSky: Boolean = false,
+    /** Phases supplémentaires (la phase 1 utilise les réglages de base), seuils décroissants. */
+    val phases: List<BossPhase> = emptyList(),
+    val immuneFall: Boolean = true,
+    val immuneFire: Boolean = false,
+    val immuneProjectiles: Boolean = false,
+    val knockbackResistant: Boolean = true,
+    /** Butin rare supplémentaire. */
+    val rareLoot: String? = null,
+    val rareChance: Double = 0.25,
+) {
+    fun validate(): List<String> = buildList {
+        if (phases.size > 4) add("5 phases au maximum (la phase 1 et 4 phases supplémentaires).")
+        var previous = 100
+        phases.forEachIndexed { i, p ->
+            if (p.healthPercent !in 1..99) add("Phase ${i + 2} : le seuil doit être compris entre 1 et 99 %.")
+            if (p.healthPercent >= previous) add("Phase ${i + 2} : le seuil doit être plus bas que celui de la phase précédente.")
+            if (p.attackDamage !in 0..1000) add("Phase ${i + 2} : dégâts invalides.")
+            if (p.speed !in 0.0..2.0) add("Phase ${i + 2} : vitesse invalide.")
+            previous = p.healthPercent
+        }
+        if (rareLoot != null && !Identifiers.isValidIdentifier(rareLoot)) add("Butin rare « $rareLoot » invalide.")
+        if (rareChance !in 0.0..1.0) add("La probabilité du butin rare doit être comprise entre 0 et 100 %.")
+    }
+}
+
 /**
  * Paramètres d'un mob simple (créature quadrupède au modèle original).
  * L'assistant complet de la phase 3 étendra ces paramètres ; ceux-ci sont déjà tous traduits en fichiers Bedrock.
@@ -41,6 +78,8 @@ data class MobSpec(
     val lootMax: Int = 2,
     val spawnNaturally: Boolean = false,
     val spawnWeight: Int = 8,
+    /** Réglages de boss (barre de vie, phases…) ; null = créature ordinaire. */
+    val boss: BossSpec? = null,
 ) {
     fun validate(): List<String> = buildList {
         if (displayName.isBlank()) add("Le nom affiché est vide.")
@@ -53,6 +92,7 @@ data class MobSpec(
         if (lootItem != null && !Identifiers.isValidIdentifier(lootItem)) add("L'objet de butin « $lootItem » n'est pas un identifiant valide.")
         if (lootMin < 0 || lootMax < lootMin) add("Quantité de butin invalide.")
         if (xpOnDeath !in 0..10000) add("L'expérience doit être comprise entre 0 et 10000.")
+        boss?.let { addAll(it.validate()) }
     }
 }
 
@@ -72,8 +112,12 @@ object MobGenerator {
         c.text("$RP/models/entity/$name.geo.json", JsonWriter.write(geometry(geometryId, profile)) + "\n")
         c.text("$RP/animations/$name.animation.json", JsonWriter.write(animations(animPrefix, profile)) + "\n")
         c.bytes("$RP/textures/entity/$name.png", texture(spec))
-        if (spec.lootItem != null) {
+        if (spec.lootItem != null || spec.boss?.rareLoot != null) {
             c.text("$BP/loot_tables/entities/$name.json", JsonWriter.write(lootTable(spec)) + "\n")
+        }
+        val messages = spec.boss?.phases?.withIndex()?.filter { it.value.message.isNotBlank() } ?: emptyList()
+        if (messages.isNotEmpty()) {
+            c.script("bms/boss_$name.js", bossScript(id, namespace, name, messages.map { (i, p) -> phaseEvent(namespace, name, i + 2) to p.message }))
         }
         if (spec.spawnNaturally) {
             c.text("$BP/spawn_rules/$name.json", JsonWriter.write(spawnRules(id, spec, profile)) + "\n")
@@ -106,7 +150,28 @@ object MobGenerator {
             "minecraft:behavior.random_look_around" to obj("priority" to 8),
         )
         if (s.scale != 1.0) components["minecraft:scale"] = obj("value" to s.scale)
-        if (s.lootItem != null) components["minecraft:loot"] = obj("table" to "loot_tables/entities/$name.json")
+        s.boss?.let { b ->
+            if (b.bossBar) components["minecraft:boss"] = obj("hud_range" to 55, "should_darken_sky" to b.darkenSky)
+            if (b.knockbackResistant) components["minecraft:knockback_resistance"] = obj("value" to 1.0)
+            if (b.immuneFire) components["minecraft:fire_immune"] = obj()
+            val immunities = listOfNotNull("fall".takeIf { b.immuneFall }, "projectile".takeIf { b.immuneProjectiles })
+            if (immunities.isNotEmpty()) components["minecraft:damage_sensor"] = obj(
+                "triggers" to immunities.map { obj("cause" to it, "deals_damage" to "no") },
+            )
+            if (b.phases.isNotEmpty()) {
+                val prop = phaseProperty(id)
+                components["minecraft:environment_sensor"] = obj("triggers" to b.phases.mapIndexed { i, p ->
+                    obj(
+                        "filters" to obj("all_of" to listOf(
+                            obj("test" to "int_property", "domain" to prop, "operator" to "==", "value" to i + 1),
+                            obj("test" to "actor_health", "subject" to "self", "operator" to "<=", "value" to Math.max(1, s.health * p.healthPercent / 100)),
+                        )),
+                        "event" to phaseEvent(id.substringBefore(':'), name, i + 2),
+                    )
+                })
+            }
+        }
+        if (s.lootItem != null || s.boss?.rareLoot != null) components["minecraft:loot"] = obj("table" to "loot_tables/entities/$name.json")
         if (s.spawnNaturally) components["minecraft:despawn"] = obj("despawn_from_distance" to obj())
         when (s.temperament) {
             MobTemperament.PASSIVE ->
@@ -134,10 +199,71 @@ object MobGenerator {
                     "is_spawnable" to true,
                     "is_summonable" to true,
                     "spawn_category" to if (s.temperament == MobTemperament.HOSTILE) "monster" else "creature",
+                    "properties" to bossProperties(id, s),
                 ),
+                "component_groups" to bossGroups(id, s),
                 "components" to components,
+                "events" to bossEvents(id, s),
             ),
         )
+    }
+
+    private fun phaseProperty(id: String) = id.substringBefore(':') + ":phase"
+    private fun phaseGroup(id: String, n: Int) = "${id}_phase_$n"
+    fun phaseEvent(ns: String, name: String, n: Int) = "$ns:${name}_phase_$n"
+
+    private fun bossProperties(id: String, s: MobSpec): Any? {
+        val phases = s.boss?.phases ?: return null
+        if (phases.isEmpty()) return null
+        return obj(phaseProperty(id) to obj("type" to "int", "range" to listOf(1, phases.size + 1), "default" to 1, "client_sync" to true))
+    }
+
+    private fun bossGroups(id: String, s: MobSpec): Any? {
+        val phases = s.boss?.phases ?: return null
+        if (phases.isEmpty()) return null
+        val groups = linkedMapOf<String, Any>()
+        phases.forEachIndexed { i, p ->
+            val g = linkedMapOf<String, Any>("minecraft:movement" to obj("value" to p.speed))
+            if (s.temperament != MobTemperament.PASSIVE) g["minecraft:attack"] = obj("damage" to p.attackDamage)
+            groups[phaseGroup(id, i + 2)] = g
+        }
+        return groups
+    }
+
+    private fun bossEvents(id: String, s: MobSpec): Any? {
+        val phases = s.boss?.phases ?: return null
+        if (phases.isEmpty()) return null
+        val ns = id.substringBefore(':'); val name = id.substringAfter(':')
+        val events = linkedMapOf<String, Any>()
+        phases.forEachIndexed { i, _ ->
+            val n = i + 2
+            events[phaseEvent(ns, name, n)] = obj(
+                "set_property" to obj(phaseProperty(id) to n),
+                "add" to obj("component_groups" to listOf(phaseGroup(id, n))),
+                "remove" to if (n > 2) obj("component_groups" to listOf(phaseGroup(id, n - 1))) else null,
+            )
+        }
+        return events
+    }
+
+    /** Script facultatif : annonce les changements de phase à tous les joueurs. */
+    private fun bossScript(id: String, ns: String, name: String, messages: List<Pair<String, String>>): String {
+        val map = messages.joinToString(",\n") { (event, msg) -> "  [${Js.str(event)}, ${Js.str(msg)}]" }
+        return Js.header("Messages de phase du boss $id") + """
+            |import { world } from "@minecraft/server";
+            |
+            |const BOSS_ID = ${Js.str(id)};
+            |const PHASE_MESSAGES = new Map([
+            |$map,
+            |]);
+            |
+            |// Les phases sont déclenchées par le comportement JSON du boss ; ce script ne fait que les annoncer.
+            |world.afterEvents.dataDrivenEntityTrigger.subscribe((event) => {
+            |  if (event.entity.typeId !== BOSS_ID) return;
+            |  const message = PHASE_MESSAGES.get(event.eventId);
+            |  if (message) world.sendMessage(message);
+            |});
+            |""".trimMargin()
     }
 
     private fun clientEntity(id: String, name: String, geo: String, anim: String, s: MobSpec, p: BedrockVersionProfile) = obj(
@@ -216,15 +342,24 @@ object MobGenerator {
         return c.toPng()
     }
 
-    private fun lootTable(s: MobSpec) = obj(
-        "pools" to listOf(obj(
+    private fun lootTable(s: MobSpec): JsonValue {
+        val pools = mutableListOf<Any>()
+        if (s.lootItem != null) pools += obj(
             "rolls" to 1,
             "entries" to listOf(obj(
                 "type" to "item", "name" to s.lootItem, "weight" to 1,
                 "functions" to listOf(obj("function" to "set_count", "count" to obj("min" to s.lootMin, "max" to s.lootMax))),
             )),
-        )),
-    )
+        )
+        s.boss?.rareLoot?.let { rare ->
+            pools += obj(
+                "rolls" to 1,
+                "conditions" to listOf(obj("condition" to "random_chance", "chance" to s.boss.rareChance)),
+                "entries" to listOf(obj("type" to "item", "name" to rare, "weight" to 1)),
+            )
+        }
+        return obj("pools" to pools)
+    }
 
     private fun spawnRules(id: String, s: MobSpec, p: BedrockVersionProfile): JsonValue {
         val hostile = s.temperament == MobTemperament.HOSTILE

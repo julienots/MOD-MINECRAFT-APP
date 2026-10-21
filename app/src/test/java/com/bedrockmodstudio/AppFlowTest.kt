@@ -230,4 +230,27 @@ class AppFlowTest {
         val report = app.exporter.validate(project.meta.id)
         assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
     }
+
+    @Test
+    fun `assistant creature en mode boss a deux phases`() {
+        click("Créer un mod")
+        waitText("Nouveau mod")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Boss")
+        click("Créer")
+        waitText("Créer une créature")
+        click("Créer une créature")
+        waitText("Nouvelle créature")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Golem ancien")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("boss_switch")).performScrollTo().performClick()
+        click("Ajouter une phase")
+        click("Ajouter une phase")
+        click("Générer la créature")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        val project = app.store.list().single()
+        val entity = app.store.files(project.meta.id).readText("behavior_pack/entities/golem_ancien.json")
+        assertTrue(entity.contains("minecraft:boss"))
+        assertTrue(entity.contains("boss:golem_ancien_phase_3"))
+        val report = app.exporter.validate(project.meta.id)
+        assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
+    }
 }
