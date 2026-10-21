@@ -253,4 +253,35 @@ class AppFlowTest {
         val report = app.exporter.validate(project.meta.id)
         assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
     }
+
+    @Test
+    fun `editeur de comportements - exemple compile, regle incomplete refusee`() {
+        click("Créer un mod")
+        waitText("Nouveau mod")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Logique")
+        click("Créer")
+        waitText("Comportements (blocs)")
+        click("Comportements (blocs)")
+        waitText("Éditeur de comportements")
+        click("Exemples")
+        waitText("Bâton de vitesse")
+        rule.onAllNodesWithText("Bâton de vitesse")[0].performClick()
+        click("Enregistrer et compiler")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        val script = files.readText("behavior_pack/scripts/bms/comportements.js")
+        assertTrue(script.contains("minecraft:stick"))
+        assertTrue(files.readText("editeur/comportements.json").contains("Bâton de vitesse"))
+
+        click("Nouvelle règle")
+        waitText("Modifier la règle")
+        back()
+        waitText("Enregistrer et compiler")
+        click("Enregistrer et compiler")
+        waitText("Compilation impossible", substring = true)
+        // Le script précédent n'a pas été remplacé par un script incomplet.
+        assertEquals(script, files.readText("behavior_pack/scripts/bms/comportements.js"))
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+    }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.GridOn
@@ -81,6 +82,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.GridOn, stringResource(R.string.action_recipe), stringResource(R.string.action_recipe_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.recipe(id))
+            }
+            ActionTile(Icons.Filled.Extension, stringResource(R.string.action_logic), stringResource(R.string.action_logic_desc), tile, BmsColors.Secondary) {
+                nav.navigate(Routes.logic(id))
             }
             ActionTile(Icons.Filled.Public, stringResource(R.string.action_dimension), stringResource(R.string.action_dimension_desc), tile, BmsColors.Info) {
                 nav.navigate(Routes.dimension(id))

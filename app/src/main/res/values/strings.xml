@@ -364,4 +364,28 @@
     <string name="boss_rare_loot">Butin rare</string>
     <string name="boss_rare_loot_item">Objet rare (facultatif)</string>
     <string name="boss_rare_chance">Probabilité : %1$d %%</string>
+
+    <!-- Éditeur de comportements -->
+    <string name="action_logic">Comportements (blocs)</string>
+    <string name="action_logic_desc">Quand… si… alors… sans écrire de code</string>
+    <string name="logic_title">Éditeur de comportements</string>
+    <string name="logic_edit_rule">Modifier la règle</string>
+    <string name="logic_intro">Chaque règle se lit comme une phrase : QUAND quelque chose arrive, SI les conditions sont remplies, ALORS les actions s\'enchaînent (« Attendre » crée un délai). « Compiler » transforme les règles en script Minecraft ; une règle incomplète est signalée et rien n\'est écrit.</string>
+    <string name="logic_empty">Aucune règle. Ajoute-en une ou pars d\'un exemple.</string>
+    <string name="logic_edit">Modifier</string>
+    <string name="logic_add_rule">Nouvelle règle</string>
+    <string name="logic_examples">Exemples</string>
+    <string name="logic_compile">Enregistrer et compiler</string>
+    <string name="logic_unsaved">Modifications non compilées.</string>
+    <string name="logic_compiled">Règles compilées dans le script.</string>
+    <string name="logic_saved_with_errors">Règles enregistrées, mais non compilées : corrige les erreurs.</string>
+    <string name="logic_errors">Compilation impossible :</string>
+    <string name="logic_delete_title">Supprimer cette règle ?</string>
+    <string name="logic_delete_body">Elle disparaîtra du script à la prochaine compilation. L\'ancienne version du fichier des règles reste dans l\'historique.</string>
+    <string name="logic_rule_name">Nom de la règle</string>
+    <string name="logic_no_condition">Aucune condition : les actions ont lieu à chaque fois.</string>
+    <string name="logic_add_condition">Ajouter une condition</string>
+    <string name="logic_add_action">Ajouter une action</string>
+    <string name="logic_up">Monter</string>
+    <string name="logic_down">Descendre</string>
 </resources>

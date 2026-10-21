@@ -74,6 +74,7 @@ object Routes {
     fun block(id: String) = "project/$id/block"
     fun recipe(id: String) = "project/$id/recipe"
     fun dimension(id: String) = "project/$id/dimension"
+    fun logic(id: String) = "project/$id/logic"
 }
 
 /** Messages courts (« Enregistré. ») accessibles depuis tous les écrans. */
@@ -148,6 +149,7 @@ fun AppNavigation() {
                 composable("project/{id}/block") { BlockWizardScreen(nav, it.arg("id")) }
                 composable("project/{id}/recipe") { RecipeWizardScreen(nav, it.arg("id")) }
                 composable("project/{id}/dimension") { DimensionWizardScreen(nav, it.arg("id")) }
+                composable("project/{id}/logic") { com.bedrockmodstudio.ui.logic.BehaviorEditorScreen(nav, it.arg("id")) }
             }
         }
     }
