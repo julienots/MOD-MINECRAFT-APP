@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Domain
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Extension
@@ -90,6 +91,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.Domain, stringResource(R.string.action_structures), stringResource(R.string.action_structures_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.structures(id))
+            }
+            ActionTile(Icons.Filled.AutoAwesome, stringResource(R.string.action_particles), stringResource(R.string.action_particles_desc), tile, BmsColors.Secondary) {
+                nav.navigate(Routes.particles(id))
             }
             ActionTile(Icons.Filled.Extension, stringResource(R.string.action_logic), stringResource(R.string.action_logic_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.logic(id))

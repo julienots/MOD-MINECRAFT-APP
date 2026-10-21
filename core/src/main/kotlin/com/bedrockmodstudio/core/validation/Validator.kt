@@ -87,6 +87,7 @@ class Validator(
         checkRecipeReferences()
         checkAttachables()
         checkStructures()
+        checkParticles()
         checkLang()
         checkIcons()
         return ValidationReport(issues.sortedBy { it.severity.ordinal }, checked)
@@ -364,7 +365,7 @@ class Validator(
      * Ressources vanilla dont l'existence a été vérifiée dans Mojang/bedrock-samples (v1.26.50.4) :
      * pas d'avertissement quand le projet y fait référence.
      */
-    private val verifiedVanilla = setOf("textures/misc/enchanted_actor_glint", "textures/misc/enchanted_item_glint")
+    private val verifiedVanilla = setOf("textures/misc/enchanted_actor_glint", "textures/misc/enchanted_item_glint", "textures/particle/particles")
 
     /** Erreur si la référence porte l'espace de noms du projet, avertissement sinon (peut-être vanilla). */
     private fun refMissing(code: String, message: String, reference: String, file: String) {
@@ -586,6 +587,16 @@ class Validator(
             }
             val placed = desc.str("places_feature") ?: continue
             if (placed !in features) refMissing("FEATURE_MISSING", "Élément de génération « $placed » introuvable dans behavior_pack/features.", placed, path)
+        }
+    }
+
+    private fun checkParticles() {
+        for ((path, v) in json(rp, "particles")) {
+            val desc = v.path("particle_effect", "description") as? JsonObject
+            if (desc == null) { add(Severity.WARNING, "PARTICLE_FORMAT", "Fichier de particules sans « particle_effect.description ».", path); continue }
+            if (desc.str("identifier") == null) add(Severity.ERROR, "PARTICLE_FORMAT", "Effet de particules sans identifiant.", path)
+            val tex = desc.obj("basic_render_parameters")?.str("texture") ?: continue
+            if (!textureExists(tex)) refMissing("TEXTURE_MISSING", "Texture de particules « $tex » introuvable.", tex, path)
         }
     }
 

@@ -10,10 +10,12 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import org.junit.Assert.assertEquals
@@ -374,6 +376,40 @@ class AppFlowTest {
         click("Confirmer")
         rule.waitForIdle()
         assertTrue(files.history(entity.path).isNotEmpty())
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+    }
+
+    @Test
+    fun `particules - creation, apercu anime, modification enregistree`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Particules")
+        click("Particules")
+        waitText("Nouvel effet")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("particle_name")).performTextInput("Feu follet")
+        click("Magie")
+        click("Créer l'effet")
+        waitText("Fichiers créés ou modifiés", substring = true)
+        click("feu_follet.json")
+        waitText("Salve (toutes d'un coup)")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("particle_preview")).assertExists()
+        // Puce hors écran dans une rangée défilante horizontale : l'outil de test ne sait pas faire défiler
+        // deux zones imbriquées, on utilise donc l'action d'accessibilité (même effet qu'un toucher).
+        rule.onNodeWithText("Vers le haut").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        rule.waitForIdle()
+        rule.onNodeWithText("Vers le haut").assertIsSelected()
+        rule.onNode(androidx.compose.ui.test.hasTestTag("particle_save")).assertIsEnabled()
+        rule.onNode(androidx.compose.ui.test.hasTestTag("particle_save")).performClick()
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        try {
+            rule.waitUntil(10_000) {
+                files.history("resource_pack/particles/feu_follet.json").isNotEmpty() &&
+                    com.bedrockmodstudio.core.particle.ParticleCodec.read(files.readText("resource_pack/particles/feu_follet.json")).spec?.direction ==
+                    com.bedrockmodstudio.core.particle.EmitDirection.UP
+            }
+        } catch (e: Throwable) { throw AssertionError(rule.onRoot().printToString(maxDepth = 30), e) }
+        val spec = com.bedrockmodstudio.core.particle.ParticleCodec.read(files.readText("resource_pack/particles/feu_follet.json"))
+        assertEquals(com.bedrockmodstudio.core.particle.EmitDirection.UP, spec.spec!!.direction)
         assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
     }
 }

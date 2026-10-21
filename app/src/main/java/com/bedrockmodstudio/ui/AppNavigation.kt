@@ -77,6 +77,8 @@ object Routes {
     fun logic(id: String) = "project/$id/logic"
     fun models(id: String) = "project/$id/models"
     fun model(id: String, path: String) = "project/$id/model?path=${Uri.encode(path)}"
+    fun particles(id: String) = "project/$id/particles?path="
+    fun particle(id: String, path: String) = "project/$id/particles?path=${Uri.encode(path)}"
     fun library(id: String) = "project/$id/library"
     fun structures(id: String) = "project/$id/structure?path="
     fun structure(id: String, path: String) = "project/$id/structure?path=${Uri.encode(path)}"
@@ -163,6 +165,10 @@ fun AppNavigation() {
                     "project/{id}/structure?path={path}",
                     arguments = listOf(navArgument("path") { type = NavType.StringType; defaultValue = "" }),
                 ) { com.bedrockmodstudio.ui.structure.StructureEditorScreen(nav, it.arg("id"), it.arg("path")) }
+                composable(
+                    "project/{id}/particles?path={path}",
+                    arguments = listOf(navArgument("path") { type = NavType.StringType; defaultValue = "" }),
+                ) { com.bedrockmodstudio.ui.particle.ParticlesScreen(nav, it.arg("id"), it.arg("path")) }
                 composable("project/{id}/library") { com.bedrockmodstudio.ui.library.ComponentLibraryScreen(nav, it.arg("id")) }
                 composable("project/{id}/logic") { com.bedrockmodstudio.ui.logic.BehaviorEditorScreen(nav, it.arg("id")) }
             }

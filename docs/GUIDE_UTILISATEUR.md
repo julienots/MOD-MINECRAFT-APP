@@ -78,6 +78,13 @@ Pour tester en jeu : `/give @s monmod:mon_objet`.
 
 Tuile **Bibliothèque de composants** : recherche une propriété (« feu », « vitesse », « lumière »…), touche-la pour voir son code, puis touche la créature, l'objet ou le bloc auquel l'ajouter. Si le composant existe déjà, l'application demande avant de le remplacer ; l'ancienne version reste dans l'historique. Les noms sont vérifiés contre les fichiers officiels ; les valeurs sont des exemples à ajuster. Les commentaires du fichier JSON sont retirés à l'ajout.
 
+## 3 septies. Particules
+
+- Tuile **Particules** : donne un nom, choisis un modèle (étincelles, fumée, magie, petits cœurs, pluie) et touche « Créer l'effet ». La texture (un point blanc adouci) est créée par l'application.
+- Touche l'effet pour l'ouvrir : l'**aperçu animé** se met à jour à chaque réglage (quantité, salve, boucle, forme, direction, vitesse, durée de vie, gravité, freinage, taille, couleurs). Icône Enregistrer pour écrire le fichier.
+- L'aperçu est une approximation : lumière et aspect exact se vérifient dans Minecraft avec « /particle <identifiant> ~ ~1 ~ » ou l'action « Afficher des particules » de l'éditeur de comportements.
+- Un fichier qui utilise des réglages que l'éditeur ne sait pas reprendre (expressions Molang, autres composants) s'ouvre en **aperçu seul** : il reste modifiable dans l'éditeur de texte, et l'application ne le réécrit jamais à ta place.
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.
@@ -143,5 +150,5 @@ Les mods **Java Edition** (`.jar`, Forge, Fabric, `pack.mcmeta`) sont refusés a
 
 ## 9. Ce qui n'est pas encore possible
 
-- Assistant en langage naturel et aperçu des particules : prochaines étapes.
+- Assistant en langage naturel : prochaine étape.
 - Les fichiers son se conservent et s'exportent, mais ne se modifient pas dans l'application.

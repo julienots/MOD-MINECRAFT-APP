@@ -123,6 +123,10 @@ fun EditorScreen(nav: NavHostController, id: String, path: String, line: Int) {
             when (vm.kind) {
                 EditorViewModel.Kind.LOADING -> LoadingBox()
                 EditorViewModel.Kind.TEXT -> Column {
+                    if (path.contains("/particles/") && path.endsWith(".json")) androidx.compose.material3.OutlinedButton(
+                        onClick = { nav.navigate(Routes.particle(id, path)) },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    ) { Text(stringResource(R.string.particles_open_editor)) }
                     if (path.endsWith(".geo.json", ignoreCase = true)) androidx.compose.material3.OutlinedButton(
                         onClick = { nav.navigate(Routes.model(id, path)) },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),

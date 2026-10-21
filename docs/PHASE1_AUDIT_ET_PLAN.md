@@ -365,4 +365,8 @@ Limite de l'environnement de test découverte : l'Android simulé (Robolectric) 
 
 Phase 3i — bibliothèque de composants : livrée (21/10/2026). 56 composants (créatures, objets, blocs) dont le nom est contrôlé par test contre les listes extraites de Mojang/bedrock-samples et Microsoft Learn ; insertion avec confirmation avant remplacement.
 
-Reste à faire : assistant en langage naturel (hors ligne + IA optionnelle), aperçu des particules.
+Phase 3j — particules : livrée (21/10/2026). Format vérifié dans Microsoft Learn (particlesreference) et les fichiers vanilla `basic_flame.json` / `heart.json` ; seuls les éléments confirmés sont écrits (matériau `particles_alpha`, couleurs en tableaux, `facing_camera_mode`, formes point/sphère/boîte — la forme disque n'est pas proposée car son nom diffère selon les pages). Simulation testée (émission, expiration, gravité, salve unique) ; lecture prudente : un fichier avec du Molang passe en aperçu seul. Action « Afficher des particules » vérifiée par TypeScript.
+
+Limite de l'environnement de test : l'Android simulé ne fait pas défiler deux zones imbriquées (rangée horizontale dans une page verticale) ; le parcours utilise alors l'action d'accessibilité équivalente au toucher.
+
+Reste à faire : assistant en langage naturel (hors ligne + IA optionnelle).

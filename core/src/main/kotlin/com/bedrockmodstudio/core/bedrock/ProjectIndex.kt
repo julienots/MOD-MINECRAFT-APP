@@ -37,4 +37,11 @@ object ProjectIndex {
     fun structures(files: ProjectFiles): List<String> =
         if (!files.exists("behavior_pack/structures")) emptyList()
         else files.walk("behavior_pack/structures").mapNotNull { StructureGenerator.idForPath(it) }.sorted()
+
+    /** Identifiants des effets de particules du projet. */
+    fun particles(files: ProjectFiles): List<String> =
+        if (!files.exists("resource_pack/particles")) emptyList()
+        else files.walk("resource_pack/particles").filter { it.endsWith(".json") }.mapNotNull {
+            runCatching { JsonParser.parse(files.readText(it)).valueOrNull()?.path("particle_effect", "description", "identifier")?.asString }.getOrNull()
+        }.sorted()
 }

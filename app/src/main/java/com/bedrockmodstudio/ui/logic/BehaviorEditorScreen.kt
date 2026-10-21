@@ -108,7 +108,7 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
     val snackbar = LocalSnackbar.current
     var meta by remember { mutableStateOf<ProjectMeta?>(null) }
     var projectItems by remember { mutableStateOf(emptyList<String>()) }
-    var projectStructures by remember { mutableStateOf(emptyList<String>()) }
+    var projectRefs by remember { mutableStateOf(emptyMap<ParamType, List<String>>()) }
     val rules = remember { mutableStateListOf<BehaviorRule>() }
     var loaded by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<Int?>(null) }
@@ -123,7 +123,10 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
         withContext(Dispatchers.IO) {
             meta = runCatching { app.store.load(id) }.getOrNull()
             projectItems = runCatching { ProjectIndex.usableItems(app.store.files(id)) }.getOrDefault(emptyList())
-            projectStructures = runCatching { ProjectIndex.structures(app.store.files(id)) }.getOrDefault(emptyList())
+            projectRefs = mapOf(
+                ParamType.STRUCTURE to runCatching { ProjectIndex.structures(app.store.files(id)) }.getOrDefault(emptyList()),
+                ParamType.PARTICLE to runCatching { ProjectIndex.particles(app.store.files(id)) }.getOrDefault(emptyList()),
+            )
             val files = app.store.files(id)
             val list = runCatching {
                 if (files.exists(BehaviorRulesFile.PATH)) BehaviorRulesFile.parse(files.readText(BehaviorRulesFile.PATH)) else emptyList()
@@ -169,7 +172,7 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
         val m = meta
         if (!loaded || m == null || busy) { LoadingBox(); return@Scaffold }
         if (current != null && current in rules.indices) {
-            androidx.compose.runtime.CompositionLocalProvider(LocalProjectStructures provides projectStructures) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalProjectRefs provides projectRefs) {
                 RuleEditor(rules[current], m.namespace, projectItems, Modifier.padding(padding)) { updated -> rules[current] = updated; dirty = true }
             }
             return@Scaffold
@@ -221,8 +224,8 @@ fun BehaviorEditorScreen(nav: androidx.navigation.NavHostController, id: String)
     }
 }
 
-/** Structures du projet proposées pour l'action « Placer une structure ». */
-private val LocalProjectStructures = androidx.compose.runtime.staticCompositionLocalOf { emptyList<String>() }
+/** Structures et particules du projet proposées pour les actions qui les utilisent. */
+private val LocalProjectRefs = androidx.compose.runtime.staticCompositionLocalOf { emptyMap<ParamType, List<String>>() }
 
 @Composable
 private fun RuleEditor(rule: BehaviorRule, ns: String, projectItems: List<String>, modifier: Modifier, onChange: (BehaviorRule) -> Unit) {
@@ -320,10 +323,10 @@ private fun BlockCard(
                 fun set(v: String) = onChange(inst.copy(params = inst.params + (ps.key to v)))
                 when (ps.type) {
                     ParamType.ITEM, ParamType.ENTITY, ParamType.BLOCK -> ItemField(ps.labelFr, value, ::set, projectItems)
-                    ParamType.STRUCTURE -> {
+                    ParamType.STRUCTURE, ParamType.PARTICLE -> {
                         OutlinedTextField(value, { set(it.trim().lowercase()) }, Modifier.fillMaxWidth(), label = { Text(ps.labelFr) }, singleLine = true)
-                        val structures = LocalProjectStructures.current
-                        if (structures.isEmpty()) HelpText(stringResource(R.string.logic_no_structures))
+                        val structures = LocalProjectRefs.current[ps.type].orEmpty()
+                        if (structures.isEmpty()) HelpText(stringResource(if (ps.type == ParamType.STRUCTURE) R.string.logic_no_structures else R.string.logic_no_particles))
                         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             structures.forEach { sid -> AssistChip(onClick = { set(sid) }, label = { Text(sid.substringAfter(':')) }) }
                         }
