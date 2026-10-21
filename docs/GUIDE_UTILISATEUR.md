@@ -74,6 +74,10 @@ Pour tester en jeu : `/give @s monmod:mon_objet`.
 - Pour tester : « /structure load <identifiant> ~ ~ ~ » dans un monde avec commandes, ou l'action « Placer une structure » de l'éditeur de comportements. L'apparition naturelle ne touche que les **nouveaux** tronçons du monde.
 - Limites : les blocs sont posés avec leurs états par défaut (orientation…). Pour des blocs orientés précisément, construis dans Minecraft, enregistre avec un bloc de structure, et importe le fichier. Le lien coffre ↔ table de butin n'a pas encore été vérifié en jeu.
 
+## 3 sexies. Bibliothèque de composants
+
+Tuile **Bibliothèque de composants** : recherche une propriété (« feu », « vitesse », « lumière »…), touche-la pour voir son code, puis touche la créature, l'objet ou le bloc auquel l'ajouter. Si le composant existe déjà, l'application demande avant de le remplacer ; l'ancienne version reste dans l'historique. Les noms sont vérifiés contre les fichiers officiels ; les valeurs sont des exemples à ajuster. Les commentaires du fichier JSON sont retirés à l'ajout.
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.
@@ -139,5 +143,5 @@ Les mods **Java Edition** (`.jar`, Forge, Fabric, `pack.mcmeta`) sont refusés a
 
 ## 9. Ce qui n'est pas encore possible
 
-- Bibliothèque de composants, assistant en langage naturel et aperçu des particules : prochaines étapes.
+- Assistant en langage naturel et aperçu des particules : prochaines étapes.
 - Les fichiers son se conservent et s'exportent, mais ne se modifient pas dans l'application.

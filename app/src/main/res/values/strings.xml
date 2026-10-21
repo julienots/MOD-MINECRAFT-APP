@@ -507,4 +507,18 @@
     <string name="structure_manual_hint">Sans apparition naturelle, place la structure avec « /structure load %1$s ~ ~ ~ » ou un comportement « Placer une structure ».</string>
     <string name="file_open_structure">Ouvrir dans l\'éditeur de structures</string>
     <string name="logic_no_structures">Aucune structure dans le projet : crée-en une depuis la tuile « Structures ».</string>
+    <!-- Bibliothèque de composants -->
+    <string name="action_library">Bibliothèque de composants</string>
+    <string name="action_library_desc">Propriétés prêtes à ajouter : vie, vitesse, intelligence, nourriture, lumière…</string>
+    <string name="library_title">Bibliothèque de composants</string>
+    <string name="library_intro">Touche un composant pour voir son code et l\'ajouter à une créature, un objet ou un bloc du projet. L\'ancienne version du fichier reste dans l\'historique.</string>
+    <string name="library_search">Rechercher (ex. feu, vitesse, lumière)</string>
+    <string name="library_all">Tout</string>
+    <string name="library_add_to">Ajouter à :</string>
+    <string name="library_no_target">Le projet ne contient encore aucun élément de ce type.</string>
+    <string name="library_close">Fermer</string>
+    <string name="library_added">« %1$s » ajouté à %2$s.</string>
+    <string name="library_replace_title">Composant déjà présent</string>
+    <string name="library_replace_body">%2$s contient déjà %1$s. Le remplacer par la valeur de la bibliothèque ?</string>
+    <string name="library_footer">Les noms de composants sont vérifiés contre les fichiers officiels de Mojang et la documentation Microsoft. Les valeurs sont des exemples : ajuste-les ensuite dans l\'éditeur. Les commentaires éventuels du fichier JSON sont retirés à l\'ajout.</string>
 </resources>

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Domain
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Public
@@ -95,6 +96,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.Public, stringResource(R.string.action_dimension), stringResource(R.string.action_dimension_desc), tile, BmsColors.Info) {
                 nav.navigate(Routes.dimension(id))
+            }
+            ActionTile(Icons.AutoMirrored.Filled.LibraryBooks, stringResource(R.string.action_library), stringResource(R.string.action_library_desc), tile, BmsColors.Info) {
+                nav.navigate(Routes.library(id))
             }
             ActionTile(Icons.Filled.Folder, stringResource(R.string.action_files), stringResource(R.string.action_files_desc), tile) {
                 nav.navigate(Routes.files(id))

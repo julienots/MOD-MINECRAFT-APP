@@ -30,7 +30,8 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Éditeur de comportements par blocs (quand / si / alors → script vérifié) | ✅ |
 | Scripts : activation automatique, point d'entrée géré, vérification des imports, coloration | ✅ |
 | Structures (.mcstructure) : éditeur par couches, aperçu 3D, coffres à butin, apparition naturelle | ✅ (non testé en jeu) |
-| Bibliothèque de composants, assistant en langage naturel, aperçu des particules | ⏳ à venir |
+| Bibliothèque de composants (56 composants vérifiés, ajout en un toucher) | ✅ |
+| Assistant en langage naturel, aperçu des particules | ⏳ à venir |
 
 **Important :** l'application vérifie la *structure* des fichiers. Aucun addon n'a encore été testé dans Minecraft par le développement : seul un essai en jeu (sur ton téléphone) prouve qu'un addon fonctionne. Le guide explique comment faire cet essai et lire les erreurs de Minecraft.
 

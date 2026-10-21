@@ -353,4 +353,27 @@ class AppFlowTest {
         waitText("minecraft:", substring = true)
         assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
     }
+
+    @Test
+    fun `bibliotheque - recherche, ajout a une creature, remplacement confirme`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Bibliothèque de composants")
+        click("Bibliothèque de composants")
+        waitText("Rechercher (ex. feu, vitesse, lumière)")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("library_search")).performTextInput("feu")
+        waitText("Insensible au feu")
+        click("Insensible au feu")
+        waitText("Ajouter à :")
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        val entity = com.bedrockmodstudio.core.bedrock.ProjectIndex.scan(files).first { it.kind == com.bedrockmodstudio.core.bedrock.ProjectIndex.Kind.ENTITY }
+        click(entity.id)
+        rule.waitUntil(10_000) { files.readText(entity.path).contains("minecraft:fire_immune") }
+        click(entity.id)
+        waitText("Composant déjà présent")
+        click("Confirmer")
+        rule.waitForIdle()
+        assertTrue(files.history(entity.path).isNotEmpty())
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+    }
 }

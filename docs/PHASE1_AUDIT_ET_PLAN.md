@@ -363,4 +363,6 @@ Limite de l'environnement de test découverte : l'Android simulé (Robolectric) 
 
 ### Prochaine étape : phase 3 (suite)
 
-Reste à faire : bibliothèque de composants, assistant en langage naturel (hors ligne + IA optionnelle), aperçu des particules.
+Phase 3i — bibliothèque de composants : livrée (21/10/2026). 56 composants (créatures, objets, blocs) dont le nom est contrôlé par test contre les listes extraites de Mojang/bedrock-samples et Microsoft Learn ; insertion avec confirmation avant remplacement.
+
+Reste à faire : assistant en langage naturel (hors ligne + IA optionnelle), aperçu des particules.
