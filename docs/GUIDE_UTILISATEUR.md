@@ -61,8 +61,18 @@ Pour tester en jeu : `/give @s monmod:mon_objet`.
 
 ## 3 quater. Textures, modèles 3D et animations
 
-- **Textures** : ouvre une image .png dans les fichiers puis « Modifier dans l'éditeur de textures ». Un doigt dessine, deux doigts zooment et déplacent. Outils : crayon, gomme, remplissage, pipette, symétrie gauche/droite, grille, taille de l'image. « Nouvelle texture » est dans le bouton + de l'explorateur.
-- **Modèles 3D et animations** (tableau de bord du projet) : un doigt fait tourner la vue, deux doigts zooment, un toucher sélectionne un cube. Onglets : *Structure* (os, cubes, dupliquer, miroir), *Propriétés* (position, taille, pivot, rotation, UV), *Texture* (choix de l'image, éclairage), *Animation* (modèles de départ, lecture, images clés). L'aperçu est une approximation : le rendu exact se vérifie dans Minecraft. Les animations écrites en Molang sont conservées mais ne s'animent pas dans l'aperçu.
+- **Textures** (tuile du tableau de bord) : galerie de toutes les images du projet, rangées par type (créatures, objets, blocs, particules). Touche-en une pour la dessiner au doigt : crayon, gomme, remplissage, pipette, symétrie, grille, taille. « Nouvelle texture » crée une image vierge (16 × 16 pour objets et blocs, 64 × 64 pour les créatures).
+- **Modèles 3D et animations** (tuile du tableau de bord) :
+  - Donne un nom, choisis **Créature** (cube simple, humanoïde, quadrupède, gelée) ou **Bloc 3D** (piédestal, lanterne, table, champignon), deux couleurs, puis « Créer le modèle et sa texture ». La texture est générée et rangée automatiquement.
+  - Dans l'éditeur : un doigt fait tourner la vue, deux doigts zooment, un toucher sélectionne un cube. Les onglets sont :
+    - *Structure* : os, cubes, dupliquer, miroir.
+    - *Propriétés* : position, taille, pivot, rotation, UV.
+    - *Texture* : choix de l'image, « Modifier dans l'éditeur de textures ». Au retour, la vue 3D montre la nouvelle texture.
+    - *Animation* : modèles de départ, lecture, images clés.
+  - **Utiliser ce modèle** (onglet Texture, après avoir enregistré) : touche une créature ou un bloc du projet pour lui donner cette forme et cette texture. L'application demande confirmation avant de modifier son fichier.
+  - Un bloc 3D doit rester dans le volume d'un bloc ; sinon, l'application refuse et explique pourquoi. Ses boîtes de collision et de sélection suivent la forme.
+- L'aperçu est une approximation : le rendu exact se vérifie dans Minecraft. Les animations écrites en Molang sont conservées mais ne s'animent pas dans l'aperçu.
+- Pas encore possible : un objet tenu en main en 3D (il resterait plat), et peindre directement sur le modèle en 3D (la texture se dessine à plat).
 
 ## 3 quinquies. Structures
 

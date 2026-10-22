@@ -88,6 +88,7 @@ class Validator(
         checkAttachables()
         checkStructures()
         checkParticles()
+        checkBlockGeometry()
         checkLang()
         checkIcons()
         return ValidationReport(issues.sortedBy { it.severity.ordinal }, checked)
@@ -587,6 +588,20 @@ class Validator(
             }
             val placed = desc.str("places_feature") ?: continue
             if (placed !in features) refMissing("FEATURE_MISSING", "Élément de génération « $placed » introuvable dans behavior_pack/features.", placed, path)
+        }
+    }
+
+    /** Blocs à forme 3D : modèle présent et matériaux fournis avec la géométrie (obligatoire depuis 1.21.80). */
+    private fun checkBlockGeometry() {
+        val geometries by lazy { collectGeometries() }
+        for ((path, v) in json(bp, "blocks")) {
+            val comps = v.path("minecraft:block", "components") as? JsonObject ?: continue
+            val g = comps["minecraft:geometry"] ?: continue
+            val geo = g.asString ?: (g as? JsonObject)?.str("identifier") ?: continue
+            if (!geo.startsWith("minecraft:") && geo !in geometries) refMissing("GEOMETRY_MISSING", "Modèle de bloc « $geo » introuvable dans models/.", geo, path)
+            if (!comps.containsKey("minecraft:material_instances")) {
+                add(Severity.ERROR, "BLOCK_MATERIALS_MISSING", "Un bloc avec « minecraft:geometry » doit aussi avoir « minecraft:material_instances ».", path)
+            }
         }
     }
 

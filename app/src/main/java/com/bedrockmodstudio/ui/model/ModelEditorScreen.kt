@@ -75,6 +75,7 @@ import com.bedrockmodstudio.ui.common.SectionTitle
 import com.bedrockmodstudio.ui.theme.BmsColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
 
@@ -97,6 +98,28 @@ fun ModelEditorScreen(nav: NavHostController, id: String, path: String) {
     BackHandler(enabled = vm.dirty) { askLeave = true }
     LaunchedEffect(vm.message) { vm.message?.let { snackbar.showSnackbar(it); vm.message = null } }
     LaunchedEffect(vm.model) { val m = vm.model; if (m != null && !framed) { camera.frame(m); framed = true } }
+    // Au retour de l'éditeur de textures, la vue 3D montre aussitôt la texture modifiée.
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) { vm.reloadTexture() }
+    val use = if (path.contains("/models/blocks/")) com.bedrockmodstudio.core.model3d.ModelUse.BLOCK else com.bedrockmodstudio.core.model3d.ModelUse.CREATURE
+    val (bindCtl, startBind) = com.bedrockmodstudio.ui.common.rememberGenerator(id, "Associer un modèle 3D")
+    val targets by androidx.compose.runtime.produceState(emptyList<com.bedrockmodstudio.core.model3d.ModelBinding.Target>(), bindCtl.written) {
+        value = withContext(Dispatchers.IO) { runCatching { com.bedrockmodstudio.core.model3d.ModelBinding.targets(app.store.files(id), use) }.getOrDefault(emptyList()) }
+    }
+    fun bind(t: com.bedrockmodstudio.core.model3d.ModelBinding.Target) {
+        val m = vm.model ?: return
+        val tex = vm.texturePath?.removePrefix("resource_pack/")?.removeSuffix(".png")
+        if (tex == null) { scope.launch { snackbar.showSnackbar(context.getString(R.string.model_bind_no_texture)) }; return }
+        scope.launch(Dispatchers.Main.immediate) {
+            val r = withContext(Dispatchers.IO) {
+                runCatching {
+                    val files = app.store.files(id)
+                    if (use == com.bedrockmodstudio.core.model3d.ModelUse.BLOCK) com.bedrockmodstudio.core.model3d.ModelBinding.bindBlock(files, t, m, tex)
+                    else com.bedrockmodstudio.core.model3d.ModelBinding.bindCreature(files, t, m.identifier, tex)
+                }
+            }
+            r.onSuccess { startBind(it) }.onFailure { snackbar.showSnackbar(it.message ?: "Erreur") }
+        }
+    }
     fun save(leave: Boolean = false) = vm.save { ok -> scope.launch(Dispatchers.Main.immediate) { if (ok) { snackbar.showSnackbar(savedMsg); if (leave) nav.popBackStack() } } }
 
     Scaffold(topBar = {
@@ -137,7 +160,11 @@ fun ModelEditorScreen(nav: NavHostController, id: String, path: String) {
                     when (tab) {
                         0 -> StructureTab(vm)
                         1 -> PropertiesTab(vm)
-                        2 -> TextureTab(vm) { p -> nav.navigate(Routes.texture(id, p)) }
+                        2 -> {
+                            TextureTab(vm) { p -> nav.navigate(Routes.texture(id, p)) }
+                            BindSection(use, targets, vm.dirty, ::bind)
+                            com.bedrockmodstudio.ui.common.GenerationResult(bindCtl, stringResource(R.string.model_bind_hint))
+                        }
                         else -> AnimationTab(vm)
                     }
                 }
@@ -264,6 +291,20 @@ private fun PropertiesTab(vm: ModelEditorViewModel) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.model_cube_mirror), Modifier.weight(1f)); Switch(c.mirror, { v -> vm.updateCube { it.copy(mirror = v) } })
         }
+    }
+}
+
+@Composable
+private fun BindSection(
+    use: com.bedrockmodstudio.core.model3d.ModelUse, targets: List<com.bedrockmodstudio.core.model3d.ModelBinding.Target>, dirty: Boolean,
+    onBind: (com.bedrockmodstudio.core.model3d.ModelBinding.Target) -> Unit,
+) {
+    SectionTitle(stringResource(if (use == com.bedrockmodstudio.core.model3d.ModelUse.BLOCK) R.string.model_bind_block else R.string.model_bind_creature))
+    HelpText(stringResource(if (use == com.bedrockmodstudio.core.model3d.ModelUse.BLOCK) R.string.model_bind_block_help else R.string.model_bind_creature_help))
+    if (dirty) InfoCard(stringResource(R.string.model_bind_save_first), color = BmsColors.Warning)
+    else if (targets.isEmpty()) HelpText(stringResource(R.string.model_bind_none))
+    else targets.forEach { t ->
+        OutlinedButton(onClick = { onBind(t) }, modifier = Modifier.fillMaxWidth()) { Text(t.id) }
     }
 }
 

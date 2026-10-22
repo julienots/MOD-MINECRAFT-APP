@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Domain
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Extension
@@ -89,6 +90,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.GridOn, stringResource(R.string.action_recipe), stringResource(R.string.action_recipe_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.recipe(id))
+            }
+            ActionTile(Icons.Filled.Brush, stringResource(R.string.action_textures), stringResource(R.string.action_textures_desc), tile, BmsColors.Info) {
+                nav.navigate(Routes.textures(id))
             }
             ActionTile(Icons.Filled.ViewInAr, stringResource(R.string.action_models), stringResource(R.string.action_models_desc), tile, BmsColors.Info) {
                 nav.navigate(Routes.models(id))

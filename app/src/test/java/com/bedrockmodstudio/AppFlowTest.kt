@@ -436,4 +436,35 @@ class AppFlowTest {
         assertTrue(com.bedrockmodstudio.core.bedrock.ProjectIndex.structures(files).isEmpty())
         assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
     }
+
+    @Test
+    fun `bloc 3D - modele de depart, association au bloc, galerie de textures`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Modèles 3D et animations")
+        click("Modèles 3D et animations")
+        waitText("Nom du modèle")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("model_name")).performTextInput("Table magique")
+        click("Bloc 3D")
+        click("Table")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("model_create")).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        waitText("Texture")
+        click("Texture")
+        waitText("Utiliser ce modèle pour un bloc")
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        val block = com.bedrockmodstudio.core.model3d.ModelBinding.targets(files, com.bedrockmodstudio.core.model3d.ModelUse.BLOCK).first()
+        waitText(block.id)
+        rule.onNodeWithText(block.id).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick)
+        waitText("Remplacer")
+        click("Remplacer")
+        rule.waitUntil(10_000) { files.readText(block.path).contains("geometry.${project.meta.namespace}.table_magique") }
+        assertTrue(app.exporter.validate(project.meta.id).errors.isEmpty())
+        // Galerie : la texture du nouveau modèle apparaît et s'ouvre dans l'éditeur de textures.
+        back(); waitText("Modèles du projet")
+        back(); waitText("Textures")
+        click("Textures")
+        waitText("table_magique.png")
+        click("table_magique.png")
+        rule.onNode(androidx.compose.ui.test.hasTestTag("pixel_canvas")).assertExists()
+    }
 }

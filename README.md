@@ -32,6 +32,7 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Structures (.mcstructure) : éditeur par couches, aperçu 3D, coffres à butin, apparition naturelle | ✅ (non testé en jeu) |
 | Bibliothèque de composants (56 composants vérifiés, ajout en un toucher) | ✅ |
 | Particules : modèles, réglages et aperçu animé | ✅ (non testé en jeu) |
+| Galerie de textures ; modèles 3D de départ (créatures et blocs 3D) associables en un toucher | ✅ (non testé en jeu) |
 | Assistant en langage naturel : analyse hors ligne + IA facultative (clé personnelle, chiffrée) | ✅ (IA non testée avec une vraie clé) |
 
 **Important :** l'application vérifie la *structure* des fichiers. Aucun addon n'a encore été testé dans Minecraft par le développement : seul un essai en jeu (sur ton téléphone) prouve qu'un addon fonctionne. Le guide explique comment faire cet essai et lire les erreurs de Minecraft.

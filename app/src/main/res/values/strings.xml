@@ -391,9 +391,16 @@
 
     <!-- Modèles 3D et animations -->
     <string name="action_models">Modèles 3D et animations</string>
-    <string name="action_models_desc">Cubes, os, pivots, UV, texture, images clés</string>
+    <string name="action_models_desc">Formes 3D de créatures et de blocs, textures, animations</string>
     <string name="models_title">Modèles 3D</string>
-    <string name="models_intro">Modèles au format Bedrock (.geo.json). Touche un modèle pour l\'éditer : un doigt fait tourner la vue, deux doigts zooment et déplacent, un toucher sélectionne un cube.</string>
+    <string name="models_intro">Crée la forme 3D d\'une créature ou d\'un bloc à partir d\'un modèle de départ, puis modifie-la cube par cube. Un doigt fait tourner la vue, deux doigts zooment, un toucher sélectionne un cube. La texture se redessine au doigt (onglet Texture → « Modifier dans l\'éditeur de textures »).</string>
+    <string name="models_name">Nom du modèle</string>
+    <string name="models_creature_help">Modèle de créature : os articulés (tête, bras, jambes…) prêts à être animés.</string>
+    <string name="models_block_help">Bloc 3D : la forme reste dans le volume d\'un bloc. Associe-la ensuite à un bloc du projet depuis l\'onglet Texture de l\'éditeur.</string>
+    <string name="models_main_color">Couleur principale</string>
+    <string name="models_accent_color">Couleur secondaire</string>
+    <string name="models_create">Créer le modèle et sa texture</string>
+    <string name="models_existing">Modèles du projet</string>
     <string name="models_new">Nouveau modèle</string>
     <string name="models_empty">Aucun modèle dans ce projet.</string>
     <string name="model_open_editor">Ouvrir dans l\'éditeur 3D</string>
@@ -580,4 +587,22 @@
     <string name="assistant_key_save">Enregistrer la clé (chiffrée sur ce téléphone)</string>
     <string name="assistant_key_saved">Une clé est enregistrée, chiffrée par le téléphone. Elle n\'est jamais exportée.</string>
     <string name="assistant_key_delete">Supprimer la clé</string>
+    <!-- Galerie de textures -->
+    <string name="action_textures">Textures</string>
+    <string name="action_textures_desc">Toutes les images du projet : touche-en une pour la dessiner au doigt.</string>
+    <string name="textures_title">Textures</string>
+    <string name="textures_intro">Touche une texture pour la modifier (crayon, gomme, remplissage, pipette, symétrie). L\'ancienne version reste dans l\'historique du fichier. Pour voir le résultat sur une créature, ouvre son modèle dans « Modèles 3D et animations ».</string>
+    <string name="textures_empty">Aucune texture dans ce projet pour l\'instant.</string>
+    <string name="textures_new">Nouvelle texture</string>
+    <string name="textures_name">Nom de la texture</string>
+    <string name="textures_new_help">16 × 16 est la taille des objets et blocs de Minecraft ; les créatures utilisent souvent 64 × 64.</string>
+    <string name="textures_create">Créer et dessiner</string>
+    <string name="model_bind_creature">Utiliser ce modèle pour une créature</string>
+    <string name="model_bind_block">Utiliser ce modèle pour un bloc</string>
+    <string name="model_bind_creature_help">La créature choisie prendra cette forme et la texture affichée ci-dessus. Ses animations visent des noms d\'os : vérifie-les dans l\'onglet Animation.</string>
+    <string name="model_bind_block_help">Le bloc choisi prendra cette forme 3D (dans le volume d\'un bloc) avec la texture affichée ci-dessus ; ses boîtes de collision et de sélection suivent le modèle.</string>
+    <string name="model_bind_save_first">Enregistre d\'abord le modèle.</string>
+    <string name="model_bind_none">Aucun élément de ce type dans le projet : crée-le d\'abord avec son assistant.</string>
+    <string name="model_bind_no_texture">Choisis d\'abord une texture pour ce modèle.</string>
+    <string name="model_bind_hint">Exporte l\'addon et teste en jeu : l\'aperçu de l\'application est une approximation.</string>
 </resources>
