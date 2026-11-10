@@ -33,6 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+enum class PaintTool { PIXEL, FACE, PICK }
+
 class ModelEditorViewModel(
     private val files: ProjectFiles,
     val path: String,
@@ -50,6 +52,15 @@ class ModelEditorViewModel(
     var textures by mutableStateOf<List<String>>(emptyList()); private set
     var lighting by mutableStateOf(true)
     var lightAngle by mutableStateOf(45f)
+
+    // Peinture directe sur le modèle 3D
+    var paintTool by mutableStateOf<PaintTool?>(null)
+    var paintColor by mutableStateOf(0xFFB03A2E.toInt())
+    var texRevision by mutableStateOf(0); private set
+    var textureDirty by mutableStateOf(false); private set
+    private val paintUndo = ArrayDeque<Bitmap>()
+    private var lastPaint = 0L
+    val canUndoPaint get() = paintUndo.isNotEmpty()
 
     // Animations
     var animPath by mutableStateOf(""); private set
@@ -114,11 +125,47 @@ class ModelEditorViewModel(
                 }.getOrNull()
             }
             texture = bmp; texturePath = if (bmp != null) p else null
+            textureDirty = false; paintUndo.clear(); texRevision++
             if (bmp == null) message = "Texture illisible : $p"
         }
     }
 
-    fun reloadTexture() { texturePath?.let(::loadTexture) }
+    /** Recharge la texture (après l'éditeur de textures), sauf si une peinture non enregistrée la modifie. */
+    fun reloadTexture() { if (!textureDirty) texturePath?.let(::loadTexture) }
+
+    /**
+     * Peint au point touché : un pixel, toute la face, ou prend la couleur (pipette).
+     * Un nouveau trait (après une pause) peut être annulé en une fois.
+     */
+    fun paint(face: com.bedrockmodstudio.core.model3d.MeshFace, u: Double, v: Double) {
+        val tool = paintTool ?: return
+        val m = model ?: return
+        var bmp = texture ?: run { message = "Choisis d'abord une texture (onglet Texture)."; return }
+        val sx = bmp.width.toDouble() / m.textureWidth; val sy = bmp.height.toDouble() / m.textureHeight
+        val px = Math.floor(u * sx).toInt().coerceIn(0, bmp.width - 1); val py = Math.floor(v * sy).toInt().coerceIn(0, bmp.height - 1)
+        if (tool == PaintTool.PICK) { paintColor = bmp.getPixel(px, py) or (0xFF shl 24); paintTool = PaintTool.PIXEL; return }
+        val now = System.currentTimeMillis()
+        if (now - lastPaint > 400) { paintUndo.addLast(bmp.copy(Bitmap.Config.ARGB_8888, false)); if (paintUndo.size > 30) paintUndo.removeFirst() }
+        lastPaint = now
+        if (!bmp.isMutable) { bmp = bmp.copy(Bitmap.Config.ARGB_8888, true); texture = bmp }
+        when (tool) {
+            PaintTool.PIXEL -> bmp.setPixel(px, py, paintColor)
+            PaintTool.FACE -> {
+                val cube = m.bones.getOrNull(face.boneIndex)?.cubes?.getOrNull(face.cubeIndex) ?: return
+                val r = MeshBuilder.faceRects(cube)[face.face] ?: return
+                val x0 = Math.floor(minOf(r[0], r[0] + r[2]) * sx).toInt(); val x1 = Math.ceil(maxOf(r[0], r[0] + r[2]) * sx).toInt()
+                val y0 = Math.floor(minOf(r[1], r[1] + r[3]) * sy).toInt(); val y1 = Math.ceil(maxOf(r[1], r[1] + r[3]) * sy).toInt()
+                for (y in y0.coerceAtLeast(0) until y1.coerceAtMost(bmp.height)) for (x in x0.coerceAtLeast(0) until x1.coerceAtMost(bmp.width)) bmp.setPixel(x, y, paintColor)
+            }
+            PaintTool.PICK -> Unit
+        }
+        textureDirty = true; dirty = true; texRevision++
+    }
+
+    fun undoPaint() {
+        val prev = paintUndo.removeLastOrNull() ?: return
+        texture = prev.copy(Bitmap.Config.ARGB_8888, true); textureDirty = true; dirty = true; texRevision++
+    }
 
     // ---- Édition du modèle ----
 
@@ -233,10 +280,16 @@ class ModelEditorViewModel(
             val ok = withContext(Dispatchers.IO) {
                 runCatching {
                     files.writeText(path, GeoCodec.write(g), "Éditeur 3D")
+                    val tp = texturePath; val bmp = texture
+                    if (textureDirty && tp != null && bmp != null) {
+                        val out = java.io.ByteArrayOutputStream()
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+                        files.write(tp, out.toByteArray(), "Peinture sur le modèle 3D")
+                    }
                     if (animDirty) anims?.let { files.writeText(animPath, AnimationCodec.write(it), "Éditeur d'animations") }
                 }.onFailure { errorLog.log("Enregistrement du modèle", it); message = it.message }.isSuccess
             }
-            if (ok) { dirty = false; animDirty = false }
+            if (ok) { dirty = false; animDirty = false; textureDirty = false }
             onDone(ok)
         }
     }

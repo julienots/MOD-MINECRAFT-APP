@@ -53,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -151,7 +152,8 @@ fun ModelEditorScreen(nav: NavHostController, id: String, path: String) {
             m == null -> LoadingBox()
             else -> Column(Modifier.padding(padding).fillMaxSize()) {
                 ModelViewport(m, vm.poses, vm.texture, vm.selBone, vm.selCube, camera, vm.lighting, vm.lightAngle,
-                    Modifier.fillMaxWidth().weight(1f)) { b, c -> vm.select(b, c); if (tab == 0) tab = 1 }
+                    Modifier.fillMaxWidth().weight(1f), revision = vm.texRevision,
+                    onPaint = if (vm.paintTool != null && tab == 2) vm::paint else null) { b, c -> vm.select(b, c); if (tab == 0) tab = 1 }
                 TabRow(selectedTabIndex = tab) {
                     listOf(R.string.model_tab_structure, R.string.model_tab_properties, R.string.model_tab_texture, R.string.model_tab_animation)
                         .forEachIndexed { i, label -> Tab(selected = tab == i, onClick = { tab = i }, text = { Text(stringResource(label)) }) }
@@ -161,8 +163,16 @@ fun ModelEditorScreen(nav: NavHostController, id: String, path: String) {
                         0 -> StructureTab(vm)
                         1 -> PropertiesTab(vm)
                         2 -> {
-                            TextureTab(vm) { p -> nav.navigate(Routes.texture(id, p)) }
+                            PaintSection(vm)
+                            TextureTab(vm) { p -> if (vm.textureDirty) scope.launch { snackbar.showSnackbar(context.getString(R.string.paint_save_first)) } else nav.navigate(Routes.texture(id, p)) }
                             BindSection(use, targets, vm.dirty, ::bind)
+                            if (use != com.bedrockmodstudio.core.model3d.ModelUse.BLOCK) {
+                                SectionTitle(stringResource(R.string.held_from_model))
+                                HelpText(stringResource(R.string.held_from_model_help))
+                                OutlinedButton(onClick = { nav.navigate(Routes.held(id, path)) }, enabled = !vm.dirty, modifier = Modifier.fillMaxWidth()) {
+                                    Text(stringResource(R.string.held_open))
+                                }
+                            }
                             com.bedrockmodstudio.ui.common.GenerationResult(bindCtl, stringResource(R.string.model_bind_hint))
                         }
                         else -> AnimationTab(vm)
@@ -306,6 +316,30 @@ private fun BindSection(
     else targets.forEach { t ->
         OutlinedButton(onClick = { onBind(t) }, modifier = Modifier.fillMaxWidth()) { Text(t.id) }
     }
+}
+
+/** Peinture au doigt directement sur le modèle 3D. */
+@Composable
+private fun PaintSection(vm: ModelEditorViewModel) {
+    SectionTitle(stringResource(R.string.paint_title))
+    HelpText(stringResource(R.string.paint_help))
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        FilterChip(selected = vm.paintTool == null, onClick = { vm.paintTool = null }, label = { Text(stringResource(R.string.paint_off)) })
+        FilterChip(selected = vm.paintTool == PaintTool.PIXEL, onClick = { vm.paintTool = PaintTool.PIXEL }, label = { Text(stringResource(R.string.paint_pixel)) },
+            modifier = Modifier.testTag("paint_pixel"))
+        FilterChip(selected = vm.paintTool == PaintTool.FACE, onClick = { vm.paintTool = PaintTool.FACE }, label = { Text(stringResource(R.string.paint_face)) })
+        FilterChip(selected = vm.paintTool == PaintTool.PICK, onClick = { vm.paintTool = PaintTool.PICK }, label = { Text(stringResource(R.string.paint_pick)) })
+    }
+    if (vm.paintTool != null) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+            androidx.compose.foundation.layout.Box(Modifier.width(32.dp).height(32.dp).background(androidx.compose.ui.graphics.Color(vm.paintColor)))
+            Text(stringResource(R.string.paint_color))
+            OutlinedButton(onClick = vm::undoPaint, enabled = vm.canUndoPaint) { Text(stringResource(R.string.paint_undo)) }
+        }
+        com.bedrockmodstudio.ui.common.ColorRow(vm.paintColor) { vm.paintColor = it }
+        if (vm.texture == null) InfoCard(stringResource(R.string.paint_no_texture), color = BmsColors.Warning)
+    }
+    if (vm.textureDirty) HelpText(stringResource(R.string.paint_unsaved))
 }
 
 @Composable

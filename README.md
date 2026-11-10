@@ -33,6 +33,9 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Bibliothèque de composants (56 composants vérifiés, ajout en un toucher) | ✅ |
 | Particules : modèles, réglages et aperçu animé | ✅ (non testé en jeu) |
 | Galerie de textures ; modèles 3D de départ (créatures et blocs 3D) associables en un toucher | ✅ (non testé en jeu) |
+| Peinture directe sur le modèle 3D (pixel, face entière, pipette, annulation) | ✅ |
+| Objets 3D tenus en main : modèles de départ (épée, bâton, marteau, bouclier, cristal), placement visuel 1re/3e personne au doigt | ✅ (non testé en jeu) |
+| Monter sur une créature : places posées au doigt sur le modèle, passagers multiples, conduite par le joueur | ✅ (non testé en jeu) |
 | Assistant en langage naturel : analyse hors ligne + IA facultative (clé personnelle, chiffrée) | ✅ (IA non testée avec une vraie clé) |
 
 **Important :** l'application vérifie la *structure* des fichiers. Aucun addon n'a encore été testé dans Minecraft par le développement : seul un essai en jeu (sur ton téléphone) prouve qu'un addon fonctionne. Le guide explique comment faire cet essai et lire les erreurs de Minecraft.
@@ -68,7 +71,7 @@ Android 8.0 ou plus récent est nécessaire. Les nouvelles versions s'installent
 ## Tests
 
 ```bash
-./gradlew :core:test              # 59 tests : JSON, projets, validation, export, import, sécurité des archives
+./gradlew :core:test              # 82 tests : JSON, projets, validation, export, import, sécurité des archives
 ./gradlew :app:testDebugUnitTest  # 10 parcours d'interface simulés (Robolectric)
 ./gradlew :app:lintDebug          # analyse Android Lint
 ```

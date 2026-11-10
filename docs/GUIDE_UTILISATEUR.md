@@ -72,7 +72,32 @@ Pour tester en jeu : `/give @s monmod:mon_objet`.
   - **Utiliser ce modèle** (onglet Texture, après avoir enregistré) : touche une créature ou un bloc du projet pour lui donner cette forme et cette texture. L'application demande confirmation avant de modifier son fichier.
   - Un bloc 3D doit rester dans le volume d'un bloc ; sinon, l'application refuse et explique pourquoi. Ses boîtes de collision et de sélection suivent la forme.
 - L'aperçu est une approximation : le rendu exact se vérifie dans Minecraft. Les animations écrites en Molang sont conservées mais ne s'animent pas dans l'aperçu.
-- Pas encore possible : un objet tenu en main en 3D (il resterait plat), et peindre directement sur le modèle en 3D (la texture se dessine à plat).
+- **Peindre sur le modèle 3D** (onglet *Texture*, « Peindre sur le modèle 3D ») : choisis *Pixel*, *Face entière* ou *Pipette* et une couleur, puis touche le modèle. La couleur s'applique sur la texture à l'endroit touché ; glisser le doigt peint un trait. Deux doigts tournent toujours la vue. « Annuler le trait » revient en arrière ; « Enregistrer » écrit la texture (l'ancienne reste dans l'historique).
+
+## 3 quater bis. Objets 3D tenus en main
+
+1. Crée le modèle : **Modèles 3D** → **Objet 3D en main** (épée, bâton magique, marteau, bouclier, cristal), deux couleurs, « Créer ». Modifie-le et peins-le comme n'importe quel modèle.
+2. Ouvre **Objets 3D en main** (tableau de bord), ou dans l'éditeur 3D : onglet *Texture* → « Régler la tenue en main ».
+3. Choisis le modèle, puis l'objet du projet qui l'utilisera (crée-le avant avec « Créer un objet » si besoin).
+4. Un personnage apparaît avec l'objet dans la main droite. Choisis la vue :
+   - **3e personne** : comment les autres joueurs te voient (et toi avec F5) ;
+   - **1re personne** : ce que tu vois en bas à droite de l'écran.
+5. Un « départ rapide » (épée, bâton, marteau, bouclier, petit objet) place l'objet à peu près bien. Ensuite, **fais glisser l'objet au doigt** pour le déplacer, et règle *Rotation*, *Position* et *Taille* avec les curseurs (− et + pour les petits pas). Chaque vue a ses propres réglages ; « Copier vers l'autre vue » recopie.
+6. « Enregistrer la tenue en main » écrit l'attachable (`attachables/<objet>.held.json`), les deux animations de placement et lie le modèle à la main. Les réglages sont relus quand tu reviens : tu peux corriger après un essai en jeu.
+
+L'icône de l'inventaire reste l'image plate de l'objet. L'aperçu suit la pose de Minecraft au plus près mais reste une approximation : essaie en jeu.
+
+## 3 quater ter. Monter sur une créature
+
+1. Ouvre **Monter sur une créature** et choisis la créature. Elle s'affiche avec son modèle et sa texture, et un passager assis.
+2. **Fais glisser le passager** (jaune = place choisie) jusqu'à ce qu'il soit bien assis sur le dos, ou règle *Côté*, *Hauteur* et *Avant/arrière* (en blocs).
+3. « + Place » ajoute un passager (8 au maximum) ; touche un passager pour le choisir. Pour chaque place : sens du regard (devant, derrière, côtés) et limite de rotation.
+4. Options : qui peut monter (joueurs, ou joueurs et créatures), **le joueur dirige la créature** (place 1), embarquer automatiquement les créatures proches.
+5. « Enregistrer les places » ajoute `minecraft:rideable` (et `minecraft:input_ground_controlled` pour diriger) au fichier de la créature ; le reste du fichier est conservé.
+
+En jeu : touche la créature (clic droit) pour monter, accroupis-toi pour descendre. La hauteur exacte du passager se vérifie en jeu (l'aperçu est calé sur le cochon et le cheval).
+
+**Correction de l'aperçu 3D :** les rotations autour des axes X et Z étaient montrées dans le mauvais sens. Elles suivent maintenant le sens de Minecraft (vérifié sur le corps du cochon vanilla) ; les modèles et animations existants ne changent pas, seul leur affichage est corrigé.
 
 ## 3 quinquies. Structures
 

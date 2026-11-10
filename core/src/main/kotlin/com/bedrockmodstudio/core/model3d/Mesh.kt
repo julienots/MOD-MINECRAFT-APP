@@ -21,6 +21,13 @@ class Mat4(val m: DoubleArray = DoubleArray(16).also { it[0] = 1.0; it[5] = 1.0;
         m[8] * v.x + m[9] * v.y + m[10] * v.z + m[11],
     )
 
+    /** Applique l'inverse de la partie rotation (matrice sans mise à l'échelle) à un vecteur. */
+    fun inverseRotate(v: Vec3) = Vec3(
+        m[0] * v.x + m[4] * v.y + m[8] * v.z,
+        m[1] * v.x + m[5] * v.y + m[9] * v.z,
+        m[2] * v.x + m[6] * v.y + m[10] * v.z,
+    )
+
     companion object {
         fun translate(t: Vec3) = Mat4().also { it.m[3] = t.x; it.m[7] = t.y; it.m[11] = t.z }
         fun rotX(deg: Double): Mat4 { val r = Math.toRadians(deg); val c = cos(r); val s = sin(r)
@@ -31,9 +38,14 @@ class Mat4(val m: DoubleArray = DoubleArray(16).also { it[0] = 1.0; it[5] = 1.0;
             return Mat4(doubleArrayOf(c, -s, 0.0, 0.0, s, c, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0)) }
         fun scale(k: Vec3) = Mat4().also { it.m[0] = k.x; it.m[5] = k.y; it.m[10] = k.z }
 
-        /** Rotation d'Euler autour d'un pivot (ordre Z, puis Y, puis X, comme Bedrock). */
+        /**
+         * Rotation d'Euler autour d'un pivot, telle que Minecraft l'affiche (ordre Z, puis Y, puis X).
+         * Bedrock compte les angles X et Z dans l'autre sens que la règle de la main droite : un bras
+         * à −90° en X se lève vers l'avant (−Z). Vérifié sur le cochon vanilla (corps à [90, 0, 0]) :
+         * avec ces signes le corps repose sur les pattes et touche la tête ; avec les signes inverses il flotte.
+         */
         fun rotateAround(pivot: Vec3, rot: Vec3): Mat4 =
-            translate(pivot) * rotZ(rot.z) * rotY(rot.y) * rotX(rot.x) * translate(pivot * -1.0)
+            translate(pivot) * rotZ(-rot.z) * rotY(rot.y) * rotX(-rot.x) * translate(pivot * -1.0)
     }
 }
 
@@ -121,6 +133,13 @@ object MeshBuilder {
             }
         }
         return out
+    }
+
+    /** Déplace une face par une matrice (rotation, translation, échelle uniforme) en recalculant sa normale. */
+    fun transform(f: MeshFace, m: Mat4): MeshFace {
+        val corners = f.corners.map(m::apply)
+        val e1 = corners[1] - corners[0]; val e2 = corners[3] - corners[0]
+        return f.copy(corners = corners, normal = Vec3(e2.y * e1.z - e2.z * e1.y, e2.z * e1.x - e2.x * e1.z, e2.x * e1.y - e2.y * e1.x))
     }
 
     /** Rectangles de texture (u, v, largeur, hauteur) par face : patron boîte ou UV par face. */
