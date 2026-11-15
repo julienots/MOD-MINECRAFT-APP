@@ -61,6 +61,12 @@ android {
         unitTests.all {
             it.environment("LC_ALL", "C.UTF-8")
             it.jvmArgs("-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-Xmx2g")
+            // En cas d'échec, l'écran simulé et l'erreur complète s'affichent dans le journal de GitHub Actions.
+            it.testLogging {
+                events("failed")
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                showStackTraces = false
+            }
             // Option : image Android de Robolectric déjà téléchargée (environnements sans accès direct à Maven Central).
             System.getenv("ROBOLECTRIC_DEPS_DIR")?.let { dir ->
                 it.systemProperty("robolectric.offline", "true")

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.Hardware
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Pets
@@ -76,6 +77,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
         ) {
             if (project.imported) InfoCard(stringResource(R.string.project_imported_note))
             val tile = Modifier.fillMaxWidth()
+            ActionTile(Icons.Filled.Inventory2, "Contenu du mod (3D)", "Voir toutes les créatures, objets et blocs en 3D, les régler en un geste, ajouter un mod existant.", tile, BmsColors.Primary) {
+                nav.navigate(Routes.modContent(id))
+            }
             ActionTile(Icons.AutoMirrored.Filled.Chat, stringResource(R.string.action_assistant), stringResource(R.string.action_assistant_desc), tile, BmsColors.Primary) {
                 nav.navigate(Routes.assistant(id))
             }

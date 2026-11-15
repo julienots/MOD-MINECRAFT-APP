@@ -11,7 +11,7 @@ import com.bedrockmodstudio.core.storage.ErrorLog
 import com.bedrockmodstudio.core.storage.ProjectStore
 import java.io.File
 
-/** Dépendances partagées de l'application (pas de serveur : tout est local). */
+/** Dépendances partagées de l'application (les projets restent locaux ; l'hébergement de serveurs est facultatif). */
 class AppContainer(context: Context) {
     val store = ProjectStore(File(context.filesDir, "projects"))
     val errorLog = ErrorLog(File(context.filesDir, "logs/errors.log"))
@@ -19,6 +19,11 @@ class AppContainer(context: Context) {
     val exportDir = File(context.cacheDir, "exports")
     val importer = PackImporter(store, File(context.cacheDir, "imports"))
     private val prefs = context.getSharedPreferences("bms_prefs", Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+
+    /** Hébergement de serveurs (facultatif) : projet Supabase de l'utilisateur. */
+    val cloud by lazy { com.bedrockmodstudio.server.SupabaseClient(appContext) }
+    val servers by lazy { com.bedrockmodstudio.server.ServerRepository(cloud) }
 
     /** Dernier rapport d'import, affiché par l'écran de rapport. */
     @Volatile var lastImportReport: ImportReport? = null

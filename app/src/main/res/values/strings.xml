@@ -6,6 +6,7 @@
     <!-- Navigation -->
     <string name="nav_home">Accueil</string>
     <string name="nav_projects">Projets</string>
+    <string name="nav_servers">Serveurs</string>
     <string name="nav_settings">Paramètres</string>
     <string name="back">Retour</string>
     <string name="cancel">Annuler</string>

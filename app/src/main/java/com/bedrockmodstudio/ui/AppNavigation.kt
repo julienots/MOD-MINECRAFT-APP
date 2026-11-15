@@ -3,6 +3,7 @@ package com.bedrockmodstudio.ui
 import android.net.Uri
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -84,6 +85,10 @@ object Routes {
     fun library(id: String) = "project/$id/library"
     fun structures(id: String) = "project/$id/structure?path="
     fun structure(id: String, path: String) = "project/$id/structure?path=${Uri.encode(path)}"
+    fun modContent(id: String) = "project/$id/content"
+    fun modEntry(id: String, kind: String, entryId: String) = "project/$id/content/entry?kind=$kind&entry=${Uri.encode(entryId)}"
+    const val SERVERS = "servers"
+    fun server(serverId: String) = "servers/detail?sid=${Uri.encode(serverId)}"
 }
 
 /** Messages courts (« Enregistré. ») accessibles depuis tous les écrans. */
@@ -94,6 +99,7 @@ private data class TopLevel(val route: String, val label: Int, val icon: android
 private val topLevel = listOf(
     TopLevel(Routes.HOME, R.string.nav_home, Icons.Filled.Home),
     TopLevel(Routes.PROJECTS, R.string.nav_projects, Icons.Filled.Folder),
+    TopLevel(Routes.SERVERS, R.string.nav_servers, Icons.Filled.Dns),
     TopLevel(Routes.SETTINGS, R.string.nav_settings, Icons.Filled.Settings),
 )
 
@@ -174,6 +180,19 @@ fun AppNavigation() {
                 composable("project/{id}/textures") { com.bedrockmodstudio.ui.texture.TexturesScreen(nav, it.arg("id")) }
                 composable("project/{id}/assistant") { com.bedrockmodstudio.ui.assistant.AssistantScreen(nav, it.arg("id")) }
                 composable("project/{id}/library") { com.bedrockmodstudio.ui.library.ComponentLibraryScreen(nav, it.arg("id")) }
+                composable("project/{id}/content") { com.bedrockmodstudio.ui.mods.ModContentScreen(nav, it.arg("id")) }
+                composable(
+                    "project/{id}/content/entry?kind={kind}&entry={entry}",
+                    arguments = listOf(
+                        navArgument("kind") { type = NavType.StringType; defaultValue = "" },
+                        navArgument("entry") { type = NavType.StringType; defaultValue = "" },
+                    ),
+                ) { com.bedrockmodstudio.ui.mods.ModEntryScreen(nav, it.arg("id"), it.arg("kind"), it.arg("entry")) }
+                composable(Routes.SERVERS) { com.bedrockmodstudio.ui.server.ServersScreen(nav) }
+                composable(
+                    "servers/detail?sid={sid}",
+                    arguments = listOf(navArgument("sid") { type = NavType.StringType; defaultValue = "" }),
+                ) { com.bedrockmodstudio.ui.server.ServerDetailScreen(nav, it.arg("sid")) }
                 composable("project/{id}/logic") { com.bedrockmodstudio.ui.logic.BehaviorEditorScreen(nav, it.arg("id")) }
             }
         }
