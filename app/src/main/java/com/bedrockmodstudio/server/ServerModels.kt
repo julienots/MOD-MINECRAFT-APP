@@ -65,7 +65,7 @@ class ServerRepository(private val cloud: SupabaseClient) {
         const val BUCKET = "bms-packs"
         /** Lien signé valable 10 ans : seul l'agent le connaît, il ne donne accès qu'à ce fichier. */
         const val LINK_SECONDS = 10L * 365 * 24 * 3600
-        const val INSTALL_URL = "https://raw.githubusercontent.com/julienots/MOD-MINECRAFT-APP/main/server/agent/install.sh"
+        const val INSTALL_URL = "https://raw.githubusercontent.com/julienots/MOD-MINECRAFT-APP/HEAD/server/agent/install.sh"
     }
 
     fun servers(): List<CloudServer> = cloud.select("bms_servers", "select=*&order=created_at.asc").map(CloudServer::parse)

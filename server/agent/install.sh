@@ -13,7 +13,7 @@
 #   5. installe l'agent comme service système (démarrage automatique, relance en cas d'arrêt).
 set -euo pipefail
 
-AGENT_URL="${BMS_AGENT_URL:-https://raw.githubusercontent.com/julienots/MOD-MINECRAFT-APP/main/server/agent/bms_agent.py}"
+AGENT_URL="${BMS_AGENT_URL:-https://raw.githubusercontent.com/julienots/MOD-MINECRAFT-APP/HEAD/server/agent/bms_agent.py}"
 BASE=/opt/bms
 URL="" ANON="" SERVER="" KEY="" PORT=19132 ACCEPT_EULA="${BMS_ACCEPT_EULA:-}"
 

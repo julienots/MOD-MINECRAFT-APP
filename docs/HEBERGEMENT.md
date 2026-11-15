@@ -79,7 +79,7 @@ Dans l'application : **Serveurs → Nouveau serveur**, puis dans la fiche du ser
 **Copier la commande**. Colle-la dans le terminal SSH de la machine. Elle ressemble à :
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/julienots/MOD-MINECRAFT-APP/main/server/agent/install.sh \
+curl -fsSL https://raw.githubusercontent.com/julienots/MOD-MINECRAFT-APP/HEAD/server/agent/install.sh \
   | sudo bash -s -- --url https://xxxx.supabase.co --anon <clé anon> --server <id> --key <clé secrète du serveur>
 ```
 
