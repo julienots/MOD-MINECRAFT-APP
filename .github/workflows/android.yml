@@ -22,6 +22,16 @@ jobs:
       - name: Tests du cœur (JSON, validation, export, import)
         run: ./gradlew :core:test --stacktrace
 
+      - name: Hébergement — tests de l'agent (Python) et de la migration Supabase (PostgreSQL)
+        run: |
+          (cd server/agent && python3 -m unittest -v && bash -n install.sh)
+          sudo systemctl start postgresql
+          sudo -u postgres psql -q -c "create database bms_test"
+          for f in server/supabase/tests/supabase_mock.sql server/supabase/migrations/*.sql server/supabase/tests/migration_test.sql; do
+            echo "== $f"
+            sudo -u postgres psql -q -v ON_ERROR_STOP=1 -d bms_test -f - < "$f"
+          done
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

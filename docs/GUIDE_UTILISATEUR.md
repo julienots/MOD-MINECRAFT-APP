@@ -108,6 +108,36 @@ Tuile **Bibliothèque de composants** : recherche une propriété (« feu », «
   - demande l'accord d'un adulte avant d'ajouter une clé.
 - Les mods Java (Forge, Fabric) ne sont pas possibles : l'assistant le dit au lieu d'inventer.
 
+## 3 nonies. Contenu du mod en 3D et édition facile
+
+Dans un projet, touche **Contenu du mod (3D)** :
+
+- toutes les créatures, objets et blocs du projet apparaissent en **vignettes 3D** (modèle et texture de la créature,
+  cube texturé pour un bloc, icône en relief pour un objet) ; filtre par type ou cherche un nom ;
+- un toucher ouvre la **fiche** : grande vue 3D (un doigt tourne, deux doigts zooment), rotation automatique et
+  **lecture des animations** du modèle (marche, attaque…) ;
+- **Réglages** au curseur : points de vie, vitesse, dégâts, taille pour une créature ; pile, dégâts, durabilité,
+  nourriture pour un objet ; temps de minage, résistance aux explosions, lumière pour un bloc. Touche
+  **Enregistrer les réglages** : seules ces valeurs changent dans le fichier, l'ancienne version reste dans l'historique ;
+- **Renommer** (nom affiché en jeu, en français et en anglais), **Peindre la texture**, **Modifier le modèle 3D**,
+  **Créer une variante** (copie indépendante avec un nouvel identifiant), **Supprimer** (vers la corbeille).
+
+Ça marche aussi pour un addon importé : c'est le moyen le plus simple de modifier un mod existant.
+
+### Ajouter un mod existant dans ton projet
+
+Toujours dans **Contenu du mod**, touche **Ajouter un mod** et choisis un `.mcaddon`, `.mcpack` ou `.zip`.
+Son contenu est ajouté à ton projet : créatures, objets, blocs, textures, sons, scripts. Les traductions et les listes
+de textures sont fusionnées sans rien effacer ; en cas de fichier déjà présent, tu choisis de garder le tien ou de
+prendre celui du mod (ta version reste dans l'historique). Les scripts du mod sont rangés dans `scripts/mods/` et
+branchés automatiquement. Un rapport liste le nouveau contenu et les identifiants en double.
+
+## 3 decies. Héberger un serveur
+
+L'onglet **Serveurs** (en bas de l'écran) crée un vrai serveur Minecraft Bedrock pour 5 joueurs avec tes mods.
+Il faut un projet Supabase gratuit (tableau de bord) et une machine allumée en permanence (gratuite chez Oracle Cloud,
+ou un PC sous Linux). Tout est expliqué pas à pas dans [HEBERGEMENT.md](HEBERGEMENT.md).
+
 ## 4. Fichiers et éditeur
 
 **Fichiers** montre l'arborescence du projet. Appuie sur un dossier pour l'ouvrir, sur un fichier pour l'éditer. Le bouton **⋮** d'une ligne propose : Renommer, Dupliquer, Historique, Supprimer.

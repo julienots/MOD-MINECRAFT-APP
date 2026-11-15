@@ -34,8 +34,26 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Particules : modèles, réglages et aperçu animé | ✅ (non testé en jeu) |
 | Galerie de textures ; modèles 3D de départ (créatures et blocs 3D) associables en un toucher | ✅ (non testé en jeu) |
 | Assistant en langage naturel : analyse hors ligne + IA facultative (clé personnelle, chiffrée) | ✅ (IA non testée avec une vraie clé) |
+| **Contenu du mod en 3D** : toutes les créatures, objets et blocs (créés ici ou importés) en vignettes 3D, fiche avec vue 3D tactile et animations | ✅ (non testé sur un vrai téléphone) |
+| **Édition facile** : vie, vitesse, dégâts, taille, pile, durabilité, temps de minage, lumière… au curseur ; renommer ; créer une variante ; supprimer | ✅ |
+| **Ajouter un mod existant dans un projet** (.mcaddon/.mcpack) : fusion des fichiers, traductions, atlas de textures et scripts, conflits signalés | ✅ |
+| **Hébergement de serveurs Bedrock** (5 joueurs) : Supabase comme tableau de bord + agent sur une machine gratuite (Oracle Cloud) ou un PC — démarrer, arrêter, mods, console, sauvegardes | ✅ (voir [docs/HEBERGEMENT.md](docs/HEBERGEMENT.md) ; non testé avec un vrai serveur Bedrock) |
 
 **Important :** l'application vérifie la *structure* des fichiers. Aucun addon n'a encore été testé dans Minecraft par le développement : seul un essai en jeu (sur ton téléphone) prouve qu'un addon fonctionne. Le guide explique comment faire cet essai et lire les erreurs de Minecraft.
+
+## Héberger un serveur avec tes mods
+
+L'onglet **Serveurs** crée un vrai serveur Minecraft Bedrock (le serveur officiel de Mojang) pour 5 joueurs, avec les mods
+de tes projets. Supabase (gratuit, ton propre projet) sert de tableau de bord ; le jeu tourne sur une machine allumée en
+permanence (Oracle Cloud « Always Free » : 4 cœurs ARM et 24 Go de mémoire, ou un PC sous Linux), où une seule commande
+installe l'agent. Supabase seul ne peut pas exécuter un serveur de jeu. Guide complet : [docs/HEBERGEMENT.md](docs/HEBERGEMENT.md).
+
+```
+server/
+  supabase/migrations/  script SQL à exécuter dans ton projet Supabase (tables, RLS, fonctions de l'agent, stockage)
+  supabase/tests/       test de la migration sur PostgreSQL (lancé par GitHub Actions)
+  agent/                agent Python (sans dépendance) + install.sh (Ubuntu/Debian, x86-64 ou ARM via box64)
+```
 
 ## Récupérer l'APK
 
