@@ -10,3 +10,6 @@ captures/
 *.keystore
 *.jks
 !app/debug-signing/*.jks
+
+__pycache__/
+*.pyc
