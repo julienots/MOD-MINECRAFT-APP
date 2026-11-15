@@ -40,7 +40,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
+import androidx.compose.animation.core.withInfiniteAnimationFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -211,7 +211,7 @@ private fun Viewer3D(preview: ModPreview) {
     LaunchedEffect(auto, anim) {
         var last = 0L
         while (auto || anim != null) {
-            withFrameNanos { now ->
+            withInfiniteAnimationFrameNanos { now ->
                 if (last != 0L) {
                     val dt = (now - last) / 1e9
                     if (auto) camera.yaw += (dt * 30).toFloat()
