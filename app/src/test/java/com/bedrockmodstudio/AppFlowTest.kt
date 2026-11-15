@@ -19,7 +19,6 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.hasTestTag
 import org.junit.Assert.assertEquals
@@ -482,7 +481,7 @@ class AppFlowTest {
         rule.onAllNodes(hasTestTag("mod_card"))[0].performClick()
         waitText("Points de vie")
         waitText("Créer une variante")
-        rule.onNodeWithTag("stat_HEALTH").performScrollTo().performTouchInput { swipeRight() }
+        rule.onNodeWithTag("stat_HEALTH").performScrollTo().performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.SetProgress) { it(1f) }
         rule.onNodeWithTag("apply_stats").performScrollTo().performClick()
         waitText("Réglages enregistrés")
         val meta = app.store.list().first { it.meta.name.contains("Sanglier") }.meta
