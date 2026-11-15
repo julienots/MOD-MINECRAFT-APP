@@ -83,7 +83,7 @@ class ModsTest {
     private fun addon(ns: String, withScript: Boolean): ByteArray {
         val bpManifest = """{"format_version":2,"header":{"name":"Mod Dragons","uuid":"11111111-1111-4111-8111-111111111111","version":[1,0,0],"min_engine_version":[1,21,0]},
             "modules":[{"type":"data","uuid":"22222222-2222-4222-8222-222222222222","version":[1,0,0]}${
-            if (withScript) ""","{"type":"script","language":"javascript","uuid":"55555555-5555-4555-8555-555555555555","version":[1,0,0],"entry":"scripts/index.js"}""" else ""}],
+            if (withScript) """,{"type":"script","language":"javascript","uuid":"55555555-5555-4555-8555-555555555555","version":[1,0,0],"entry":"scripts/index.js"}""" else ""}],
             "dependencies":[${if (withScript) """{"module_name":"@minecraft/server","version":"2.1.0-beta"}""" else ""}]}"""
         val rpManifest = """{"format_version":2,"header":{"name":"Mod Dragons RP","uuid":"33333333-3333-4333-8333-333333333333","version":[1,0,0],"min_engine_version":[1,21,0]},
             "modules":[{"type":"resources","uuid":"44444444-4444-4444-8444-444444444444","version":[1,0,0]}]}"""
@@ -133,7 +133,7 @@ class ModsTest {
         // Le nom du pack du mod n'écrase pas celui du projet.
         assertTrue(!files.readText("resource_pack/texts/en_US.lang").contains("pack.name=Dragons"))
         // Scripts rangés à part et importés depuis le point d'entrée du projet.
-        assertTrue(files.exists("behavior_pack/scripts/mods/mod_dragons/util.js"))
+        assertTrue(files.exists("behavior_pack/scripts/mods/mod_dragons/util.js"), files.walk("behavior_pack/scripts").toString())
         val entry = files.readText("behavior_pack/scripts/main.js")
         assertTrue(entry.contains("mods/mod_dragons/index.js"), entry)
         assertTrue(r.notes.any { it.contains("bêta") }, r.notes.toString())
@@ -167,5 +167,20 @@ class ModsTest {
         val store = ProjectStore(tempDir())
         val meta = store.createExample()
         assertFailsWith<UserFacingException> { PackMerger(store, tempDir()).merge(meta.id, ByteArray(4).inputStream(), "mod.jar", PackMerger.Policy.KEEP_MINE) }
+    }
+
+    @Test
+    fun `apercus 3D - bloc plein et objet en relief`() {
+        val faces = com.bedrockmodstudio.core.model3d.MeshBuilder.build(com.bedrockmodstudio.core.mods.PreviewMeshes.blockCube())
+        assertEquals(6, faces.size)
+        val up = faces.first { it.face == com.bedrockmodstudio.core.model3d.Face.UP }
+        assertTrue(up.uvs.all { it.first in 0.0..16.0 })
+        // Icône 4×4 : un carré plein de 2×2 au centre → 4 cubes, faces internes retirées.
+        val px = IntArray(16)
+        for (y in 1..2) for (x in 1..2) px[y * 4 + x] = 0xFFFF0000.toInt()
+        px[1 * 4 + 1] = 0xFF00FF00.toInt()
+        val mesh = com.bedrockmodstudio.core.mods.PreviewMeshes.itemVoxels(px, 4, 4)
+        assertEquals(2, mesh.colors.size)
+        assertEquals(4 * 2 + 8, mesh.faces.size) // avant+arrière de chaque pixel + 8 bords
     }
 }

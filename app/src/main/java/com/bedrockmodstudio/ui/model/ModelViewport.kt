@@ -194,18 +194,31 @@ fun MeshViewport(
     }
 }
 
-private val shaderCache = HashMap<Bitmap, BitmapShader>()
+private val shaderCache = java.util.WeakHashMap<Bitmap, BitmapShader>()
+
+/** Image fixe d'un maillage (vignettes), calculée hors du fil principal. */
+fun renderStill(
+    faces: List<MeshFace>, texture: Bitmap?, textureWidth: Int, textureHeight: Int, width: Int, height: Int,
+    yaw: Float = 35f, pitch: Float = 22f, faceColor: ((MeshFace) -> Int)? = null, background: Int = 0xFF15181D.toInt(),
+): Bitmap {
+    val cam = OrbitCamera()
+    cam.frame(faces)
+    cam.yaw = yaw; cam.pitch = pitch
+    val projected = project(faces, cam, width, height, lighting = true, lightAngle = 45f)
+    return render(projected, texture, textureWidth, textureHeight, { false }, faceColor, IntSize(width, height), background)
+}
 
 private fun render(
     projected: List<Projected>, texture: Bitmap?, texW: Int, texH: Int, selected: (MeshFace) -> Boolean, faceColor: ((MeshFace) -> Int)?, size: IntSize,
+    background: Int = 0xFF15181D.toInt(),
 ): Bitmap {
     val bmp = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bmp)
-    canvas.drawColor(0xFF15181D.toInt())
+    canvas.drawColor(background)
     // Sol : petite grille de repère sous l'origine.
     val texPaint = Paint().apply {
         isAntiAlias = false; isFilterBitmap = false
-        if (texture != null) shader = shaderCache.getOrPut(texture) { BitmapShader(texture, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
+        if (texture != null) shader = synchronized(shaderCache) { shaderCache.getOrPut(texture) { BitmapShader(texture, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) } }
     }
     val flat = Paint(Paint.ANTI_ALIAS_FLAG)
     val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 3f; color = 0xFFFFD166.toInt() }

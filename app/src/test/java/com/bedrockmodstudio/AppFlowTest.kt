@@ -18,6 +18,10 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.hasTestTag
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -466,5 +470,34 @@ class AppFlowTest {
         waitText("table_magique.png")
         click("table_magique.png")
         rule.onNode(androidx.compose.ui.test.hasTestTag("pixel_canvas")).assertExists()
+    }
+
+    @Test
+    fun `contenu du mod - vignettes 3D, fiche, reglage enregistre`() {
+        click("Ouvrir le projet d'exemple")
+        waitText("Exemple — Sanglier des mousses")
+        click("Contenu du mod (3D)")
+        waitText("Sanglier des mousses")
+        rule.waitUntil(15_000) { rule.onAllNodes(hasTestTag("mod_card")).fetchSemanticsNodes().size >= 3 }
+        rule.onAllNodes(hasTestTag("mod_card"))[0].performClick()
+        waitText("Points de vie")
+        waitText("Créer une variante")
+        rule.onNodeWithTag("stat_HEALTH").performScrollTo().performTouchInput { swipeRight() }
+        rule.onNodeWithTag("apply_stats").performScrollTo().performClick()
+        waitText("Réglages enregistrés")
+        val meta = app.store.list().first { it.meta.name.contains("Sanglier") }.meta
+        val files = app.store.files(meta.id)
+        val mob = com.bedrockmodstudio.core.mods.ModCatalog.scan(files).of(com.bedrockmodstudio.core.mods.ModCatalog.Kind.ENTITY).single()
+        assertEquals(1000.0, mob.stats[com.bedrockmodstudio.core.mods.QuickEdit.Stat.HEALTH])
+    }
+
+    @Test
+    fun `serveurs - configuration Supabase demandee, cle service_role refusee`() {
+        click("Serveurs")
+        waitText("Ton projet Supabase")
+        rule.onNodeWithTag("cloud_url").performTextInput("https://exemple.supabase.co")
+        rule.onNodeWithTag("cloud_key").performTextInput("eyJhbGciOiJIUzI1NiJ9.service_role.xxxxxxxx")
+        waitText("N'utilise JAMAIS la clé « service_role »", substring = true)
+        rule.onNodeWithText("Enregistrer").assertIsNotEnabled()
     }
 }
