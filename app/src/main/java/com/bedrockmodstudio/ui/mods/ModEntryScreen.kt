@@ -18,7 +18,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.ThreeSixty
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.ViewInAr
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -230,7 +230,7 @@ private fun Viewer3D(preview: ModPreview) {
         ) { auto = false }
     }
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        FilterChip(auto, { auto = !auto }, label = { Text("Rotation") }, leadingIcon = { Icon(Icons.Filled.ThreeSixty, null) })
+        FilterChip(auto, { auto = !auto }, label = { Text("Rotation") }, leadingIcon = { Icon(Icons.Filled.Autorenew, null) })
         if (preview.animations.isNotEmpty()) {
             FilterChip(anim == null, { anim = null; time = 0.0 }, label = { Text("Immobile") })
             preview.animations.forEach { a -> FilterChip(anim == a, { anim = a; time = 0.0 }, label = { Text(a.name) }) }
