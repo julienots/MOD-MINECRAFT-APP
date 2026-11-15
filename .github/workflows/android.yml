@@ -9,6 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write   # publication de l'APK dans « Releases » (lien direct pour le téléphone)
     steps:
       - uses: actions/checkout@v4
 
@@ -69,6 +71,17 @@ jobs:
           name: BedrockModStudio-APK
           path: livraison/
           retention-days: 30
+
+      - name: Lien direct de téléchargement (Releases → « derniere-version »)
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp livraison/*.apk BedrockModStudio.apk
+          gh release delete derniere-version --yes --cleanup-tag || true
+          gh release create derniere-version BedrockModStudio.apk livraison/*.mcaddon \
+            --target "$GITHUB_SHA" --prerelease --title "Bedrock Mod Studio — dernière version" \
+            --notes "APK de test construit automatiquement (commit ${GITHUB_SHA::7}, branche ${GITHUB_REF_NAME}). Toutes les vérifications sont passées avant publication."
 
       - name: Rapports en cas d'échec
         if: failure()
