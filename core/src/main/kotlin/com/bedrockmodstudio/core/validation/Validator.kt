@@ -541,11 +541,22 @@ class Validator(
     }
 
     private fun checkAttachables() {
+        val geometries by lazy { collectGeometries() }
+        val animations by lazy { collectKeys("animations", "animations") + collectKeys("animation_controllers", "animation_controllers") }
         for ((path, v) in json(rp, "attachables")) {
             val desc = v.path("minecraft:attachable", "description") as? JsonObject ?: continue
             (desc.obj("textures")?.entries ?: emptySet()).forEach { (_, t) ->
                 val tex = t.asString ?: return@forEach
                 if (!textureExists(tex)) refMissing("TEXTURE_MISSING", "Texture « $tex » introuvable (.png ou .tga).", tex, path)
+            }
+            (desc.obj("geometry")?.entries ?: emptySet()).forEach { (_, g) ->
+                // Seules les références du projet sont vérifiées : les armures utilisent des modèles de Minecraft.
+                val geo = g.asString?.takeIf { namespace != null && it.contains(namespace) } ?: return@forEach
+                if (geo !in geometries) refMissing("GEOMETRY_MISSING", "Modèle « $geo » introuvable dans models/.", geo, path)
+            }
+            (desc.obj("animations")?.entries ?: emptySet()).forEach { (_, a) ->
+                val anim = a.asString?.takeIf { namespace != null && it.contains(namespace) } ?: return@forEach
+                if (anim !in animations) refMissing("ANIMATION_MISSING", "Animation « $anim » introuvable.", anim, path)
             }
         }
     }

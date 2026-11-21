@@ -39,7 +39,11 @@ object ModelBinding {
 
     /** Créatures (fichiers client) et blocs du projet auxquels un modèle peut être associé. */
     fun targets(files: ProjectFiles, use: ModelUse): List<Target> {
-        val (dir, root) = if (use == ModelUse.CREATURE) "$RP/entity" to "minecraft:client_entity" else "$BP/blocks" to "minecraft:block"
+        val (dir, root) = when (use) {
+            ModelUse.CREATURE -> "$RP/entity" to "minecraft:client_entity"
+            ModelUse.BLOCK -> "$BP/blocks" to "minecraft:block"
+            ModelUse.ITEM -> "$BP/items" to "minecraft:item"
+        }
         if (!files.exists(dir)) return emptyList()
         return files.walk(dir).filter { it.endsWith(".json") }.mapNotNull { p ->
             val v = runCatching { JsonParser.parse(files.readText(p)).valueOrNull() }.getOrNull() ?: return@mapNotNull null

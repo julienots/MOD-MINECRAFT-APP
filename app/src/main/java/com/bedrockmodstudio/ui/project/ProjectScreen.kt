@@ -14,6 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Domain
+import androidx.compose.material.icons.filled.EventSeat
+import androidx.compose.material.icons.filled.PanTool
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
@@ -100,6 +102,12 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.ViewInAr, stringResource(R.string.action_models), stringResource(R.string.action_models_desc), tile, BmsColors.Info) {
                 nav.navigate(Routes.models(id))
+            }
+            ActionTile(Icons.Filled.PanTool, stringResource(R.string.action_held), stringResource(R.string.action_held_desc), tile, BmsColors.Info) {
+                nav.navigate(Routes.held(id))
+            }
+            ActionTile(Icons.Filled.EventSeat, stringResource(R.string.action_ride), stringResource(R.string.action_ride_desc), tile, BmsColors.Info) {
+                nav.navigate(Routes.ride(id))
             }
             ActionTile(Icons.Filled.Domain, stringResource(R.string.action_structures), stringResource(R.string.action_structures_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.structures(id))

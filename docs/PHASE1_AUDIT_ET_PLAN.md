@@ -386,3 +386,12 @@ Phase 3k — assistant en langage naturel : livrée (21/10/2026).
   - **Non vérifié** : un appel réel avec une clé, et le SDK sur un vrai téléphone.
 
 Phase 3 terminée. Prochaines étapes : phase 4 (essais sur téléphone et en jeu, corrections) et phase 5 (livraison).
+
+### Phase 3l — atelier visuel : objets en main, montures, peinture 3D (10/11/2026)
+
+- **Correction de l'aperçu 3D** : les rotations X et Z étaient affichées à l'envers. Sens de Minecraft retrouvé à partir du format Blockbench (pivot X inversé, rotation `[-x, -y, z]`) et contrôlé sur le cochon vanilla (corps `[90, 0, 0]` : posé sur les pattes et relié à la tête seulement avec les nouveaux signes). Test automatique ajouté.
+- **Objets 3D en main** (`HeldItem`) : attachable avec `controller.render.item_default`, matériaux `entity_alphatest(_glint)`, os racine lié par `q.item_slot_to_bone_name(c.item_slot)` (géométrie 1.16.0), deux animations de placement (`c.is_first_person`, main principale). Format relevé sur wiki.bedrock.dev (Attachables). Aperçu : personnage de démonstration, bras tendu en 3e personne, bras seul devant la caméra en 1re ; déplacement au doigt converti dans le repère de la main.
+- **Montures** (`RideSeats`) : `minecraft:rideable` (places, `controlling_seat`, `family_types`, `pull_in_entities`, `rotate_rider_by`, `lock_rider_rotation`) et `minecraft:input_ground_controlled` (cheval sellé vanilla) ; lecture et réécriture sans perte du reste du fichier. Passager de l'aperçu calé sur le cochon et le cheval vanilla (hanche 4 px au-dessus de la place).
+- **Peinture 3D** : le point touché est converti en coordonnée de texture par les deux triangles du rendu.
+- Vérification : 4 nouveaux tests du cœur (sens des rotations, attachable + relecture + validation, aperçu en main, places). Le validateur contrôle maintenant aussi les modèles et animations des attachables du projet.
+- **Non vérifié** : rendu en jeu de la tenue en main et hauteur réelle des passagers ; interface compilée et testée seulement par GitHub Actions (le dépôt Maven de Google n'était pas accessible depuis l'environnement de développement).

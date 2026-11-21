@@ -71,7 +71,7 @@ fun ModelsScreen(nav: NavHostController, id: String) {
             OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth().testTag("model_name"), label = { Text(stringResource(R.string.models_name)) }, singleLine = true)
             ChoiceChips(ModelUse.entries, use, { it.labelFr }) { use = it; template = ModelTemplate.forUse(it).first() }
             ChoiceChips(ModelTemplate.forUse(use), template, { it.labelFr }) { template = it }
-            HelpText(stringResource(if (use == ModelUse.BLOCK) R.string.models_block_help else R.string.models_creature_help))
+            HelpText(stringResource(when (use) { ModelUse.BLOCK -> R.string.models_block_help; ModelUse.ITEM -> R.string.models_item_help; else -> R.string.models_creature_help }))
             Text(stringResource(R.string.models_main_color))
             ColorRow(main) { main = it }
             Text(stringResource(R.string.models_accent_color))

@@ -6,6 +6,8 @@ import com.bedrockmodstudio.core.image.PixelImage
 enum class ModelUse(val labelFr: String, val folder: String) {
     CREATURE("Créature", "entity"),
     BLOCK("Bloc 3D", "blocks"),
+    /** Objet 3D tenu en main (attachable) ; le point de prise est à l'origine. */
+    ITEM("Objet 3D en main", "entity"),
 }
 
 /**
@@ -21,6 +23,11 @@ enum class ModelTemplate(val labelFr: String, val use: ModelUse) {
     LANTERN("Lanterne", ModelUse.BLOCK),
     TABLE("Table", ModelUse.BLOCK),
     MUSHROOM("Champignon", ModelUse.BLOCK),
+    SWORD_3D("Épée", ModelUse.ITEM),
+    STAFF("Bâton magique", ModelUse.ITEM),
+    HAMMER("Marteau", ModelUse.ITEM),
+    SHIELD_3D("Bouclier", ModelUse.ITEM),
+    CRYSTAL("Cristal", ModelUse.ITEM),
     ;
 
     /** Pièce d'un modèle : os, parent, pivot, puis cubes (origine, taille, couleur). */
@@ -66,6 +73,22 @@ enum class ModelTemplate(val labelFr: String, val use: ModelUse) {
         )))
         MUSHROOM -> listOf(Part("bloc", null, v(0, 0, 0), listOf(
             c(v(-2, 0, -2), v(4, 8, 4), 0xFFE8E4D8), c(v(-6, 8, -6), v(12, 5, 12), main), c(v(-4, 13, -4), v(8, 2, 8), main),
+        )))
+        SWORD_3D -> listOf(Part("item", null, v(0, 0, 0), listOf(
+            c(v(-1, -4, -1), v(2, 1, 2), accent), c(v(0, -3, 0), v(1, 6, 1), 0xFF6D4C41), c(v(-3, 3, -1), v(6, 1, 2), accent),
+            c(v(-1, 4, 0), v(2, 12, 1), main), c(v(0, 16, 0), v(1, 2, 1), main),
+        )))
+        STAFF -> listOf(Part("item", null, v(0, 0, 0), listOf(
+            c(v(0, -8, 0), v(1, 20, 1), 0xFF6D4C41), c(v(-1, 11, -1), v(3, 1, 3), accent), c(v(-1, 12, -1), v(3, 3, 3), main),
+        )))
+        HAMMER -> listOf(Part("item", null, v(0, 0, 0), listOf(
+            c(v(0, -4, 0), v(1, 13, 1), 0xFF6D4C41), c(v(-4, 9, -2), v(9, 5, 5), main), c(v(-5, 10, -1), v(1, 3, 3), accent), c(v(5, 10, -1), v(1, 3, 3), accent),
+        )))
+        SHIELD_3D -> listOf(Part("item", null, v(0, 0, 0), listOf(
+            c(v(-1, -6, -5), v(1, 12, 10), main), c(v(-2, -2, -2), v(1, 4, 4), accent), c(v(0, -1, -1), v(1, 2, 2), 0xFF6D4C41),
+        )))
+        CRYSTAL -> listOf(Part("item", null, v(0, 0, 0), listOf(
+            c(v(-2, 0, -2), v(4, 8, 4), main), c(v(-1, 8, -1), v(2, 3, 2), main), c(v(-1, -2, -1), v(2, 2, 2), accent),
         )))
     }
 

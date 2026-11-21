@@ -78,6 +78,8 @@ object Routes {
     fun logic(id: String) = "project/$id/logic"
     fun models(id: String) = "project/$id/models"
     fun model(id: String, path: String) = "project/$id/model?path=${Uri.encode(path)}"
+    fun held(id: String, path: String = "") = "project/$id/held?path=${Uri.encode(path)}"
+    fun ride(id: String) = "project/$id/ride"
     fun textures(id: String) = "project/$id/textures"
     fun assistant(id: String) = "project/$id/assistant"
     fun particles(id: String) = "project/$id/particles?path="
@@ -177,6 +179,11 @@ fun AppNavigation() {
                     "project/{id}/particles?path={path}",
                     arguments = listOf(navArgument("path") { type = NavType.StringType; defaultValue = "" }),
                 ) { com.bedrockmodstudio.ui.particle.ParticlesScreen(nav, it.arg("id"), it.arg("path")) }
+                composable(
+                    "project/{id}/held?path={path}",
+                    arguments = listOf(navArgument("path") { type = NavType.StringType; defaultValue = "" }),
+                ) { com.bedrockmodstudio.ui.model.HeldItemScreen(nav, it.arg("id"), it.arg("path")) }
+                composable("project/{id}/ride") { com.bedrockmodstudio.ui.model.RideScreen(nav, it.arg("id")) }
                 composable("project/{id}/textures") { com.bedrockmodstudio.ui.texture.TexturesScreen(nav, it.arg("id")) }
                 composable("project/{id}/assistant") { com.bedrockmodstudio.ui.assistant.AssistantScreen(nav, it.arg("id")) }
                 composable("project/{id}/library") { com.bedrockmodstudio.ui.library.ComponentLibraryScreen(nav, it.arg("id")) }
