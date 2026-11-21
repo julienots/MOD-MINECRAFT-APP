@@ -49,6 +49,7 @@ class BmsApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        com.bedrockmodstudio.ui.model.gl.Render3D.load(this) // réglages de la vue 3D, lus une seule fois
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
             runCatching { container.errorLog.log("Plantage de l'application (${thread.name})", error) }

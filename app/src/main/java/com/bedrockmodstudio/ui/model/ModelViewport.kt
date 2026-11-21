@@ -202,7 +202,6 @@ fun MeshViewport(
     onTap: (MeshFace) -> Unit,
 ) {
     val context = LocalContext.current
-    remember { Render3D.load(context) }
     val gpu = Render3D.useGpu(context)
     val ownCapture = remember { GpuCapture() }
     val gpuCapture = capture ?: ownCapture

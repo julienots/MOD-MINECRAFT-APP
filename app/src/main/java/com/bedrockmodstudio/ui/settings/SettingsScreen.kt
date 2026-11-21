@@ -72,7 +72,6 @@ fun SettingsScreen() {
 
             SectionTitle("Vue 3D")
             run {
-                remember { com.bedrockmodstudio.ui.model.gl.Render3D.load(context) }
                 val r3d = com.bedrockmodstudio.ui.model.gl.Render3D
                 val supported = remember { r3d.gpuSupported(context) }
                 Row(verticalAlignment = Alignment.CenterVertically) {

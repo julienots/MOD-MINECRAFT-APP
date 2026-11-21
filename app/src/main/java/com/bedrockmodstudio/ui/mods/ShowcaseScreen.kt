@@ -67,7 +67,6 @@ private class ShowcaseData(val world: DemoWorld.World, val atlas: Bitmap, val it
 fun ShowcaseScreen(nav: NavHostController, id: String) {
     val context = LocalContext.current
     val app = context.container
-    remember { Render3D.load(context) }
     val gpu = Render3D.useGpu(context)
     val data by produceState<ShowcaseData?>(null, id) {
         value = withContext(Dispatchers.IO) {
