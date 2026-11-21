@@ -13,3 +13,5 @@ captures/
 
 __pycache__/
 *.pyc
+node_modules/
+tools/gl-check/package*.json

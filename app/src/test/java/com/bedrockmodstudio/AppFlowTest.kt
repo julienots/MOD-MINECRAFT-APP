@@ -499,4 +499,33 @@ class AppFlowTest {
         waitText("N'utilise JAMAIS la clé « service_role »", substring = true)
         rule.onNodeWithText("Enregistrer").assertIsNotEnabled()
     }
+
+    @Test
+    fun `assistant minerai, puis vitrine 3D (repli sans GPU)`() {
+        click("Créer un mod")
+        waitText("Nouveau mod")
+        rule.onAllNodes(hasSetTextAction())[0].performTextInput("Gemmes")
+        click("Créer")
+        waitText("Créer un minerai")
+        click("Créer un minerai")
+        waitText("Nom du minerai (ex. Saphir)")
+        rule.onNodeWithTag("ore_name").performTextInput("Saphir")
+        rule.onNodeWithTag("ore_generate").performScrollTo().performClick()
+        waitText("Fichiers créés ou modifiés", substring = true)
+
+        val project = app.store.list().single()
+        val files = app.store.files(project.meta.id)
+        assertTrue(files.exists("behavior_pack/blocks/saphir_ore.json"))
+        assertTrue(files.exists("behavior_pack/items/gemme_de_saphir.json"))
+        assertTrue(files.exists("behavior_pack/features/saphir_ore_feature.json"))
+        assertTrue(files.exists("behavior_pack/feature_rules/saphir_ore_rule.json"))
+        val report = app.exporter.validate(project.meta.id)
+        assertTrue(report.issues.joinToString("\n"), report.errors.isEmpty())
+
+        back()
+        waitText("Vitrine 3D")
+        click("Vitrine 3D")
+        // L'Android simulé n'a pas de GPU : l'écran l'explique au lieu de rester vide.
+        waitText("moteur 3D GPU", substring = true)
+    }
 }

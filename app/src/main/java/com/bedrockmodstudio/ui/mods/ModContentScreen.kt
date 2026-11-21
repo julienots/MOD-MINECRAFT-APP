@@ -129,7 +129,11 @@ fun ModContentScreen(nav: NavHostController, id: String) {
     }
 
     Scaffold(
-        topBar = { BmsTopBar("Contenu du mod", subtitle = catalog?.let { "${it.entries.size} éléments" }, onBack = { nav.popBackStack() }) },
+        topBar = {
+            BmsTopBar("Contenu du mod", subtitle = catalog?.let { "${it.entries.size} éléments" }, onBack = { nav.popBackStack() }) {
+                androidx.compose.material3.TextButton(onClick = { nav.navigate(com.bedrockmodstudio.ui.Routes.showcase(id)) }) { Text("Vitrine 3D") }
+            }
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { askPolicy = true },

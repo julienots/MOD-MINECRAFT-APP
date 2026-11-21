@@ -157,6 +157,52 @@ de textures sont fusionnées sans rien effacer ; en cas de fichier déjà prése
 prendre celui du mod (ta version reste dans l'historique). Les scripts du mod sont rangés dans `scripts/mods/` et
 branchés automatiquement. Un rapport liste le nouveau contenu et les identifiants en double.
 
+## 3 undecies. Minerais générés dans le monde
+
+**Créer un minerai** fabrique en une fois : le bloc de minerai, la gemme (ou le lingot), la cuisson au four et au haut
+fourneau, et sa **génération naturelle** sous terre.
+
+| Réglage | Ce que ça change |
+|---|---|
+| Ce que donne le minerai | Une gemme (comme le diamant) ou le bloc lui-même, à faire cuire. |
+| Monde | Monde normal (remplace pierre, ardoise des profondeurs, granite, diorite, andésite, tuf), Nether (netherrack) ou End (pierre de l'End). |
+| Blocs par filon | Diamant ≈ 8, fer ≈ 9, charbon ≈ 17. |
+| Filons par tronçon | Plus il y en a, plus le minerai est commun. |
+| Hauteurs | Entre quelles altitudes (Y) les filons apparaissent. |
+
+**Important :** la génération ne touche que les endroits jamais visités. Pour l'essayer, crée un **nouveau monde** avec ton
+pack activé, puis creuse aux hauteurs choisies.
+
+## 3 duodecies. Menus interactifs
+
+Dans **Comportements (blocs)** :
+
+1. Ajoute l'action **Ouvrir un menu** (par exemple quand un joueur utilise une boussole). Donne un identifiant au menu,
+   un titre, un texte et les boutons séparés par `|` : `Soins | Téléportation | Cadeau`.
+2. Crée une règle par bouton avec l'événement **Un joueur choisit un bouton de menu** (identifiant du menu + numéro du
+   bouton, le premier est le 1) et mets-y les actions voulues.
+
+L'application ajoute toute seule la dépendance aux formulaires officiels (`@minecraft/server-ui`). Elle refuse de compiler
+si un bouton n'existe pas ou si aucun menu ne porte l'identifiant choisi.
+
+## 3 terdecies. Vue 3D GPU et vitrine
+
+Sur les téléphones compatibles OpenGL ES 3.0 (presque tous depuis 2014), toutes les vues 3D utilisent le **moteur GPU** :
+vraie profondeur, **ombres portées** du soleil, ciel, sol quadrillé, brouillard et anticrénelage. Les boutons en haut à
+droite de chaque vue changent :
+
+- **Ambiance** : Studio, Jour, Coucher de soleil, Nuit (étoiles), Nether, End ;
+- **Affichage** : Texturé, Argile (formes seules), Fil de fer (arêtes des cubes), Normales, Rayons X (voir à travers) ;
+- **Lumière et sol** : ombres, sol, direction du soleil ;
+- **Photo HD** : enregistre l'image de la vue et ouvre le partage.
+
+La **Vitrine 3D** (dans le projet, ou en haut de « Contenu du mod ») pose toutes tes créatures, objets et blocs ensemble sur
+une petite île, avec leurs animations de marche et un tour automatique de l'île. Touche un nom sous la vue pour ouvrir sa
+fiche.
+
+Si l'affichage pose problème, désactive **Moteur 3D GPU** dans les Paramètres : le moteur logiciel prend le relais (mêmes
+gestes, sans ombres ni ambiances).
+
 ## 3 decies. Héberger un serveur
 
 L'onglet **Serveurs** (en bas de l'écran) crée un vrai serveur Minecraft Bedrock pour 5 joueurs avec tes mods.

@@ -9,6 +9,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.Landscape
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -82,6 +84,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             ActionTile(Icons.Filled.Inventory2, "Contenu du mod (3D)", "Voir toutes les créatures, objets et blocs en 3D, les régler en un geste, ajouter un mod existant.", tile, BmsColors.Primary) {
                 nav.navigate(Routes.modContent(id))
             }
+            ActionTile(Icons.Filled.Landscape, "Vitrine 3D", "Toutes tes créatures, objets et blocs ensemble sur une île en 3D : ombres, jour, nuit, Nether, End, photo HD.", tile, BmsColors.Primary) {
+                nav.navigate(Routes.showcase(id))
+            }
             ActionTile(Icons.AutoMirrored.Filled.Chat, stringResource(R.string.action_assistant), stringResource(R.string.action_assistant_desc), tile, BmsColors.Primary) {
                 nav.navigate(Routes.assistant(id))
             }
@@ -93,6 +98,9 @@ fun ProjectScreen(nav: NavHostController, id: String) {
             }
             ActionTile(Icons.Filled.ViewInAr, stringResource(R.string.action_block), stringResource(R.string.action_block_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.block(id))
+            }
+            ActionTile(Icons.Filled.Diamond, "Créer un minerai", "Minerai qui apparaît tout seul dans le monde (filons, hauteurs), avec sa gemme ou son lingot et la cuisson au four.", tile, BmsColors.Secondary) {
+                nav.navigate(Routes.ore(id))
             }
             ActionTile(Icons.Filled.GridOn, stringResource(R.string.action_recipe), stringResource(R.string.action_recipe_desc), tile, BmsColors.Secondary) {
                 nav.navigate(Routes.recipe(id))

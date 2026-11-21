@@ -204,6 +204,8 @@ fun MeshViewport(
     val context = LocalContext.current
     remember { Render3D.load(context) }
     val gpu = Render3D.useGpu(context)
+    val ownCapture = remember { GpuCapture() }
+    val gpuCapture = capture ?: ownCapture
     var size by remember { mutableStateOf(IntSize.Zero) }
     val projected = remember(faces, size, camera.yaw, camera.pitch, camera.distance, camera.target, lighting, lightAngle, gpu) {
         if (size.width == 0 || gpu) emptyList() else project(faces, camera, size.width, size.height, lighting, lightAngle)
@@ -219,7 +221,8 @@ fun MeshViewport(
         hitCache[0]?.let { (k, v) -> if (k == key) return v }
         return project(faces, camera, size.width, size.height, lighting, lightAngle).also { hitCache[0] = key to it }
     }
-    val currentHits by rememberUpdatedState(::hits)
+    // Un lambda (et non `::hits`) : deux références à la même fonction locale sont « égales » et l'état ne serait jamais mis à jour.
+    val currentHits by rememberUpdatedState<() -> List<Projected>> { hits() }
     val vertices = remember(faces, texture, faceColor, selectionKey, gpu) {
         if (!gpu) null else GpuMesh.pack(faces, textureWidth, textureHeight, textured = texture != null, color = faceColor, highlight = selected)
     }
@@ -246,7 +249,7 @@ fun MeshViewport(
             bounds = bounds, environment = Render3D.environment, mode = Render3D.mode, shadows = Render3D.shadows && lighting,
             ground = Render3D.ground, sunAzimuth = Render3D.sunAzimuth.toDouble() + lightAngle, animated = anySelected,
         )
-        GpuSceneView(scene, Modifier.matchParentSize(), capture)
+        GpuSceneView(scene, Modifier.matchParentSize(), gpuCapture)
     }
     Canvas(
         Modifier.matchParentSize().testTag("model_viewport").pointerInput(dragMode, paintMode) {
@@ -294,7 +297,7 @@ fun MeshViewport(
     ) {
         frame?.let { drawImage(it.asImageBitmap(), Offset.Zero) }
     }
-    if (gpu && showToolbar) Render3DToolbar(capture, Modifier.align(Alignment.TopEnd))
+    if (gpu && showToolbar) Render3DToolbar(gpuCapture, Modifier.align(Alignment.TopEnd))
     }
 }
 

@@ -50,6 +50,14 @@ jobs:
             echo "Scripts valides pour @minecraft/server $1"
           done
 
+      - name: Moteur 3D — shaders GLSL ES 3.00 compilés et scènes rendues (WebGL 2, Chromium sans écran)
+        run: |
+          cd tools/gl-check
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund playwright@1.49.1
+          npx playwright install --with-deps chromium
+          node run.js ../../core/build/gl-check/index.html ../../core/build/gl-check/rendu.png
+
       - name: Tests de l'interface (Robolectric)
         run: ./gradlew :app:testDebugUnitTest --stacktrace
 
@@ -64,6 +72,7 @@ jobs:
           mkdir -p livraison
           cp app/build/outputs/apk/debug/app-debug.apk "livraison/BedrockModStudio-${GITHUB_SHA::7}.apk"
           cp core/build/exemples/*.mcaddon livraison/ || true
+          cp core/build/gl-check/rendu.png livraison/apercu-moteur-3d.png || true
 
       - name: Publier l'APK (onglet Actions → ce run → Artifacts)
         uses: actions/upload-artifact@v4

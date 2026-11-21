@@ -88,6 +88,8 @@ object Routes {
     fun structures(id: String) = "project/$id/structure?path="
     fun structure(id: String, path: String) = "project/$id/structure?path=${Uri.encode(path)}"
     fun modContent(id: String) = "project/$id/content"
+    fun showcase(id: String) = "project/$id/showcase"
+    fun ore(id: String) = "project/$id/ore"
     fun modEntry(id: String, kind: String, entryId: String) = "project/$id/content/entry?kind=$kind&entry=${Uri.encode(entryId)}"
     const val SERVERS = "servers"
     fun server(serverId: String) = "servers/detail?sid=${Uri.encode(serverId)}"
@@ -188,6 +190,8 @@ fun AppNavigation() {
                 composable("project/{id}/assistant") { com.bedrockmodstudio.ui.assistant.AssistantScreen(nav, it.arg("id")) }
                 composable("project/{id}/library") { com.bedrockmodstudio.ui.library.ComponentLibraryScreen(nav, it.arg("id")) }
                 composable("project/{id}/content") { com.bedrockmodstudio.ui.mods.ModContentScreen(nav, it.arg("id")) }
+                composable("project/{id}/showcase") { com.bedrockmodstudio.ui.mods.ShowcaseScreen(nav, it.arg("id")) }
+                composable("project/{id}/ore") { com.bedrockmodstudio.ui.content.OreWizardScreen(nav, it.arg("id")) }
                 composable(
                     "project/{id}/content/entry?kind={kind}&entry={entry}",
                     arguments = listOf(

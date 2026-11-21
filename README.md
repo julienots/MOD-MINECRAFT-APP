@@ -9,7 +9,7 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Fonction | État |
 |---|---|
 | Créer un projet (behavior pack + resource pack liés, UUID, icônes, traductions) | ✅ |
-| Choisir la version de Minecraft ciblée (1.26.30, 1.26.40, 1.26.50) | ✅ |
+| Choisir la version de Minecraft ciblée (1.26.30, 1.26.40, 1.26.50, **1.26.60 — dernière version stable, par défaut**) | ✅ |
 | Assistant « Créer une créature » (comportement, vie, vitesse, attaque, taille, couleurs, butin, expérience, apparition naturelle) avec modèle 3D, texture et animations générés | ✅ |
 | Assistants « Créer un objet » (objet, nourriture, épée, pioche, hache, pelle, casque, plastron, jambières, bottes, avec recette optionnelle), « Créer un bloc » et « Créer une recette » (établi avec/sans forme, four) | ✅ |
 | Explorateur de fichiers : ouvrir, créer, renommer, dupliquer, importer un fichier, supprimer (vers une corbeille, avec confirmation) | ✅ |
@@ -37,6 +37,10 @@ Application Android pour créer des addons **Minecraft Bedrock Edition** depuis 
 | Objets 3D tenus en main : modèles de départ (épée, bâton, marteau, bouclier, cristal), placement visuel 1re/3e personne au doigt | ✅ (non testé en jeu) |
 | Monter sur une créature : places posées au doigt sur le modèle, passagers multiples, conduite par le joueur | ✅ (non testé en jeu) |
 | Assistant en langage naturel : analyse hors ligne + IA facultative (clé personnelle, chiffrée) | ✅ (IA non testée avec une vraie clé) |
+| **Moteur 3D GPU** (OpenGL ES 3) dans toutes les vues 3D : ombres portées, ciel, 6 ambiances (studio, jour, coucher de soleil, nuit, Nether, End), 5 modes (texturé, argile, fil de fer, normales, rayons X), anticrénelage, photo HD ; repli automatique sur le moteur logiciel | ✅ (shaders et rendu vérifiés dans WebGL 2 ; non testé sur un vrai téléphone) |
+| **Vitrine 3D** : tout le contenu du mod sur une île de démonstration, animations de marche, tour automatique | ✅ (non testé sur un vrai téléphone) |
+| **Minerais générés dans le monde** : bloc, gemme ou lingot, cuisson, filons (taille, fréquence, hauteurs) dans le monde normal, le Nether ou l'End | ✅ (non testé en jeu) |
+| **Menus interactifs** (formulaires `@minecraft/server-ui`) dans l'éditeur de comportements : ouvrir un menu, une règle par bouton | ✅ (vérifié par TypeScript contre l'API officielle ; non testé en jeu) |
 | **Contenu du mod en 3D** : toutes les créatures, objets et blocs (créés ici ou importés) en vignettes 3D, fiche avec vue 3D tactile et animations | ✅ (non testé sur un vrai téléphone) |
 | **Édition facile** : vie, vitesse, dégâts, taille, pile, durabilité, temps de minage, lumière… au curseur ; renommer ; créer une variante ; supprimer | ✅ |
 | **Ajouter un mod existant dans un projet** (.mcaddon/.mcpack) : fusion des fichiers, traductions, atlas de textures et scripts, conflits signalés | ✅ |
@@ -89,14 +93,16 @@ Android 8.0 ou plus récent est nécessaire. Les nouvelles versions s'installent
 ## Tests
 
 ```bash
-./gradlew :core:test              # 82 tests : JSON, projets, validation, export, import, sécurité des archives
-./gradlew :app:testDebugUnitTest  # 10 parcours d'interface simulés (Robolectric)
+./gradlew :core:test              # 98 tests : JSON, projets, validation, export, import, sécurité des archives, moteur 3D
+./gradlew :app:testDebugUnitTest  # 18 parcours d'interface simulés (Robolectric)
+# Moteur 3D : les tests du cœur écrivent core/build/gl-check/ (mêmes shaders et matrices que l'appli) ;
+# tools/gl-check/run.js le rend dans Chromium sans écran (WebGL 2) et échoue si un shader ne compile pas.
 ./gradlew :app:lintDebug          # analyse Android Lint
 ```
 
 Les tests d'interface simulent Android sur l'ordinateur ; ils ne remplacent pas un essai sur un vrai téléphone.
 Les scripts générés (dimensions, boss, comportements) sont en plus vérifiés par TypeScript contre les définitions
-officielles `@minecraft/server` 2.8.0, 2.9.0 et 2.10.0 (étape « scripts » de GitHub Actions).
+officielles `@minecraft/server` 2.8.0, 2.9.0, 2.10.0 et 2.11.0 (étape « scripts » de GitHub Actions).
 
 ## Organisation du code
 
@@ -108,9 +114,11 @@ core/   Kotlin pur, sans Android (testable partout)
   validation/  centre de vérification
   packaging/   export .mcaddon/.mcpack/.zip, import sécurisé
   image/       encodeur PNG (textures générées)
+  render/      moteur 3D GPU : caméra, ombres, shaders GLSL ES 3.00, ambiances, île de démonstration
 app/    Application Android (Jetpack Compose, Material 3, thème sombre)
 exemples/  Addon d'exemple généré par l'application
 docs/   Plan, guide d'utilisation
+tools/gl-check/  rendu du banc d'essai 3D dans un navigateur sans écran (CI)
 ```
 
 ## Licence et contenus

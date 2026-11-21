@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -68,6 +69,25 @@ fun SettingsScreen() {
         Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
             SectionTitle(stringResource(R.string.settings_default_version))
             VersionPicker(version) { version = it; app.defaultVersion = it.id }
+
+            SectionTitle("Vue 3D")
+            run {
+                remember { com.bedrockmodstudio.ui.model.gl.Render3D.load(context) }
+                val r3d = com.bedrockmodstudio.ui.model.gl.Render3D
+                val supported = remember { r3d.gpuSupported(context) }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Moteur 3D GPU (OpenGL ES 3)")
+                        HelpText(when {
+                            !supported -> "Non disponible sur cet appareil : le moteur logiciel est utilisé."
+                            r3d.gpuFailed -> "Le GPU a refusé le rendu pendant cette session : moteur logiciel jusqu'au prochain lancement."
+                            else -> "Ombres portées, ciel, ambiances, fil de fer, rayons X, photo HD et vitrine 3D. Désactive-le si l'affichage pose problème."
+                        })
+                    }
+                    androidx.compose.material3.Switch(r3d.gpuEnabled && supported, { r3d.gpuEnabled = it; r3d.save(context) }, enabled = supported,
+                        modifier = Modifier.testTag("settings_gpu"))
+                }
+            }
 
             SectionTitle(stringResource(R.string.projects_trash))
             if (trash.isEmpty()) Text(stringResource(R.string.settings_projects_trash_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)

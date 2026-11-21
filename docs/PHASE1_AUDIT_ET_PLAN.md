@@ -229,7 +229,8 @@ Profils de départ prévus :
 
 | Profil | Statut |
 |---|---|
-| **1.26.50** (actuelle) | Vérifié à partir des échantillons officiels, `@minecraft/server 2.10.0`. Profil par défaut. |
+| 1.26.50 | Vérifié à partir des échantillons officiels, `@minecraft/server 2.10.0`. |
+| **1.26.60** (actuelle) | Vérifié le 21/11/2026 : tag stable `v1.26.60.5` de bedrock-samples (11 entités vanilla en `format_version` 1.26.60, le reste inchangé), `@minecraft/server 2.11.0` et `@minecraft/server-ui 2.3.0` (npm, 27/10/2026). Profil par défaut. |
 | 1.26.30, 1.26.40 | Vérifiés à partir des échantillons officiels (tags `v1.26.30.5`, `v1.26.40.05`) et de `@minecraft/server` 2.8.0 / 2.9.0. |
 | Versions antérieures | Ajoutées uniquement après vérification, jamais devinées. |
 
@@ -395,3 +396,16 @@ Phase 3 terminée. Prochaines étapes : phase 4 (essais sur téléphone et en je
 - **Peinture 3D** : le point touché est converti en coordonnée de texture par les deux triangles du rendu.
 - Vérification : 4 nouveaux tests du cœur (sens des rotations, attachable + relecture + validation, aperçu en main, places). Le validateur contrôle maintenant aussi les modèles et animations des attachables du projet.
 - **Non vérifié** : rendu en jeu de la tenue en main et hauteur réelle des passagers ; interface compilée et testée seulement par GitHub Actions (le dépôt Maven de Google n'était pas accessible depuis l'environnement de développement).
+
+### Phase 3m — dernière version, moteur 3D GPU, minerais, menus (21/11/2026)
+
+- **Fusion** de la phase 3l (restée sur une branche à part) dans la version principale ; un seul conflit (signature du rendu logiciel), résolu en gardant les deux évolutions.
+- **Minecraft 1.26.60** ajoutée et choisie par défaut (voir la matrice de versions). La CI vérifie aussi les scripts contre `@minecraft/server` 2.11.0.
+- **Moteur 3D GPU** (`core/render` + `ui/model/gl`) : OpenGL ES 3.0, carte d'ombre 2048² avec filtrage 3×3, ciel en dégradé (soleil, étoiles), sol quadrillé qui reçoit les ombres, brouillard, MSAA 4×, 6 ambiances, 5 modes d'affichage, photo HD. Branché dans `MeshViewport`, donc dans toutes les vues 3D (éditeur de modèles, fiches du mod, objets en main, montures, structures). Les touchers restent résolus par la projection logicielle : la caméra GPU est contrôlée par test pour tomber exactement sur les mêmes pixels.
+- **Corrections trouvées grâce au rendu GPU** : la caméra orbitale regardait le modèle *par en dessous* (angle vertical inversé, invisible sans sol) ; le déplacement à deux doigts partait dans le mauvais sens selon l'orientation de la vue.
+- **Vitrine 3D** : île de blocs générée (textures originales), contenus posés sur un plateau, animations de marche, tour automatique.
+- **Minerais** : `minecraft:ore_feature` + `minecraft:feature_rules` (format 1.13.0, `underground_pass`, `has_biome_tag`), formats relevés dans `documentation/Features.html` de bedrock-samples v1.26.60.5 et `feature_rule_conditions.md` de MicrosoftDocs/minecraft-creator ; étiquettes de biomes vérifiées sur les biomes vanilla.
+- **Menus** : action « Ouvrir un menu » (`ActionFormData`) et événement « Un joueur choisit un bouton de menu » ; dépendance `@minecraft/server-ui` ajoutée seulement si un menu est utilisé ; contrôle d'un bouton inexistant ou d'un menu jamais ouvert.
+- **Vérification** : 98 tests du cœur, 18 parcours d'interface (Robolectric), Lint, APK ; scripts vérifiés par TypeScript contre `@minecraft/server` 2.10.0 et 2.11.0 (contrôle négatif compris) ; shaders compilés et 6 scènes rendues dans Chromium (WebGL 2, mêmes sources GLSL ES 3.00), étape ajoutée à la CI.
+- **Non vérifié** : le rendu OpenGL sur un vrai téléphone (pilotes GPU variés : en cas de refus d'un shader, l'écran repasse au moteur logiciel), la génération des minerais et les menus dans une vraie partie.
+
