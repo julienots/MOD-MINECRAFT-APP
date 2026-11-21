@@ -3,8 +3,8 @@ package com.bedrockmodstudio.core.bedrock
 /**
  * Profil d'une version de Minecraft Bedrock ciblée.
  *
- * Toutes les valeurs ci-dessous ont été relevées dans les sources officielles le 20/10/2026 :
- * - dépôt `Mojang/bedrock-samples`, tags `v1.26.30.5`, `v1.26.40.05`, `v1.26.50.4`
+ * Toutes les valeurs ci-dessous ont été relevées dans les sources officielles le 20/10/2026 (1.26.60 ajoutée le 21/11/2026) :
+ * - dépôt `Mojang/bedrock-samples`, tags `v1.26.30.5`, `v1.26.40.05`, `v1.26.50.4`, `v1.26.60.5`
  *   (manifestes, `format_version` des entités, objets, modèles, animations, recettes) ;
  * - paquets npm `@minecraft/server` et `@minecraft/server-ui` (versions stables publiées le même jour
  *   que la version du jeu correspondante, et présence de `DimensionRegistry.registerCustomDimension`).
@@ -74,15 +74,28 @@ object BedrockVersions {
     )
 
     val V1_26_50 = V1_26_30.copy(
-        id = "1.26.50", label = "Minecraft 1.26.50 (actuelle)",
+        id = "1.26.50", label = "Minecraft 1.26.50",
         minEngineVersion = listOf(1, 26, 50),
         entityBehaviorFormat = "1.26.50",
         scriptServerVersion = "2.10.0", scriptServerUiVersion = "2.2.0",
         source = "bedrock-samples v1.26.50.4 ; @minecraft/server 2.10.0 (15/09/2026)",
     )
 
-    val ALL: List<BedrockVersionProfile> = listOf(V1_26_50, V1_26_40, V1_26_30)
-    val DEFAULT: BedrockVersionProfile = V1_26_50
+    /**
+     * Relevé le 21/11/2026 : tag stable `v1.26.60.5` de Mojang/bedrock-samples (11 entités vanilla passées
+     * en `format_version` 1.26.60 ; objets, blocs, recettes, modèles inchangés) et paquets npm
+     * `@minecraft/server` 2.11.0 / `@minecraft/server-ui` 2.3.0 publiés le 27/10/2026 (étiquette `latest`).
+     */
+    val V1_26_60 = V1_26_50.copy(
+        id = "1.26.60", label = "Minecraft 1.26.60 (actuelle)",
+        minEngineVersion = listOf(1, 26, 60),
+        entityBehaviorFormat = "1.26.60",
+        scriptServerVersion = "2.11.0", scriptServerUiVersion = "2.3.0",
+        source = "bedrock-samples v1.26.60.5 ; @minecraft/server 2.11.0 (27/10/2026)",
+    )
+
+    val ALL: List<BedrockVersionProfile> = listOf(V1_26_60, V1_26_50, V1_26_40, V1_26_30)
+    val DEFAULT: BedrockVersionProfile = V1_26_60
 
     fun byId(id: String?): BedrockVersionProfile? = ALL.firstOrNull { it.id == id }
 

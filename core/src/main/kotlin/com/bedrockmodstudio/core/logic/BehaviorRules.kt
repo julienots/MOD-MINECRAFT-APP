@@ -18,7 +18,9 @@ import com.bedrockmodstudio.core.model.Identifiers
  */
 enum class BlockCategory(val labelFr: String) { EVENT("Quand"), CONDITION("Si"), ACTION("Alors") }
 
-enum class ParamType { TEXT, NUMBER, ITEM, BLOCK, ENTITY, EFFECT, DIMENSION, SOUND, TAG, COMMAND_NAME, STRUCTURE, PARTICLE }
+enum class ParamType { TEXT, NUMBER, ITEM, BLOCK, ENTITY, EFFECT, DIMENSION, SOUND, TAG, COMMAND_NAME, STRUCTURE, PARTICLE,
+    /** Liste de libellés séparés par « | » (boutons d'un menu). */
+    LIST }
 
 data class ParamSpec(
     val key: String,
@@ -87,6 +89,9 @@ object BehaviorCatalog {
         BlockDef("command", BlockCategory.EVENT, "Un joueur tape une commande", "Commande personnalisée /espace:nom, sans triche nécessaire.",
             listOf(p("name", "Nom de la commande", ParamType.COMMAND_NAME, "bonus"), p("description", "Description", ParamType.TEXT, "Commande de mon addon")),
             RuleContext(true, false, true), feature = BedrockFeature.CUSTOM_COMMANDS) { "un joueur tape /${it["name"]}" },
+        BlockDef("menu_choice", BlockCategory.EVENT, "Un joueur choisit un bouton de menu", "Menu ouvert par l'action « Ouvrir un menu » ; le premier bouton porte le numéro 1.",
+            listOf(p("menu", "Identifiant du menu", ParamType.TAG, "menu_principal"), p("button", "Numéro du bouton", ParamType.NUMBER, "1", 1.0, 10.0)),
+            RuleContext(true, false, true), feature = BedrockFeature.SCRIPT_UI_FORMS) { "un joueur choisit le bouton ${it["button"]} du menu « ${it["menu"]} »" },
 
         // ---- Conditions ----
         BlockDef("chance", BlockCategory.CONDITION, "Avec une probabilité de…", "Tirage au sort à chaque fois.",
@@ -142,6 +147,10 @@ object BehaviorCatalog {
             listOf(p("structure", "Structure", ParamType.STRUCTURE, "mystructure:maison"))) { "placer la structure ${it["structure"]}" },
         BlockDef("particle", BlockCategory.ACTION, "Afficher des particules", "Effet de particules du projet (ou vanilla, ex. minecraft:heart_particle) à la position de l'événement.",
             listOf(p("particle", "Particules", ParamType.PARTICLE, "minecraft:heart_particle"))) { "afficher les particules ${it["particle"]}" },
+        BlockDef("open_menu", BlockCategory.ACTION, "Ouvrir un menu", "Fenêtre à boutons (formulaire officiel). Chaque bouton déclenche les règles « Un joueur choisit un bouton de menu ».",
+            listOf(p("menu", "Identifiant du menu", ParamType.TAG, "menu_principal"), p("title", "Titre", ParamType.TEXT, "Menu"),
+                p("body", "Texte", ParamType.TEXT, "Choisis une option :"), p("buttons", "Boutons (séparés par |)", ParamType.LIST, "Soins | Téléportation | Cadeau")),
+            needsPlayer = true, feature = BedrockFeature.SCRIPT_UI_FORMS) { "ouvrir le menu « ${it["title"]} » (${BehaviorCompiler.buttons(it).size} boutons)" },
         BlockDef("wait", BlockCategory.ACTION, "Attendre", "Les actions suivantes ont lieu après ce délai.",
             listOf(p("seconds", "Secondes", ParamType.NUMBER, "2", 0.05, 3600.0))) { "attendre ${it["seconds"]} s" },
     )
@@ -194,6 +203,12 @@ object BehaviorCompiler {
                     ParamType.STRUCTURE -> if (!Regex("^[a-z0-9_.-]+:[a-z0-9_./-]+$").matches(v)) add("$where : identifiant de structure invalide « $v » (ex. mystructure:maison).")
                     ParamType.COMMAND_NAME -> if (!Regex("^[a-z0-9_]{1,32}$").matches(v)) add("$where : minuscules, chiffres et _ uniquement.")
                     ParamType.TEXT -> if (v.isEmpty()) add("$where : texte vide.") else if (v.length > 500) add("$where : 500 caractères au maximum.")
+                    ParamType.LIST -> {
+                        val items = v.split('|').map { it.trim() }
+                        if (items.any { it.isEmpty() }) add("$where : un bouton est vide (sépare les boutons par « | »).")
+                        else if (items.size > 10) add("$where : 10 boutons au maximum.")
+                        else if (items.any { it.length > 80 }) add("$where : 80 caractères au maximum par bouton.")
+                    }
                 }
             }
             if ((def.needsPlayer && !trig.context!!.hasPlayer)) add("$label : « ${def.labelFr} » a besoin d'un joueur, que l'événement ne fournit pas.")
@@ -205,8 +220,18 @@ object BehaviorCompiler {
         val errors = active.flatMap { check(it, namespace) }.toMutableList()
         val commandNames = active.filter { it.trigger.kind == "command" }.map { it.trigger["name"] }
         commandNames.groupBy { it }.filter { it.value.size > 1 }.keys.forEach { errors += "La commande /$namespace:$it est définie plusieurs fois." }
+        // Menus : chaque choix doit viser un bouton qui existe dans un menu ouvert par une action.
+        val menus = HashMap<String, Int>()
+        active.flatMap { it.actions }.filter { it.kind == "open_menu" }.forEach { menus.merge(it["menu"], buttons(it).size, ::maxOf) }
+        for (r in active.filter { it.trigger.kind == "menu_choice" }) {
+            val menu = r.trigger["menu"]; val n = menus[menu]
+            val b = r.trigger["button"].trim().replace(',', '.').toDoubleOrNull()?.toInt() ?: continue
+            if (n == null) errors += "Règle « ${r.name.ifBlank { "sans nom" }} » : aucune action « Ouvrir un menu » n'ouvre le menu « $menu »."
+            else if (b > n) errors += "Règle « ${r.name.ifBlank { "sans nom" }} » : le menu « $menu » n'a que $n bouton(s)."
+        }
         if (errors.isNotEmpty()) return CompileResult(null, errors)
 
+        val usesMenus = active.any { r -> r.trigger.kind == "menu_choice" || r.actions.any { it.kind == "open_menu" } }
         val features = mutableSetOf<BedrockFeature>()
         val body = StringBuilder()
         val startup = StringBuilder()
@@ -219,15 +244,17 @@ object BehaviorCompiler {
             body.append(ruleFunction(fn, rule))
             body.append(subscription(fn, rule.trigger, namespace, startup))
         }
-        val imports = "import { CommandPermissionLevel, CustomCommandStatus, ItemStack, Player, system, world } from \"@minecraft/server\";"
+        val imports = "import { CommandPermissionLevel, CustomCommandStatus, ItemStack, Player, system, world } from \"@minecraft/server\";" +
+            (if (usesMenus) "\nimport { ActionFormData } from \"@minecraft/server-ui\";" else "")
         val code = Js.header("Comportements créés avec l'éditeur visuel") +
             "// Ne pas modifier à la main : ce fichier est régénéré à chaque compilation des règles.\n" +
-            imports + "\n" + RUNTIME +
+            imports + "\n" + RUNTIME + (if (usesMenus) MENU_RUNTIME else "") +
             (if (startup.isNotEmpty()) "\nsystem.beforeEvents.startup.subscribe((event) => {\n$startup});\n" else "") +
             body
         val content = GeneratedContent()
         content.script(MODULE, code)
         content.requiredFeatures += features
+        content.needsServerUi = usesMenus
         return CompileResult(content, emptyList(), code)
     }
 
@@ -237,6 +264,9 @@ object BehaviorCompiler {
         val a = rule.actions.mapNotNull { BehaviorCatalog.byKind(it.kind)?.summary?.invoke(it) }
         return "Quand $t" + (if (c.isNotEmpty()) ", si ${c.joinToString(" et ")}" else "") + ", alors : ${a.joinToString(", puis ")}."
     }
+
+    /** Libellés des boutons d'une action « Ouvrir un menu ». */
+    fun buttons(inst: BlockInstance): List<String> = inst["buttons"].split('|').map { it.trim() }.filter { it.isNotEmpty() }
 
     private fun num(inst: BlockInstance, key: String) = inst[key].trim().replace(',', '.').toDouble()
     private fun ticks(seconds: Double) = Math.max(1, Math.round(seconds * 20)).toString()
@@ -266,6 +296,29 @@ object BehaviorCompiler {
         |function isNight() {
         |  const time = world.getTimeOfDay();
         |  return time >= 13000 && time < 23000;
+        |}
+        |""".trimMargin()
+
+    /** Menus (formulaires `@minecraft/server-ui`) : un tableau de fonctions par « menu:bouton ». */
+    private val MENU_RUNTIME = """
+        |
+        |/** @type {Record<string, Array<(player: import("@minecraft/server").Player, dimension: import("@minecraft/server").Dimension, location: import("@minecraft/server").Vector3) => void>>} */
+        |const menuHandlers = {};
+        |
+        |/** @param {string} menu @param {number} button @param {(player: any, dimension: any, location: any) => void} fn */
+        |function onMenuButton(menu, button, fn) {
+        |  const key = menu + ":" + button;
+        |  (menuHandlers[key] ??= []).push(fn);
+        |}
+        |
+        |/** @param {import("@minecraft/server").Player} player @param {string} menu @param {string} title @param {string} body @param {string[]} buttons */
+        |function openMenu(player, menu, title, body, buttons) {
+        |  const form = new ActionFormData().title(title).body(body);
+        |  for (const label of buttons) form.button(label);
+        |  form.show(player).then((response) => {
+        |    if (response.canceled || response.selection === undefined) return;
+        |    for (const fn of menuHandlers[menu + ":" + (response.selection + 1)] ?? []) fn(player, player.dimension, player.location);
+        |  });
         |}
         |""".trimMargin()
 
@@ -299,6 +352,7 @@ object BehaviorCompiler {
                 "particle" -> "dimension.spawnParticle(${Js.str(a["particle"])}, { x: location.x, y: location.y + 1, z: location.z });"
                 "place_structure" -> "world.structureManager.place(${Js.str(a["structure"])}, dimension, { x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) });"
                 "run_command" -> "(player ?? dimension).runCommand(${Js.str(a["command"].removePrefix("/"))});"
+                "open_menu" -> "openMenu(player, ${Js.str(a["menu"])}, ${Js.str(a["title"])}, ${Js.str(a["body"])}, [${buttons(a).joinToString(", ") { Js.str(it) }}]);"
                 "wait" -> {
                     sb.append(indent).append("system.runTimeout(() => {\n")
                     sb.append(actions(list.drop(i + 1), "$indent  "))
@@ -390,6 +444,7 @@ object BehaviorCompiler {
                 |""".trimMargin()).append('\n')
             ""
         }
+        "menu_choice" -> "onMenuButton(${Js.str(t["menu"])}, ${num(t, "button").toInt()}, $fn);\n"
         else -> error("événement non traduisible : ${t.kind}")
     }
 }

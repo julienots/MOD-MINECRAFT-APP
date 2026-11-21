@@ -41,7 +41,7 @@ jobs:
       - name: Vérification des scripts générés (TypeScript contre l'API officielle @minecraft/server)
         run: |
           cd core/build/scripts-check
-          for versions in "2.8.0 2.1.0" "2.9.0 2.1.0" "2.10.0 2.2.0"; do
+          for versions in "2.8.0 2.1.0" "2.9.0 2.1.0" "2.10.0 2.2.0" "2.11.0 2.3.0"; do
             set -- $versions
             rm -rf node_modules package.json package-lock.json
             npm init -y > /dev/null

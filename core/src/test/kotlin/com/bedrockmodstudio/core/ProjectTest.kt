@@ -40,7 +40,7 @@ class ProjectTest {
         val bp = JsonParser.parseOrThrow(files.readText("behavior_pack/manifest.json")) as JsonObject
         val rp = JsonParser.parseOrThrow(files.readText("resource_pack/manifest.json")) as JsonObject
         assertEquals(2, bp["format_version"]?.asInt)
-        assertEquals(listOf(1, 26, 50), (bp.path("header", "min_engine_version") as JsonArray).items.map { it.asInt })
+        assertEquals(listOf(1, 26, 60), (bp.path("header", "min_engine_version") as JsonArray).items.map { it.asInt })
         val dep = (bp.arr("dependencies")!![0] as JsonObject)
         assertEquals(rp.path("header", "uuid")?.asString, dep.str("uuid"))
         val uuids = listOf(bp.path("header", "uuid"), (bp.arr("modules")!![0] as JsonObject)["uuid"],
@@ -227,7 +227,11 @@ class ProjectTest {
 
     @Test
     fun `profils de versions`() {
-        assertEquals("1.26.50", BedrockVersions.closestFor(listOf(1, 26, 60)).id)
+        assertEquals("1.26.60", BedrockVersions.closestFor(listOf(1, 26, 70)).id)
+        assertEquals("1.26.50", BedrockVersions.closestFor(listOf(1, 26, 55)).id)
+        assertEquals("1.26.60", BedrockVersions.DEFAULT.id)
+        assertEquals("2.11.0", BedrockVersions.V1_26_60.scriptServerVersion)
+        assertEquals("2.3.0", BedrockVersions.V1_26_60.scriptServerUiVersion)
         assertEquals("1.26.40", BedrockVersions.closestFor(listOf(1, 26, 45)).id)
         assertEquals("1.26.30", BedrockVersions.closestFor(listOf(1, 20, 0)).id)
         assertEquals("2.8.0", BedrockVersions.V1_26_30.scriptServerVersion)
