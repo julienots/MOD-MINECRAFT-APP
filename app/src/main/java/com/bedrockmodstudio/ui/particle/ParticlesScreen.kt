@@ -213,7 +213,7 @@ private fun ParticlePreview(spec: ParticleSpec) {
         val yaw = Math.toRadians(30.0); val pitch = Math.toRadians(15.0)
         fun proj(x: Double, y: Double, z: Double): Offset {
             val x1 = x * cos(yaw) - z * sin(yaw); val z1 = x * sin(yaw) + z * cos(yaw)
-            val y2 = y * cos(pitch) - z1 * sin(pitch)
+            val y2 = y * cos(pitch) + z1 * sin(pitch) // vue légèrement de dessus
             return Offset(size.width / 2 + (x1 * scale).toFloat(), size.height * 0.62f - (y2 * scale).toFloat())
         }
         // Repère : carré d'un bloc au sol sous l'émetteur.

@@ -682,4 +682,17 @@
     <string name="ride_approx">La position du passager dans l\'aperçu est une approximation calée sur le cochon et le cheval de Minecraft : vérifie en jeu et ajuste si besoin.</string>
     <string name="ride_save">Enregistrer les places</string>
     <string name="ride_test_hint">En jeu : fais apparaître la créature (œuf), touche-la (clic droit) pour monter, accroupis-toi pour descendre.</string>
+
+    <!-- Moteur 3D GPU -->
+    <string name="r3d_environment">Ambiance</string>
+    <string name="r3d_mode">Affichage</string>
+    <string name="r3d_light">Lumière et sol</string>
+    <string name="r3d_shadows">Ombres portées</string>
+    <string name="r3d_ground">Sol quadrillé</string>
+    <string name="r3d_sun_east">Soleil à l\'est</string>
+    <string name="r3d_sun_south">Soleil au sud</string>
+    <string name="r3d_sun_west">Soleil à l\'ouest</string>
+    <string name="r3d_sun_north">Soleil au nord</string>
+    <string name="r3d_photo">Photo HD de la vue</string>
+    <string name="r3d_photo_failed">Photo impossible : la vue 3D n\'est pas prête.</string>
 </resources>

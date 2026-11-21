@@ -24,6 +24,17 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import com.bedrockmodstudio.core.render.Bounds
+import com.bedrockmodstudio.core.render.GpuMesh
+import com.bedrockmodstudio.ui.model.gl.GlBatch
+import com.bedrockmodstudio.ui.model.gl.GlScene
+import com.bedrockmodstudio.ui.model.gl.GpuCapture
+import com.bedrockmodstudio.ui.model.gl.GpuSceneView
+import com.bedrockmodstudio.ui.model.gl.Render3D
+import com.bedrockmodstudio.ui.model.gl.Render3DToolbar
 import com.bedrockmodstudio.core.model3d.GeoModel
 import com.bedrockmodstudio.core.model3d.MeshBuilder
 import com.bedrockmodstudio.core.model3d.MeshFace
@@ -63,7 +74,8 @@ fun project(faces: List<MeshFace>, cam: OrbitCamera, w: Int, h: Int, lighting: B
     fun view(p: Vec3): Vec3 {
         val d = p - cam.target
         val x1 = d.x * cy - d.z * sy; val z1 = d.x * sy + d.z * cy
-        val y2 = d.y * cp - z1 * sp; val z2 = d.y * sp + z1 * cp
+        // Angle vertical positif = caméra au-dessus du modèle, qui regarde vers le bas.
+        val y2 = d.y * cp + z1 * sp; val z2 = -d.y * sp + z1 * cp
         return Vec3(x1, y2, z2 + cam.distance)
     }
     val f = minOf(w, h) * 1.1
@@ -137,7 +149,7 @@ fun OrbitCamera.screenDelta(dx: Float, dy: Float, viewSize: IntSize): Vec3 {
     val cp = cos(Math.toRadians(pitch.toDouble())); val sp = sin(Math.toRadians(pitch.toDouble()))
     val k = distance / (minOf(viewSize.width, viewSize.height).coerceAtLeast(1) * 1.1)
     val right = Vec3(cy, 0.0, -sy)
-    val up = Vec3(-sp * sy, cp, -sp * cy)
+    val up = Vec3(sp * sy, cp, sp * cy)
     return right * (dx * k) + up * (-dy * k)
 }
 
@@ -183,16 +195,38 @@ fun MeshViewport(
     revision: Any? = null,
     onDragObject: ((Vec3) -> Unit)? = null,
     onPaint: ((face: MeshFace, u: Double, v: Double) -> Unit)? = null,
+    /** Objets supplémentaires dessinés seulement par le moteur GPU (décor, autres créatures). */
+    extraBatches: List<GlBatch> = emptyList(),
+    capture: GpuCapture? = null,
+    showToolbar: Boolean = true,
     onTap: (MeshFace) -> Unit,
 ) {
+    val context = LocalContext.current
+    remember { Render3D.load(context) }
+    val gpu = Render3D.useGpu(context)
     var size by remember { mutableStateOf(IntSize.Zero) }
-    val projected = remember(faces, size, camera.yaw, camera.pitch, camera.distance, camera.target, lighting, lightAngle) {
-        if (size.width == 0) emptyList() else project(faces, camera, size.width, size.height, lighting, lightAngle)
+    val projected = remember(faces, size, camera.yaw, camera.pitch, camera.distance, camera.target, lighting, lightAngle, gpu) {
+        if (size.width == 0 || gpu) emptyList() else project(faces, camera, size.width, size.height, lighting, lightAngle)
     }
-    val frame = remember(projected, texture, selectionKey, size, faceColor, revision) {
-        if (size.width == 0) null else render(projected, texture, textureWidth, textureHeight, selected, faceColor, size)
+    val frame = remember(projected, texture, selectionKey, size, faceColor, revision, gpu) {
+        if (size.width == 0 || gpu) null else render(projected, texture, textureWidth, textureHeight, selected, faceColor, size)
     }
-    val currentProjected by rememberUpdatedState(projected)
+    // Moteur GPU : l'image vient d'OpenGL ; les touchers sont résolus par la projection logicielle (même caméra).
+    val hitCache = remember { arrayOfNulls<Pair<Any, List<Projected>>>(1) }
+    fun hits(): List<Projected> {
+        if (!gpu) return projected
+        val key = listOf(faces, size, camera.yaw, camera.pitch, camera.distance, camera.target)
+        hitCache[0]?.let { (k, v) -> if (k == key) return v }
+        return project(faces, camera, size.width, size.height, lighting, lightAngle).also { hitCache[0] = key to it }
+    }
+    val currentHits by rememberUpdatedState(::hits)
+    val vertices = remember(faces, texture, faceColor, selectionKey, gpu) {
+        if (!gpu) null else GpuMesh.pack(faces, textureWidth, textureHeight, textured = texture != null, color = faceColor, highlight = selected)
+    }
+    val anySelected = remember(faces, selectionKey, gpu) { gpu && faces.any(selected) }
+    val bounds = remember(faces, extraBatches, gpu) {
+        if (!gpu) null else extraBatches.fold(Bounds.of(faces)) { acc, b -> acc.union(b.bounds) }
+    }
     val currentTap by rememberUpdatedState(onTap)
     val currentDrag by rememberUpdatedState(onDragObject)
     val currentPaint by rememberUpdatedState(onPaint)
@@ -200,12 +234,22 @@ fun MeshViewport(
     val paintMode = onPaint != null
     fun paintAt(pos: Offset) {
         val paint = currentPaint ?: return
-        val hit = currentProjected.lastOrNull { inside(pos.x, pos.y, it.pts) } ?: return
+        val hit = currentHits().lastOrNull { inside(pos.x, pos.y, it.pts) } ?: return
         val uv = uvAt(hit, pos.x, pos.y) ?: return
         paint(hit.face, uv.first, uv.second)
     }
+    Box(modifier.onSizeChanged { size = it }) {
+    if (gpu && vertices != null && bounds != null) {
+        val scene = GlScene(
+            batches = listOf(GlBatch("main", vertices, texture, revision)) + extraBatches,
+            yaw = camera.yaw.toDouble(), pitch = camera.pitch.toDouble(), distance = camera.distance.toDouble(), target = camera.target,
+            bounds = bounds, environment = Render3D.environment, mode = Render3D.mode, shadows = Render3D.shadows && lighting,
+            ground = Render3D.ground, sunAzimuth = Render3D.sunAzimuth.toDouble() + lightAngle, animated = anySelected,
+        )
+        GpuSceneView(scene, Modifier.matchParentSize(), capture)
+    }
     Canvas(
-        modifier.testTag("model_viewport").onSizeChanged { size = it }.pointerInput(dragMode, paintMode) {
+        Modifier.matchParentSize().testTag("model_viewport").pointerInput(dragMode, paintMode) {
             awaitEachGesture {
                 val down = awaitFirstDown()
                 var moved = false
@@ -222,7 +266,8 @@ fun MeshViewport(
                         val pan = ev.calculatePan()
                         val k = camera.distance / 600.0
                         val yr = Math.toRadians(camera.yaw.toDouble())
-                        camera.target = camera.target + Vec3(-pan.x * k * cos(yr), pan.y * k, -pan.x * k * sin(yr))
+                        // Déplacement le long de l'axe « droite » de la vue (cos, 0, −sin) : le modèle suit les doigts.
+                        camera.target = camera.target + Vec3(-pan.x * k * cos(yr), pan.y * k, pan.x * k * sin(yr))
                     } else if (!multi) {
                         val p = pressed[0].position
                         val d = p - last
@@ -241,13 +286,15 @@ fun MeshViewport(
                 }
                 if (!moved && !paintMode) {
                     // Toucher sans glisser : sélection de la face la plus proche sous le doigt.
-                    val hit = currentProjected.lastOrNull { inside(down.position.x, down.position.y, it.pts) }
+                    val hit = currentHits().lastOrNull { inside(down.position.x, down.position.y, it.pts) }
                     if (hit != null) currentTap(hit.face)
                 }
             }
         },
     ) {
         frame?.let { drawImage(it.asImageBitmap(), Offset.Zero) }
+    }
+    if (gpu && showToolbar) Render3DToolbar(capture, Modifier.align(Alignment.TopEnd))
     }
 }
 
